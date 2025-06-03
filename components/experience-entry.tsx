@@ -38,7 +38,7 @@ export function ExperienceEntry({ title, company, dateRange, location, descripti
       {location && <p className="text-gray-500 text-sm mb-2">{location}</p>}
 
       {description && typeof description === "string" ? (
-        <p className="text-gray-700 mb-3">{description}</p>
+        <p className="text-gray-700 mb-3" dangerouslySetInnerHTML={{ __html: description }} />
       ) : (
         Array.isArray(description) &&
         description.length > 0 && (

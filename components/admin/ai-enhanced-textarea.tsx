@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { RiRobot2Fill } from "react-icons/ri";
 import { toast } from "@/components/ui/use-toast";
+import { SystemSettings } from "@/services/SystemSettings";
+import editorJsConfig from "@/data/editorjs-config";
+import EditorJsWrapper from "@/components/admin/editorjs-wrapper";
 
 interface AIEnhancedTextareaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -134,13 +137,19 @@ Respond with ONLY the improved text without any explanations or additional text.
   };
   return (
     <div className="relative">
-      <Textarea
-        className={`${className} pr-12 pb-10 resize-none`}
-        value={value}
-        onChange={onChange}
-        ref={ref}
-        {...props}
-      />
+      {SystemSettings.get("useWysiwyg")
+        ? <EditorJsWrapper
+            value={value}
+            onChange={onChange}
+            config={editorJsConfig}
+          />
+        : <Textarea
+            className={`${className} pr-12 pb-10 resize-none`}
+            value={value}
+            onChange={onChange}
+            ref={ref}
+            {...props}
+          />}
       <Button
         type="button"
         variant="ghost"

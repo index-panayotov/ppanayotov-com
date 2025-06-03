@@ -3,7 +3,7 @@
 
 const systemSettings = {
   blogEnable: false,
-  useWycwygEditor: true,
+  useWysiwyg: true,
   showContacts: true,
   showPrint: true
 };

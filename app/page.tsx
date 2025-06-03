@@ -150,9 +150,7 @@ export default function Home() {
 
         <section id="summary" className="mb-10 print:mb-6">
           <SectionHeading title="Summary" />
-          <p className="text-gray-700">
-            {userProfile.summary}
-          </p>
+          <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: userProfile.summary }} />
 
           <div className="print:hidden text-gray-700 mb-10 flex flex-wrap justify-center gap-2">
             {topSkills.map((tag, index) => <SkillTag key={index} name={tag} />)}
@@ -232,9 +230,7 @@ export default function Home() {
                   {edu.dateRange}
                 </span>
               </div>
-              <p className="text-gray-700">
-                {edu.degree}, {edu.field}
-              </p>
+              <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: `${edu.degree}, ${edu.field}` }} />
             </div>
           )}
         </section>
