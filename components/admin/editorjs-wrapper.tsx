@@ -62,7 +62,7 @@ const EditorJsWrapper: React.FC<EditorJsWrapperProps> = ({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [holderRef.current]);
+  }, []); // Run only once on mount
 
   return (
     <div ref={holderRef} className="min-h-[120px] border rounded bg-white" />

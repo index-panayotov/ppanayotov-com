@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { FiPlus, FiMinus } from "react-icons/fi"
 import { SkillTag } from "./skill-tag"
+import DOMPurify from 'dompurify';
 
 interface ExperienceEntryProps {
   title: string
@@ -38,7 +39,7 @@ export function ExperienceEntry({ title, company, dateRange, location, descripti
       {location && <p className="text-gray-500 text-sm mb-2">{location}</p>}
 
       {description && typeof description === "string" ? (
-        <p className="text-gray-700 mb-3" dangerouslySetInnerHTML={{ __html: description }} />
+        <p className="text-gray-700 mb-3" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description) }} />
       ) : (
         Array.isArray(description) &&
         description.length > 0 && (
