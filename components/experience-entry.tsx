@@ -14,6 +14,13 @@ interface ExperienceEntryProps {
   tags?: string[]
 }
 
+/**
+ * Renders a work experience entry with title, company, date range, optional location, description, and skill tags.
+ *
+ * Displays the description as sanitized HTML if provided as a string, or as a bullet list if provided as an array. Shows a limited number of skill tags by default, with the option to expand and view all tags. Includes accessibility features and print-specific rendering for skill tags and ATS compatibility.
+ *
+ * @remark The description prop, if a string, is rendered as sanitized HTML using `dangerouslySetInnerHTML`. Any HTML tags within the description will be interpreted and rendered accordingly.
+ */
 export function ExperienceEntry({ title, company, dateRange, location, description, tags = [] }: ExperienceEntryProps) {
   const [showAllTags, setShowAllTags] = useState(false)
   const initialTagCount = 5

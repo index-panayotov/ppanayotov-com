@@ -10,6 +10,13 @@ export const metadata = {
   description: `CV of ${userProfile.name}, ${userProfile.title} with expertise in software engineering and team management`,
 }
 
+/**
+ * Root layout component that wraps all pages with global styles and font.
+ *
+ * Renders the application's HTML structure, applies the Inter font, and ensures consistent layout and styling for all child components.
+ *
+ * @param children - The content to be rendered within the layout.
+ */
 export default function RootLayout({
   children,
 }: {

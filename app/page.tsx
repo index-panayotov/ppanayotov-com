@@ -21,6 +21,11 @@ import { getProfileImageUrl } from "@/lib/image-utils";
 import { SystemSettings } from "@/services/SystemSettings";
 import DOMPurify from 'dompurify';
 
+/**
+ * Renders the main CV webpage with responsive layout, print optimization, and dynamic content sections.
+ *
+ * Displays user profile information, summary, experience, skills, languages, education, certifications, and optionally contact details. Includes navigation, print-friendly formatting, and accessibility features. Content is data-driven and conditionally rendered based on system settings.
+ */
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
