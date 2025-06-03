@@ -18,7 +18,14 @@ import { experiences } from "@/data/cv-data";
 import { topSkills } from "@/data/topSkills";
 import { userProfile } from "@/data/user-profile";
 import { getProfileImageUrl } from "@/lib/image-utils";
+import { SystemSettings } from "@/services/SystemSettings";
+import DOMPurify from 'dompurify';
 
+/**
+ * Renders the main CV webpage with responsive layout, print optimization, and dynamic content sections.
+ *
+ * Displays user profile information, summary, experience, skills, languages, education, certifications, and optionally contact details. Includes navigation, print-friendly formatting, and accessibility features. Content is data-driven and conditionally rendered based on system settings.
+ */
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -85,19 +92,23 @@ export default function Home() {
               >
                 Certifications
               </Link>
-              <Link href="#contact" className="text-sm hover:text-gray-600">
-                Contact
-              </Link>
+              {SystemSettings.get("showContacts") && (
+                <Link href="#contact" className="text-sm hover:text-gray-600">
+                  Contact
+                </Link>
+              )}
             </div>
             <div className="flex items-center space-x-2">
-              <button
-                onClick={handlePrint}
-                className="p-2 border border-gray-300 rounded flex items-center text-sm"
-                aria-label="Print CV"
-              >
-                <FiPrinter size={16} className="mr-1" />
-                <span className="hidden sm:inline">Print CV</span>
-              </button>
+              {SystemSettings.get("showPrint") && (
+                <button
+                  onClick={handlePrint}
+                  className="p-2 border border-gray-300 rounded flex items-center text-sm"
+                  aria-label="Print CV"
+                >
+                  <FiPrinter size={16} className="mr-1" />
+                  <span className="hidden sm:inline">Print CV</span>
+                </button>
+              )}
               <button
                 className="p-2 border border-gray-300 rounded md:hidden"
                 onClick={toggleMobileMenu}
@@ -145,9 +156,7 @@ export default function Home() {
 
         <section id="summary" className="mb-10 print:mb-6">
           <SectionHeading title="Summary" />
-          <p className="text-gray-700">
-            {userProfile.summary}
-          </p>
+          <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userProfile.summary) }} />
 
           <div className="print:hidden text-gray-700 mb-10 flex flex-wrap justify-center gap-2">
             {topSkills.map((tag, index) => <SkillTag key={index} name={tag} />)}
@@ -227,9 +236,7 @@ export default function Home() {
                   {edu.dateRange}
                 </span>
               </div>
-              <p className="text-gray-700">
-                {edu.degree}, {edu.field}
-              </p>
+              <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(`${edu.degree}, ${edu.field}`) }} />
             </div>
           )}
         </section>
@@ -253,58 +260,61 @@ export default function Home() {
           </ul>
         </section>
 
-        <section id="contact" className="print:mb-6">
-          <SectionHeading title="Contact" />
-          <div className="space-y-2 print:flex print:space-y-0 print:space-x-6">
-            <div className="flex items-center">
-              <FiMail className="w-5 h-5 mr-2 print:w-4 print:h-4" />
-              <span>
-                Email:{" "}
-                <img
-                  src={`/api/text-image?fieldType=email&size=24&color=%23222&bg=transparent`}
-                  alt="Email address"
-                  style={{
-                    display: "inline",
-                    verticalAlign: "middle",
-                    height: 24
-                  }}
-                  draggable={false}
-                />
-              </span>
+        {/* Contact Section - show/hide based on system settings */}
+        {SystemSettings.get("showContacts") && (
+          <section id="contact" className="print:mb-6">
+            <SectionHeading title="Contact" />
+            <div className="space-y-2 print:flex print:space-y-0 print:space-x-6">
+              <div className="flex items-center">
+                <FiMail className="w-5 h-5 mr-2 print:w-4 print:h-4" />
+                <span>
+                  Email:{" "}
+                  <img
+                    src={`/api/text-image?fieldType=email&size=24&color=%23222&bg=transparent`}
+                    alt="Email address"
+                    style={{
+                      display: "inline",
+                      verticalAlign: "middle",
+                      height: 24
+                    }}
+                    draggable={false}
+                  />
+                </span>
+              </div>
+              <div className="flex items-center">
+                <FiPhone className="w-5 h-5 mr-2 print:w-4 print:h-4" />
+                <span>
+                  Phone:{" "}
+                  <img
+                    src={`/api/text-image?fieldType=phone&size=24&color=%23222&bg=transparent`}
+                    alt="Phone number"
+                    style={{
+                      display: "inline",
+                      verticalAlign: "middle",
+                      height: 24
+                    }}
+                    draggable={false}
+                  />
+                </span>
+              </div>
+              <div className="flex items-center">
+                <FiLinkedin className="w-5 h-5 mr-2 print:w-4 print:h-4" />
+                <span>
+                  LinkedIn:{" "}
+                  <a 
+                    href={`https://${userProfile.linkedin?.replace(/^https?:\/\//i, '') || 'www.linkedin.com/in/preslav-panayotov'}`}
+                    target="_blank" 
+                    title={`LinkedIn Profile of ${userProfile.name}`}
+                    rel="follow noopener noreferrer external"
+                    className="hover:underline"
+                  >
+                    {userProfile.linkedin?.replace(/^https?:\/\//i, '') || 'www.linkedin.com/in/preslav-panayotov'}
+                  </a>
+                </span>
+              </div>
             </div>
-            <div className="flex items-center">
-              <FiPhone className="w-5 h-5 mr-2 print:w-4 print:h-4" />
-              <span>
-                Phone:{" "}
-                <img
-                  src={`/api/text-image?fieldType=phone&size=24&color=%23222&bg=transparent`}
-                  alt="Phone number"
-                  style={{
-                    display: "inline",
-                    verticalAlign: "middle",
-                    height: 24
-                  }}
-                  draggable={false}
-                />
-              </span>
-            </div>
-            <div className="flex items-center">
-              <FiLinkedin className="w-5 h-5 mr-2 print:w-4 print:h-4" />
-              <span>
-                LinkedIn:{" "}
-                <a 
-                  href={`https://${userProfile.linkedin?.replace(/^https?:\/\//i, '') || 'www.linkedin.com/in/preslav-panayotov'}`}
-                  target="_blank" 
-                  title={`LinkedIn Profile of ${userProfile.name}`}
-                  rel="follow noopener noreferrer external"
-                  className="hover:underline"
-                >
-                  {userProfile.linkedin?.replace(/^https?:\/\//i, '') || 'www.linkedin.com/in/preslav-panayotov'}
-                </a>
-              </span>
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
       </main>
 
       <footer className="container mx-auto px-4 py-6 text-center text-gray-500 text-sm print:hidden">

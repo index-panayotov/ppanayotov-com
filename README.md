@@ -38,6 +38,8 @@ Planned features under development:
 
 - [x] Add image upload support with optimization for web and PDF
 - [x] Add AI assistance to improve and polish CV text
+- [x] Add settings file
+- [x] Add schema.org for the home page
 - [ ] Expand contact and social media link options
 - [ ] Introduce multiple visual templates for printable CVs
 - [ ] Add support for multiple languages/localization
@@ -157,7 +159,7 @@ Please fork the repository and open a pull request with your improvements. Donâ€
 
 ## ðŸ“„ License
 
-This project is open-source and available under the [MIT License](LICENSE).
+This project is open-source and available under the [MIT License](./LICENSE).
 
 ---
 
