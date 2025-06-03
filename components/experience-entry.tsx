@@ -13,6 +13,18 @@ interface ExperienceEntryProps {
   tags?: string[]
 }
 
+/**
+ * Renders a work experience entry with title, company, date range, optional location, description, and skill tags.
+ *
+ * Displays the experience details with responsive layout and conditional rendering for descriptions and tags. Skill tags are initially limited to five with an option to expand or collapse the full list. On print, all tags are shown, and a hidden text block is included for ATS compatibility.
+ *
+ * @param title - The job title or position.
+ * @param company - The company or organization name.
+ * @param dateRange - The date range of the experience.
+ * @param location - The location of the experience (optional).
+ * @param description - The description of the role, either as a string (rendered as HTML) or an array of bullet points (optional).
+ * @param tags - An array of skill tags associated with the experience (optional).
+ */
 export function ExperienceEntry({ title, company, dateRange, location, description, tags = [] }: ExperienceEntryProps) {
   const [showAllTags, setShowAllTags] = useState(false)
   const initialTagCount = 5

@@ -20,6 +20,11 @@ import { userProfile } from "@/data/user-profile";
 import { getProfileImageUrl } from "@/lib/image-utils";
 import { SystemSettings } from "@/services/SystemSettings";
 
+/**
+ * Renders the main CV/resume page with profile, summary, experience, skills, education, certifications, languages, and optional contact information.
+ *
+ * Includes responsive navigation, print optimization, and accessibility features. Sections and navigation links are conditionally displayed based on system settings.
+ */
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

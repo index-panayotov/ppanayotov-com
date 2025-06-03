@@ -3,6 +3,13 @@
 
 import { userProfile } from "@/data/user-profile";
 
+/**
+ * Generates a schema.org "Person" structured data object for a contact page.
+ *
+ * The returned object includes fields such as name, job title, email, telephone, LinkedIn URL (if available), and address, populated from the user profile.
+ *
+ * @returns A JSON-LD object representing a person's contact information in schema.org format.
+ */
 export function getPersonContactSchema() {
   return {
     "@context": "https://schema.org",
