@@ -14,11 +14,11 @@ export const userProfile: UserProfile = {
   "languages": [
     {
       "name": "Bulgarian",
-      "proficiency": "Professional"
+      "proficiency": "Native"
     },
     {
       "name": "English",
-      "proficiency": "Native"
+      "proficiency": "Professional"
     }
   ],
   "education": [

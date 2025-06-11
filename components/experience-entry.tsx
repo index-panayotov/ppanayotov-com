@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { FiPlus, FiMinus } from "react-icons/fi"
 import { SkillTag } from "./skill-tag"
-import DOMPurify from 'dompurify';
+import DOMPurify from 'isomorphic-dompurify';
 
 interface ExperienceEntryProps {
   title: string
@@ -25,6 +25,11 @@ export function ExperienceEntry({ title, company, dateRange, location, descripti
   const [showAllTags, setShowAllTags] = useState(false)
   const initialTagCount = 5
   const hasMoreTags = tags.length > initialTagCount
+  
+  // Sanitize function that works in both server and client environments
+  const sanitize = (html: string): string => {
+    return DOMPurify.sanitize(html);
+  };
 
   const toggleShowAllTags = () => {
     setShowAllTags(!showAllTags)
@@ -46,7 +51,7 @@ export function ExperienceEntry({ title, company, dateRange, location, descripti
       {location && <p className="text-gray-500 text-sm mb-2">{location}</p>}
 
       {description && typeof description === "string" ? (
-        <p className="text-gray-700 mb-3" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description) }} />
+        <p className="text-gray-700 mb-3" dangerouslySetInnerHTML={{ __html: sanitize(description) }} />
       ) : (
         Array.isArray(description) &&
         description.length > 0 && (

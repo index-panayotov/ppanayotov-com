@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -20,14 +20,38 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
-import ExperiencesTab from "@/components/admin/experiences-tab";
-import TopSkillsTab from "@/components/admin/top-skills-tab";
-import ProfileDataTab from "@/components/admin/profile-data-tab";
+import dynamic from "next/dynamic";
 import * as handlers from "./handlers";
-import ExperienceDialog from "@/components/admin/experience-dialog";
-import LanguageDialog from "@/components/admin/language-dialog";
-import EducationDialog from "@/components/admin/education-dialog";
-import CertificationDialog from "@/components/admin/certification-dialog";
+
+// Dynamically import components that use browser-only APIs
+const ExperiencesTab = dynamic(
+  () => import("@/components/admin/experiences-tab"),
+  { ssr: false }
+);
+const TopSkillsTab = dynamic(
+  () => import("@/components/admin/top-skills-tab"),
+  { ssr: false }
+);
+const ProfileDataTab = dynamic(
+  () => import("@/components/admin/profile-data-tab"),
+  { ssr: false }
+);
+const ExperienceDialog = dynamic(
+  () => import("@/components/admin/experience-dialog"),
+  { ssr: false }
+);
+const LanguageDialog = dynamic(
+  () => import("@/components/admin/language-dialog"),
+  { ssr: false }
+);
+const EducationDialog = dynamic(
+  () => import("@/components/admin/education-dialog"),
+  { ssr: false }
+);
+const CertificationDialog = dynamic(
+  () => import("@/components/admin/certification-dialog"),
+  { ssr: false }
+);
 
 export default function AdminPage() {
   const [experiences, setExperiences] = useState<ExperienceEntry[]>([]);
@@ -49,6 +73,9 @@ export default function AdminPage() {
   const [isDev, setIsDev] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Use a constant for client detection when needed
+  const isClient = typeof window !== "undefined";
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState<"visual" | "json">("visual");
   const [

@@ -8,7 +8,15 @@ import { RiRobot2Fill } from "react-icons/ri";
 import { toast } from "@/components/ui/use-toast";
 import { SystemSettings } from "@/services/SystemSettings";
 import editorJsConfig from "@/data/editorjs-config";
-import EditorJsWrapper from "@/components/admin/editorjs-wrapper";
+import dynamic from "next/dynamic";
+
+// Import EditorJS wrapper with no SSR
+const EditorJsWrapper = dynamic(
+  () => import("@/components/admin/editorjs-wrapper"),
+  {
+    ssr: false
+  }
+);
 
 interface AIEnhancedTextareaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {

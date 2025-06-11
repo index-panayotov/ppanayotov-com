@@ -19,7 +19,7 @@ import { topSkills } from "@/data/topSkills";
 import { userProfile } from "@/data/user-profile";
 import { getProfileImageUrl } from "@/lib/image-utils";
 import { SystemSettings } from "@/services/SystemSettings";
-import DOMPurify from 'dompurify';
+import DOMPurify from 'isomorphic-dompurify';
 
 /**
  * Renders the main CV webpage with responsive layout, print optimization, and dynamic content sections.
@@ -28,6 +28,11 @@ import DOMPurify from 'dompurify';
  */
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // Sanitize function that works in both server and client environments
+  const sanitize = (html: string): string => {
+    return DOMPurify.sanitize(html);
+  };
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -156,7 +161,7 @@ export default function Home() {
 
         <section id="summary" className="mb-10 print:mb-6">
           <SectionHeading title="Summary" />
-          <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userProfile.summary) }} />
+          <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: sanitize(userProfile.summary) }} />
 
           <div className="print:hidden text-gray-700 mb-10 flex flex-wrap justify-center gap-2">
             {topSkills.map((tag, index) => <SkillTag key={index} name={tag} />)}
@@ -236,7 +241,7 @@ export default function Home() {
                   {edu.dateRange}
                 </span>
               </div>
-              <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(`${edu.degree}, ${edu.field}`) }} />
+              <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: sanitize(`${edu.degree}, ${edu.field}`) }} />
             </div>
           )}
         </section>

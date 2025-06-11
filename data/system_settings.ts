@@ -5,7 +5,9 @@ const systemSettings = {
   blogEnable: false,
   useWysiwyg: true,
   showContacts: true,
-  showPrint: true
+  showPrint: true,
+  gtagCode: "G-NR6KNX7RM6",
+  gtagEnabled: true
 };
 
 export default systemSettings;
