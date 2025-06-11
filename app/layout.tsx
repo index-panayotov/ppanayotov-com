@@ -29,12 +29,16 @@ export default function RootLayout({
       <head>
           {systemSettings.gtagEnabled && (
           <>
-          {`<script async src="https://www.googletagmanager.com/gtag/js?id=${systemSettings.gtagCode} " /><script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments)};}
-            gtag('js', new Date());
-            gtag('config', '${systemSettings.gtagCode} ');
-          </script>`}
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6KNX7RM6"></script>
+<script dangerouslySetInnerHTML={{
+  __html: `
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-NR6KNX7RM6');
+  `
+}} />
           </>)}
       </head>
       <body className={`${inter.className}`}>{children}</body>
