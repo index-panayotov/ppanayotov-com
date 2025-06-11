@@ -73,12 +73,9 @@ export default function AdminPage() {
   const [isDev, setIsDev] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isClient, setIsClient] = useState(false);
 
-  // We need to verify we're in a browser environment
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  // Use a constant for client detection when needed
+  const isClient = typeof window !== "undefined";
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState<"visual" | "json">("visual");
   const [

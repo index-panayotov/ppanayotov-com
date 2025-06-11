@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { MobileMenu } from "@/components/mobile-menu";
 import {
   FiMail,
@@ -19,7 +19,7 @@ import { topSkills } from "@/data/topSkills";
 import { userProfile } from "@/data/user-profile";
 import { getProfileImageUrl } from "@/lib/image-utils";
 import { SystemSettings } from "@/services/SystemSettings";
-import DOMPurify from 'dompurify';
+import DOMPurify from 'isomorphic-dompurify';
 
 /**
  * Renders the main CV webpage with responsive layout, print optimization, and dynamic content sections.
@@ -28,18 +28,10 @@ import DOMPurify from 'dompurify';
  */
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isClient, setIsClient] = useState(false);
   
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-  
-  // Safe sanitize function for client-side only rendering
+  // Sanitize function that works in both server and client environments
   const sanitize = (html: string): string => {
-    if (typeof window !== 'undefined' && isClient) {
-      return DOMPurify.sanitize(html);
-    }
-    return html;
+    return DOMPurify.sanitize(html);
   };
 
   const toggleMobileMenu = () => {

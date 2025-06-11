@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { FiPlus, FiMinus } from "react-icons/fi"
 import { SkillTag } from "./skill-tag"
-import DOMPurify from 'dompurify';
+import DOMPurify from 'isomorphic-dompurify';
 
 interface ExperienceEntryProps {
   title: string
@@ -23,20 +23,12 @@ interface ExperienceEntryProps {
  */
 export function ExperienceEntry({ title, company, dateRange, location, description, tags = [] }: ExperienceEntryProps) {
   const [showAllTags, setShowAllTags] = useState(false)
-  const [isClient, setIsClient] = useState(false)
   const initialTagCount = 5
   const hasMoreTags = tags.length > initialTagCount
-
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
   
-  // Safe sanitize function for client-side only rendering
+  // Sanitize function that works in both server and client environments
   const sanitize = (html: string): string => {
-    if (typeof window !== 'undefined' && isClient) {
-      return DOMPurify.sanitize(html);
-    }
-    return html;
+    return DOMPurify.sanitize(html);
   };
 
   const toggleShowAllTags = () => {
