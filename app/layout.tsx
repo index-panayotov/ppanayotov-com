@@ -26,6 +26,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth md:scroll-pt-20">
+      <head>
+          {systemSettings.gtagEnabled && (
+        <GoogleAnalytics gaId={systemSettings.gtagCode} />)}
+      </head>
       <body className={`${inter.className}`}>{children}</body>
       {        /* Google Analytics integration 
       
@@ -40,9 +44,7 @@ export default function RootLayout({
 </script>
       
       */}
-            {systemSettings.gtagEnabled && (
-        <GoogleAnalytics gaId={systemSettings.gtagCode} />
-      )}
+          
     </html>
   )
 }
