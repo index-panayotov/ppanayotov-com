@@ -26,7 +26,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth md:scroll-pt-20">
-      {systemSettings.gtagEnabled && (<GoogleTagManager gtmId="G-NR6KNX7RM6" />)}
+      {systemSettings.gtagEnabled && (<GoogleTagManager gtmId={`${systemSettings.gtagCode}`} />)}
       <body className={`${inter.className}`}>{children}</body>
     </html>
   )
