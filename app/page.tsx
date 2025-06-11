@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MobileMenu } from "@/components/mobile-menu";
 import {
   FiMail,
@@ -28,6 +28,19 @@ import DOMPurify from 'dompurify';
  */
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // Safe sanitize function for client-side only rendering
+  const sanitize = (html: string): string => {
+    if (typeof window !== 'undefined' && isClient) {
+      return DOMPurify.sanitize(html);
+    }
+    return html;
+  };
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -156,7 +169,7 @@ export default function Home() {
 
         <section id="summary" className="mb-10 print:mb-6">
           <SectionHeading title="Summary" />
-          <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userProfile.summary) }} />
+          <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: sanitize(userProfile.summary) }} />
 
           <div className="print:hidden text-gray-700 mb-10 flex flex-wrap justify-center gap-2">
             {topSkills.map((tag, index) => <SkillTag key={index} name={tag} />)}
@@ -236,7 +249,7 @@ export default function Home() {
                   {edu.dateRange}
                 </span>
               </div>
-              <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(`${edu.degree}, ${edu.field}`) }} />
+              <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: sanitize(`${edu.degree}, ${edu.field}`) }} />
             </div>
           )}
         </section>

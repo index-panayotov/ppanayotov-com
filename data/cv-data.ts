@@ -191,7 +191,7 @@ export const experiences: ExperienceEntry[] = [
     "title": "Web Developer",
     "company": "BSBM",
     "dateRange": "July 2014 - June 2015",
-    "location": "София",
+    "location": "Sofia",
     "description": "I collaborated with clients of Signature Digital Agency, developing new web applications and maintaining existing ones to meet evolving business needs. My work primarily involved backend and frontend development using PHP, MySQL, PostgreSQL, nginx, Apache, and extJS.\n\nNotably, the BSBM project I contributed to later evolved into CareerTown, allowing me to continue working on the platform’s growth and functionality as part of the core development team.",
     "tags": [
       "Software Quality",
@@ -228,8 +228,8 @@ export const experiences: ExperienceEntry[] = [
     ]
   },
   {
-    "title": "Free Lancer",
-    "company": "",
+    "title": "Freelancer",
+    "company": "no company",
     "dateRange": "2006 - 2015",
     "description": "During this time, I worked as a freelancer, taking on a variety of projects. I gained hands-on experience in full-stack development, working with different clients, solving problems, and delivering value through clean, maintainable code.",
     "tags": [
@@ -244,6 +244,7 @@ export const experiences: ExperienceEntry[] = [
       "Postman API",
       "ESLint",
       "Coding Standards"
-    ]
+    ],
+    "location": "Sofia"
   }
 ];
