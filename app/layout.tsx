@@ -3,7 +3,7 @@ import "./globals.css"
 import { Inter } from "next/font/google"
 import { userProfile } from "@/data/user-profile"
 import systemSettings from "@/data/system_settings"
-import { GoogleAnalytics } from '@next/third-parties/google'
+import { GoogleTagManager } from '@next/third-parties/google'
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -26,36 +26,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth md:scroll-pt-20">
-      <head>
-          {systemSettings.gtagEnabled && (
-          <>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6KNX7RM6"></script>
-<script dangerouslySetInnerHTML={{
-  __html: `
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-NR6KNX7RM6');
-  `
-}} />
-          </>)}
-      </head>
+      {systemSettings.gtagEnabled && (<GoogleTagManager gtmId="G-NR6KNX7RM6" />)}
       <body className={`${inter.className}`}>{children}</body>
-      {        /* Google Analytics integration 
-      
-      <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR6KNX7RM6"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-NR6KNX7RM6');
-</script>
-      
-      */}
-          
     </html>
   )
 }
