@@ -13,6 +13,13 @@ export function TypingEffect({ text, speed = 100, className = "" }: TypingEffect
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isComplete, setIsComplete] = useState(false)
 
+  // Reset state when text prop changes
+  useEffect(() => {
+    setDisplayText('')
+    setCurrentIndex(0)
+    setIsComplete(false)
+  }, [text])
+
   useEffect(() => {
     if (currentIndex < text.length) {
       const timeout = setTimeout(() => {

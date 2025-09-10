@@ -137,13 +137,13 @@ export default function Home() {
 
       <main id="main-content">
         {/* Hero Section */}
-        <section id="hero" className="relative py-20 px-4 overflow-hidden" role="main" aria-label="Professional profile and introduction">
+        <section id="hero" className="relative py-20 px-4 overflow-hidden" aria-labelledby="hero-heading">
           <div className="absolute inset-0 cv-hero-gradient"></div>
           <div className="absolute inset-0 bg-black/5"></div>
           <div className="relative container mx-auto max-w-4xl">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
               <div className="flex-1 text-center lg:text-left">
-                <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">
+                <h1 id="hero-heading" className="text-4xl lg:text-5xl font-bold text-white mb-4">
                   {userProfile.name}
                 </h1>
                 <h2 className="text-xl lg:text-2xl text-blue-100 mb-6">
@@ -209,9 +209,9 @@ export default function Home() {
 
         <div className="container mx-auto px-4 max-w-4xl">
 
-        <section id="summary" className="cv-section">
-          <SectionHeading title="Summary" subtitle="Professional overview and core competencies" />
-          <p className="text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitize(userProfile.summary) }} />
+        <section id="summary" className="cv-section" aria-labelledby="summary-heading">
+          <SectionHeading id="summary-heading" title="Summary" subtitle="Professional overview and core competencies" />
+          <p className="text-slate-700 leading-relaxed">{userProfile.summary}</p>
 
           <div className="mt-6">
             <h3 className="text-lg font-semibold text-slate-800 mb-3">Top Skills</h3>
@@ -293,7 +293,7 @@ export default function Home() {
         </section>
 
         <section id="education" className="cv-section" role="region" aria-labelledby="education-heading">
-          <SectionHeading title="Education" subtitle="Academic background and qualifications" />
+          <SectionHeading id="education-heading" title="Education" subtitle="Academic background and qualifications" />
           <div className="space-y-4">
             {userProfile.education.map((edu, index) =>
               <div key={index} className="cv-card education-item">
@@ -305,7 +305,7 @@ export default function Home() {
                     {edu.dateRange}
                   </span>
                 </div>
-                <p className="text-slate-700" dangerouslySetInnerHTML={{ __html: sanitize(`${edu.degree}, ${edu.field}`) }} />
+                <p className="text-slate-700">{`${edu.degree}, ${edu.field}`}</p>
               </div>
             )}
           </div>

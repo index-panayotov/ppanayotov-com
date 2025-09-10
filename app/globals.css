@@ -237,7 +237,7 @@
   * {
     font-family: Arial, Helvetica, sans-serif !important;
     -webkit-print-color-adjust: exact !important;
-    color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   body {
@@ -321,11 +321,11 @@
   }
 
   /* Ensure all content is visible and structured for ATS */
-  .print\\:block {
+  .print\:block {
     display: block !important;
   }
 
-  .print\\:inline {
+  .print\:inline {
     display: inline !important;
   }
 

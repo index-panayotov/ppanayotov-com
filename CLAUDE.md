@@ -63,8 +63,9 @@ This is a **database-less Next.js personal CV website** with a secure admin pane
 
 **File Management:**
 - `/app/api/upload/route.ts` - Image upload with Sharp optimization
-- `/app/api/text-image/route.ts` - AI text-to-image generation
-- Automatic image optimization for web (400x400 WebP) and PDF (200x200 WebP)
+- `/app/api/text-image/route.ts` - Contact protection via text-to-image generation
+- `/app/sitemap.xml/route.ts` - Dynamic SEO sitemap generation from data files
+- Automatic image optimization for web (400x400 WebP)
 
 ### Component Architecture
 
@@ -222,6 +223,34 @@ OPENROUTER_MODEL=openai/gpt-4.1-nano
 
 ⚠️ **CRITICAL**: Email must remain non-clickable. Never add `mailto:` links or clickable contact info.
 
+### SEO & Sitemap System
+**Dynamic Sitemap Generation:**
+- **Route**: `/app/sitemap.xml/route.ts` - Next.js App Router dynamic XML generation
+- **Data-Driven**: Pulls content from `/data/` folder files for SEO optimization
+- **Professional Keywords**: Extracts skills and experience tags for search optimization
+- **File Timestamps**: Uses actual file modification dates for `lastmod` values
+- **Feature-Aware**: Conditionally includes sections based on `system_settings.ts`
+- **Cache Optimized**: 24-hour cache headers for performance
+
+**SEO Implementation**:
+```typescript
+// Professional keywords extraction from data
+const keywords = [...experienceKeywords, ...topSkills];
+
+// Dynamic URLs with priorities
+const urls = [
+  { loc: '/', priority: '1.0', changefreq: 'monthly' },
+  { loc: '/#experience', priority: '0.9', changefreq: 'quarterly' },
+  { loc: '/#skills', priority: '0.8', changefreq: 'quarterly' }
+];
+```
+
+**SEO Benefits**:
+- Professional profile indexing with location (Sofia, Bulgaria)
+- Technical skills visibility for relevant searches
+- Experience-based keyword optimization
+- Structured CV section discovery
+
 ### Data Integrity Improvements
 **Eliminated All Hardcoded Fallbacks:**
 - **Removed Hardcoded Values**: No `"preslav.panayotov@gmail.com"` or `"www.linkedin.com/in/preslav-panayotov"` anywhere
@@ -264,6 +293,7 @@ const systemSettings = {
 - Image upload with web optimization
 - Modern responsive design with animations
 - Google Tag Manager integration
+- **Dynamic SEO sitemap** (NEW) - Auto-generated from data files
 
 🚫 **Disabled Features:**
 - Print/PDF functionality (completely removed)
@@ -303,6 +333,7 @@ const systemSettings = {
 - Implement proper form validation with zod schemas
 - Test image upload functionality across different file types
 - **RESPECT** contact protection constraints
+- **SEO UPDATES**: When adding new sections, update sitemap route accordingly
 
 ### Code Quality
 - Follow existing component patterns and naming conventions
@@ -326,3 +357,23 @@ const systemSettings = {
 - Mobile-first approach with touch-friendly targets
 - Optimize typography scales for different screen sizes
 - Use modern CSS Grid and Flexbox patterns
+
+### SEO & Sitemap Management
+**Sitemap Maintenance:**
+- **Auto-Generation**: Sitemap updates automatically when data files change
+- **Professional Keywords**: Extracted from experience tags and skills for SEO
+- **Priority Structure**: Homepage (1.0) > Experience (0.9) > Skills (0.8) > Other sections
+- **Cache Strategy**: 24-hour cache for performance, refreshes daily
+- **Validation**: Test sitemap XML at `/sitemap.xml` after data changes
+
+**When Updating Data:**
+- Experience changes automatically update sitemap lastmod dates
+- New skills automatically included in sitemap keywords
+- System settings changes affect sitemap URL inclusion
+- File timestamps drive sitemap freshness indicators
+
+**SEO Best Practices:**
+- Professional keywords from actual experience and skills
+- Location-based optimization (Sofia, Bulgaria)
+- Technical expertise visibility for relevant searches
+- Structured CV section indexing for better discoverability

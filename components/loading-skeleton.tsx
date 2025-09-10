@@ -37,6 +37,7 @@ export function LoadingSkeleton() {
           </div>
         ))}
       </div>
+      </div>
     </div>
   )
 }

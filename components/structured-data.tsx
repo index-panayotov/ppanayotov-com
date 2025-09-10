@@ -5,13 +5,16 @@ export function StructuredData() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Person",
+    "@id": "https://www.ppanayotov.com/#person",
     "name": userProfile.name,
     "jobTitle": userProfile.title,
+    "url": "https://www.ppanayotov.com",
+    "image": userProfile.profileImage,
     "address": {
       "@type": "PostalAddress",
       "addressLocality": userProfile.location
     },
-    "email": userProfile.email,
+    "email": `mailto:${userProfile.email}`,
     "telephone": userProfile.phone,
     "sameAs": userProfile.linkedin ? [
       `https://${userProfile.linkedin.replace(/^https?:\/\//i, '')}`
@@ -29,11 +32,8 @@ export function StructuredData() {
   };
 
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{
-        __html: JSON.stringify(structuredData)
-      }}
-    />
+    <script type="application/ld+json">
+      {JSON.stringify(structuredData)}
+    </script>
   );
 }
