@@ -11,69 +11,279 @@
   --card-foreground: 0 0% 3.9%;
   --popover: 0 0% 100%;
   --popover-foreground: 0 0% 3.9%;
-  --primary: 0 0% 9%;
+  --primary: 220 70% 50%;
   --primary-foreground: 0 0% 98%;
-  --secondary: 0 0% 96.1%;
-  --secondary-foreground: 0 0% 9%;
-  --muted: 0 0% 96.1%;
-  --muted-foreground: 0 0% 45.1%;
-  --accent: 0 0% 96.1%;
-  --accent-foreground: 0 0% 9%;
+  --secondary: 210 40% 95%;
+  --secondary-foreground: 220 70% 30%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 216 100% 50%;
+  --accent-foreground: 0 0% 98%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 89.8%;
-  --input: 0 0% 89.8%;
-  --ring: 0 0% 3.9%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 220 70% 50%;
   --radius: 0.5rem;
+  
+  /* Custom CV colors - Professional & Subtle */
+  --cv-hero-gradient-from: 220 30% 25%;
+  --cv-hero-gradient-to: 220 35% 35%;
+  --cv-section-bg: 210 20% 98%;
+  --cv-card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --cv-skill-primary: 220 30% 30%;
+  --cv-skill-secondary: 210 20% 96%;
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
   body {
     color: rgb(var(--foreground-rgb));
     background: rgb(var(--background-rgb));
     @apply bg-background text-foreground;
   }
   h1 {
-    @apply text-2xl font-bold;
+    @apply text-3xl font-bold tracking-tight;
   }
   h2 {
-    @apply text-xl font-bold;
+    @apply text-2xl font-bold tracking-tight;
   }
   h3 {
-    @apply text-lg font-semibold;
+    @apply text-xl font-semibold tracking-tight;
   }
+}
+
+@layer components {
+  .cv-hero-gradient {
+    background: linear-gradient(135deg, hsl(var(--cv-hero-gradient-from)), hsl(var(--cv-hero-gradient-to)));
+  }
+  
+  .cv-section {
+    @apply bg-gradient-to-br from-slate-50 to-blue-50/30 border border-slate-200/50 rounded-lg p-6 mb-8 backdrop-blur-sm print-reset print:mb-6 transition-all duration-500 ease-in-out;
+    box-shadow: var(--cv-card-shadow);
+    animation: fadeInUp 0.6s ease-out;
+  }
+  
+  .cv-card {
+    @apply bg-white/80 backdrop-blur-sm border border-slate-200/50 rounded-lg p-6 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] print-reset;
+    animation: fadeInUp 0.8s ease-out;
+  }
+  
+  .cv-skill-tag {
+    @apply inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-slate-100 to-slate-50 text-slate-700 border border-slate-300/50 rounded-full text-sm font-medium transition-all duration-200 hover:shadow-md hover:scale-105 hover:bg-gradient-to-r hover:from-slate-200 hover:to-slate-100;
+  }
+  
+  .cv-nav-link {
+    @apply relative text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors duration-200;
+  }
+  
+  .cv-nav-link::after {
+    content: '';
+    @apply absolute -bottom-1 left-0 w-0 h-0.5 bg-slate-800 transition-all duration-200;
+  }
+  
+  .cv-nav-link:hover::after {
+    @apply w-full;
+  }
+  
+  .cv-button-primary {
+    @apply inline-flex items-center px-4 py-2 bg-gradient-to-r from-slate-700 to-slate-800 text-white font-medium rounded-lg transition-all duration-200 hover:shadow-lg hover:scale-105 hover:from-slate-800 hover:to-slate-900 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2;
+  }
+  
+  .cv-button-secondary {
+    @apply inline-flex items-center px-4 py-2 bg-white/80 text-slate-700 font-medium border border-slate-300 rounded-lg transition-all duration-200 hover:bg-slate-50 hover:shadow-md focus:ring-2 focus:ring-slate-500 focus:ring-offset-2;
+  }
+  
+  /* New utility classes for repeated patterns */
+  .print-reset {
+    @apply print:bg-white print:border-none print:shadow-none print:p-0;
+  }
+  
+  .contact-card {
+    @apply cv-card print-reset text-center print:text-left;
+  }
+  
+  .contact-icon {
+    @apply w-12 h-12 rounded-full flex items-center justify-center print:w-6 print:h-6 print:bg-transparent;
+  }
+  
+  .contact-layout {
+    @apply flex flex-col items-center print:flex-row print:items-start space-y-2 print:space-y-0 print:space-x-2;
+  }
+  
+  .cv-badge {
+    @apply text-slate-800 text-sm bg-slate-200 px-3 py-1 rounded-full print:bg-white print:px-0 print:py-0;
+  }
+  
+  .protected-image {
+    @apply inline-block print:hidden;
+  }
+  
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    .cv-hero-gradient {
+      background: linear-gradient(180deg, hsl(var(--cv-hero-gradient-from)), hsl(var(--cv-hero-gradient-to)));
+    }
+    
+    .cv-section {
+      @apply mx-3 p-5 mb-6;
+    }
+    
+    .cv-card {
+      @apply p-5 mb-4;
+    }
+    
+    .cv-button-primary,
+    .cv-button-secondary {
+      @apply w-full justify-center text-base py-4 px-6;
+    }
+    
+    .cv-skill-tag {
+      @apply text-sm px-3 py-2;
+    }
+    
+    /* Better mobile typography */
+    h1 {
+      @apply text-2xl;
+    }
+    
+    h2 {
+      @apply text-xl;
+    }
+    
+    h3 {
+      @apply text-lg;
+    }
+  }
+  
+  /* Touch target optimization */
+  @media (pointer: coarse) {
+    .cv-nav-link {
+      @apply py-3 px-2;
+    }
+    
+    .cv-skill-tag {
+      @apply px-4 py-2 text-base;
+    }
+    
+    button, a {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
 }
 
 /* Print styles */
 @media print {
   @page {
     margin: 1.5cm;
+    size: A4;
+  }
+
+  * {
+    font-family: Arial, Helvetica, sans-serif !important;
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
 
   body {
-    font-size: 12pt;
-    line-height: 1.3;
+    font-size: 11pt;
+    line-height: 1.4;
+    background: white !important;
   }
 
   h1 {
     font-size: 18pt;
+    font-weight: bold;
+    margin-bottom: 8pt;
+    page-break-after: avoid;
   }
 
   h2 {
     font-size: 14pt;
-    margin-top: 25px;
+    font-weight: bold;
+    margin-top: 16pt;
+    margin-bottom: 8pt;
+    page-break-after: avoid;
+    border-bottom: 1px solid #333 !important;
+    padding-bottom: 4pt;
   }
 
   h3 {
     font-size: 12pt;
+    font-weight: bold;
+    margin-bottom: 4pt;
+    page-break-after: avoid;
+  }
+
+  p {
+    margin-bottom: 8pt;
+    orphans: 2;
+    widows: 2;
   }
 
   a {
     text-decoration: none !important;
     color: black !important;
+  }
+
+  section {
+    margin-bottom: 20pt !important;
+    page-break-inside: avoid;
   }
 
   .print-break-after {
@@ -84,12 +294,80 @@
     break-inside: avoid;
   }
 
-  /* ATS-friendly styles */
-  * {
-    font-family: Arial, Helvetica, sans-serif !important;
+  .print-new-page {
+    page-break-before: always;
   }
 
-  section {
+  /* Optimize space usage */
+  .cv-section {
     margin-bottom: 16pt !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Skills section for print */
+  .cv-skill-category {
+    margin-bottom: 12pt;
+    page-break-inside: avoid;
+  }
+
+  .cv-skill-category h3 {
+    font-size: 12pt;
+    font-weight: bold;
+    margin-bottom: 6pt;
+    color: #333 !important;
+  }
+
+  /* Ensure all content is visible and structured for ATS */
+  .print\\:block {
+    display: block !important;
+  }
+
+  .print\\:inline {
+    display: inline !important;
+  }
+
+  /* Experience section optimization */
+  .experience-item {
+    margin-bottom: 16pt;
+    page-break-inside: avoid;
+  }
+
+  .experience-item h3 {
+    font-size: 12pt;
+    font-weight: bold;
+    margin-bottom: 4pt;
+  }
+
+  .experience-item h4 {
+    font-size: 11pt;
+    font-weight: normal;
+    font-style: italic;
+    margin-bottom: 4pt;
+  }
+
+  /* Education section optimization */
+  .education-item {
+    margin-bottom: 12pt;
+    page-break-inside: avoid;
+  }
+
+  /* Timeline elements hidden in print */
+  .timeline-dot,
+  .timeline-line {
+    display: none !important;
+  }
+
+  /* Contact info optimization */
+  .contact-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 20pt !important;
+  }
+
+  .contact-item {
+    flex: 1 !important;
   }
 }

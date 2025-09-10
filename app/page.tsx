@@ -8,12 +8,15 @@ import {
   FiLinkedin,
   FiMenu,
   FiX,
-  FiPrinter,
   FiPhone
 } from "react-icons/fi";
 import { ExperienceEntry as ExperienceEntryComponent } from "@/components/experience-entry";
 import { SectionHeading } from "@/components/section-heading";
 import { SkillTag } from "@/components/skill-tag";
+import { SkillCategory } from "@/components/skill-category";
+import { ScrollProgress } from "@/components/scroll-progress";
+import { BackToTop } from "@/components/back-to-top";
+import { TypingEffect } from "@/components/typing-effect";
 import { experiences } from "@/data/cv-data";
 import { topSkills } from "@/data/topSkills";
 import { userProfile } from "@/data/user-profile";
@@ -42,14 +45,25 @@ export default function Home() {
     setMobileMenuOpen(false);
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
 
   // Experience data is imported from @/data/cv-data
 
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50/80 to-slate-100/50">
+      {/* Skip Links for Accessibility */}
+      <div className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50">
+        <a
+          href="#main-content"
+          className="cv-button-primary focus:ring-4 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          Skip to main content
+        </a>
+      </div>
+      
+      <ScrollProgress />
+      <BackToTop />
+      
       {/* Hidden metadata for ATS */}
       <div className="hidden print:block">
         <div
@@ -60,8 +74,8 @@ export default function Home() {
             {userProfile.name} - {userProfile.title}
           </h1>
           <p>
-            Contact: {userProfile.email || "preslav.panayotov@gmail.com"},
-            {userProfile.linkedin || "www.linkedin.com/in/preslav-panayotov"}
+            Contact: {userProfile.email},
+            {userProfile.linkedin}
           </p>
           <p>
             Skills:{" "}
@@ -72,50 +86,42 @@ export default function Home() {
         </div>
       </div>
 
-      <header className="px-4 py-6 print:hidden md:sticky md:top-0 md:z-50 md:bg-white md:shadow-sm">
+      <header className="px-4 py-6 md:sticky md:top-0 md:z-50 md:bg-white/80 md:backdrop-blur-md md:shadow-sm md:border-b md:border-slate-200/50" role="banner">
         <div className="container mx-auto">
-          <nav className="flex items-center justify-between">
+          <nav className="flex items-center justify-between" role="navigation" aria-label="Main navigation">
             <div className="flex items-center space-x-2">
-              {/* <span className="text-lg font-semibold">Personal Online CV</span> */}
+              <span className="text-lg font-bold text-slate-800">
+                {userProfile.name}
+              </span>
             </div>
-            <div className="hidden md:flex items-center space-x-6 absolute left-1/2 transform -translate-x-1/2">
-              <Link href="#summary" className="text-sm hover:text-gray-600">
+            <div className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
+              <Link href="#hero" className="cv-nav-link">
+                Home
+              </Link>
+              <Link href="#summary" className="cv-nav-link">
                 Summary
               </Link>
-              <Link href="#experience" className="text-sm hover:text-gray-600">
+              <Link href="#experience" className="cv-nav-link">
                 Experience
               </Link>
-              <Link href="#skills" className="text-sm hover:text-gray-600">
+              <Link href="#skills" className="cv-nav-link">
                 Skills
               </Link>
-              <Link href="#education" className="text-sm hover:text-gray-600">
+              <Link href="#education" className="cv-nav-link">
                 Education
               </Link>
-              <Link
-                href="#certifications"
-                className="text-sm hover:text-gray-600"
-              >
+              <Link href="#certifications" className="cv-nav-link">
                 Certifications
               </Link>
               {SystemSettings.get("showContacts") && (
-                <Link href="#contact" className="text-sm hover:text-gray-600">
+                <Link href="#contact" className="cv-nav-link">
                   Contact
                 </Link>
               )}
             </div>
-            <div className="flex items-center space-x-2">
-              {SystemSettings.get("showPrint") && (
-                <button
-                  onClick={handlePrint}
-                  className="p-2 border border-gray-300 rounded flex items-center text-sm"
-                  aria-label="Print CV"
-                >
-                  <FiPrinter size={16} className="mr-1" />
-                  <span className="hidden sm:inline">Print CV</span>
-                </button>
-              )}
+            <div className="flex items-center space-x-3">
               <button
-                className="p-2 border border-gray-300 rounded md:hidden"
+                className="cv-button-secondary md:hidden"
                 onClick={toggleMobileMenu}
                 aria-label="Toggle mobile menu"
               >
@@ -129,206 +135,293 @@ export default function Home() {
       {/* Mobile Menu */}
       <MobileMenu isOpen={mobileMenuOpen} onClose={closeMobileMenu} />
 
-      <main className="container mx-auto px-4 py-8 max-w-4xl print:py-2 print:max-w-none">
-        <section className="flex flex-col items-center mb-12 print:mb-6 print:items-start print:flex-row print:gap-6">
-          <div className="w-32 h-32 rounded-full overflow-hidden mb-4 print:mb-0 print:w-24 print:h-24">
-            <Image
-              src={getProfileImageUrl(userProfile, 'web')}
-              alt={`Profile picture of ${userProfile.name}`}
-              width={128}
-              height={128}
-              className="object-cover print:hidden"
-            />
-            {/* PDF optimized image for print */}
-            <img
-              src={getProfileImageUrl(userProfile, 'pdf')}
-              alt={`Profile picture of ${userProfile.name}`}
-              className="w-full h-full object-cover hidden print:block"
-            />
-          </div>
-          <div className="text-center print:text-left">
-            <h1 className="text-2xl font-bold mb-1">
-              {userProfile.name}
-            </h1>
-            <h2 className="text-gray-600 mb-1">
-              {userProfile.title}
-            </h2>
-            <p className="text-gray-500">
-              {userProfile.location}
-            </p>
+      <main id="main-content">
+        {/* Hero Section */}
+        <section id="hero" className="relative py-20 px-4 overflow-hidden" role="main" aria-label="Professional profile and introduction">
+          <div className="absolute inset-0 cv-hero-gradient"></div>
+          <div className="absolute inset-0 bg-black/5"></div>
+          <div className="relative container mx-auto max-w-4xl">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+              <div className="flex-1 text-center lg:text-left">
+                <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">
+                  {userProfile.name}
+                </h1>
+                <h2 className="text-xl lg:text-2xl text-blue-100 mb-6">
+                  <TypingEffect text={userProfile.title} speed={80} />
+                </h2>
+                <p className="text-blue-50 mb-2">
+                  {userProfile.location}
+                </p>
+                <p className="text-blue-50/90 text-lg mb-6 max-w-2xl">
+                  {userProfile.summary}
+                </p>
+                
+                {/* Social Media Links */}
+                <div className="flex gap-4 justify-center lg:justify-start mb-8">
+                  {userProfile.linkedin && (
+                    <a
+                      href={`https://${userProfile.linkedin}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-blue-100 hover:text-white transition-colors duration-200 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg backdrop-blur-sm"
+                      aria-label="LinkedIn Profile"
+                    >
+                      <FiLinkedin size={20} />
+                      <span className="hidden sm:inline">LinkedIn</span>
+                    </a>
+                  )}
+                </div>
+                {SystemSettings.get("showContacts") && (
+                  <div className="flex justify-center lg:justify-start">
+                    <a
+                      href="#contact"
+                      className="cv-button-primary"
+                    >
+                      <FiMail size={18} className="mr-2" />
+                      Get in Touch
+                    </a>
+                  </div>
+                )}
+              </div>
+              <div className="flex-shrink-0">
+                <div className="relative">
+                  <div className="w-48 h-48 lg:w-56 lg:h-56 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20">
+                    <Image
+                      src={getProfileImageUrl(userProfile, 'web')}
+                      alt={`Profile picture of ${userProfile.name}`}
+                      width={224}
+                      height={224}
+                      className="object-cover w-full h-full"
+                      priority
+                      placeholder="blur"
+                      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                    />
+                  </div>
+                  <div className="absolute -bottom-4 -right-4 w-12 h-12 bg-green-400 rounded-full border-4 border-white flex items-center justify-center">
+                    <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section id="summary" className="mb-10 print:mb-6">
-          <SectionHeading title="Summary" />
-          <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: sanitize(userProfile.summary) }} />
 
-          <div className="print:hidden text-gray-700 mb-10 flex flex-wrap justify-center gap-2">
-            {topSkills.map((tag, index) => <SkillTag key={index} name={tag} />)}
+        <div className="container mx-auto px-4 max-w-4xl">
+
+        <section id="summary" className="cv-section">
+          <SectionHeading title="Summary" subtitle="Professional overview and core competencies" />
+          <p className="text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitize(userProfile.summary) }} />
+
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold text-slate-800 mb-3">Top Skills</h3>
+            <div className="flex flex-wrap gap-2">
+              {topSkills.slice(0, 8).map((tag, index) => <SkillTag key={index} name={tag} variant="featured" />)}
+            </div>
           </div>
         </section>
 
-        <section id="experience" className="mb-10 print:mb-6">
-          <SectionHeading title="Experience" />
+        <section id="experience" className="cv-section" role="region" aria-labelledby="experience-heading">
+          <SectionHeading title="Experience" subtitle="Professional work history and achievements" />
 
-          {experiences.map((exp, index) =>
-            <ExperienceEntryComponent
-              key={index}
-              title={exp.title}
-              company={exp.company}
-              dateRange={exp.dateRange}
-              location={exp.location}
-              description={exp.description}
-              tags={exp.tags}
-            />
-          )}
-        </section>
-
-        <section id="skills" className="mb-10 print:mb-6">
-          <SectionHeading title="Skills" />
-          <div className="flex flex-wrap gap-2 print:block print:space-y-0">
-            {topSkills.map((skill, index) =>
-              <SkillTag key={index} name={skill} />
-            )}
-          </div>
-
-          {/* Hidden text for ATS - comprehensive skills list */}
-          <div className="hidden print:block mt-4">
-            <h3 className="font-semibold mb-2">Additional Skills</h3>
-            <div className="print:block">
-              {topSkills.slice(0, 5).map((skill, index) =>
-                <span key={index} className="print:inline">
-                  {skill}
-                  {index < Math.min(topSkills.length, 5) - 1 ? ", " : ""}
-                </span>
+          <div className="relative">
+            {/* Timeline line */}
+            <div className="absolute left-2 top-8 bottom-0 w-0.5 bg-slate-200"></div>
+            
+            <div className="space-y-8">
+              {experiences.map((exp, index) =>
+                <ExperienceEntryComponent
+                  key={index}
+                  title={exp.title}
+                  company={exp.company}
+                  dateRange={exp.dateRange}
+                  location={exp.location}
+                  description={exp.description}
+                  tags={exp.tags}
+                />
               )}
             </div>
-            <div className="print:block">
-              {Array.from(new Set(experiences.flatMap(exp => exp.tags)))
-                .filter(skill => !topSkills.includes(skill))
-                .slice(0, 5)
-                .map((skill, index, array) =>
-                  <span key={index} className="print:inline">
-                    {skill}
-                    {index < array.length - 1 ? ", " : ""}
-                  </span>
-                )}
-            </div>
           </div>
         </section>
 
-        <section id="languages" className="mb-10 print:mb-6">
-          <SectionHeading title="Languages" />
-          <div className="space-y-2">
+        <section id="skills" className="cv-section" role="region" aria-labelledby="skills-heading">
+          <SectionHeading title="Skills" subtitle="Technical expertise and professional capabilities" />
+          
+          <div className="space-y-6">
+            <SkillCategory
+              title="Leadership & Management"
+              skills={["Team Management", "Engineering Management", "Project Management", "Delivery Management", "Team Leadership", "Coaching & Mentoring", "Program Management"]}
+              isExpanded={true}
+            />
+            
+            <SkillCategory
+              title="Technical Skills"
+              skills={["Programming", "Web Architecture", "Microservices", "Databases", "Software as a Service (SaaS)", "Service-Oriented Architecture (SOA)", "Deployment Management"]}
+              isExpanded={true}
+            />
+            
+            <SkillCategory
+              title="Quality & Process"
+              skills={["Software Quality", "Code Review", "Coding Standards", "Defect Management", "Technical Design", "Scrum", "Software Project Management"]}
+            />
+            
+            <SkillCategory
+              title="Communication & Collaboration"
+              skills={["Team Collaboration", "Communication", "Interpersonal Communication", "Client Requirements", "Knowledge Sharing", "Problem Solving"]}
+            />
+            
+            <SkillCategory
+              title="Strategy & Planning"
+              skills={["Solution Architecture", "Product Strategy", "Project Plans", "Capacity Planning", "Hands-on Technical Leadership"]}
+            />
+          </div>
+
+        </section>
+
+        <section id="languages" className="cv-section" role="region" aria-labelledby="languages-heading">
+          <SectionHeading title="Languages" subtitle="Communication abilities" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {userProfile.languages.map((language, index) =>
-              <div key={index}>
-                <span className="font-medium">{language.name}:</span>{" "}
-                {language.proficiency}
-              </div>
-            )}
-          </div>
-        </section>
-
-        <section id="education" className="mb-10 print:mb-6">
-          <SectionHeading title="Education" />
-          {userProfile.education.map((edu, index) =>
-            <div key={index} className="mb-4 last:mb-0">
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-1">
-                <h3 className="font-semibold">
-                  {edu.institution}
-                </h3>
-                <span className="text-gray-500 text-sm">
-                  {edu.dateRange}
+              <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                <span className="font-medium text-slate-800">{language.name}</span>
+                <span className="cv-badge">
+                  {language.proficiency}
                 </span>
               </div>
-              <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: sanitize(`${edu.degree}, ${edu.field}`) }} />
-            </div>
-          )}
+            )}
+          </div>
         </section>
 
-        <section id="certifications" className="mb-10 print:mb-6">
-          <SectionHeading title="Certifications" />
-          <ul className="list-disc list-inside space-y-1 text-gray-700">
-            {userProfile.certifications.map((cert, index) =>
-              <li key={index}>
-                {cert.name}
-                {cert.issuer &&
-                  <span>
-                    {" "}- {cert.issuer}
-                  </span>}
-                {cert.date &&
-                  <span className="text-gray-500 text-sm ml-1">
-                    ({cert.date})
-                  </span>}
-              </li>
+        <section id="education" className="cv-section" role="region" aria-labelledby="education-heading">
+          <SectionHeading title="Education" subtitle="Academic background and qualifications" />
+          <div className="space-y-4">
+            {userProfile.education.map((edu, index) =>
+              <div key={index} className="cv-card education-item">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+                  <h3 className="font-semibold text-slate-800">
+                    {edu.institution}
+                  </h3>
+                  <span className="cv-badge bg-slate-100 text-slate-500">
+                    {edu.dateRange}
+                  </span>
+                </div>
+                <p className="text-slate-700" dangerouslySetInnerHTML={{ __html: sanitize(`${edu.degree}, ${edu.field}`) }} />
+              </div>
             )}
-          </ul>
+          </div>
+        </section>
+
+        <section id="certifications" className="cv-section" role="region" aria-labelledby="certifications-heading">
+          <SectionHeading title="Certifications" subtitle="Professional credentials and achievements" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {userProfile.certifications.map((cert, index) =>
+              <div key={index} className="flex items-center p-4 bg-slate-50 rounded-lg">
+                <div className="flex-1">
+                  <div className="font-medium text-slate-800">{cert.name}</div>
+                  {cert.issuer && (
+                    <div className="text-slate-600 text-sm">
+                      {cert.issuer}
+                    </div>
+                  )}
+                  {cert.date && (
+                    <div className="text-slate-500 text-xs">
+                      {cert.date}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </section>
 
         {/* Contact Section - show/hide based on system settings */}
         {SystemSettings.get("showContacts") && (
-          <section id="contact" className="print:mb-6">
-            <SectionHeading title="Contact" />
-            <div className="space-y-2 print:flex print:space-y-0 print:space-x-6">
-              <div className="flex items-center">
-                <FiMail className="w-5 h-5 mr-2 print:w-4 print:h-4" />
-                <span>
-                  Email:{" "}
-                  <img
-                    src={`/api/text-image?fieldType=email&size=24&color=%23222&bg=transparent`}
-                    alt="Email address"
-                    style={{
-                      display: "inline",
-                      verticalAlign: "middle",
-                      height: 24
-                    }}
-                    draggable={false}
-                  />
-                </span>
+          <section id="contact" className="cv-section">
+            <SectionHeading title="Contact" subtitle="Let's connect and discuss opportunities" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="contact-card">
+                <div className="contact-layout">
+                  <div className="contact-icon bg-blue-100">
+                    <FiMail className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-800 mb-1">Email</h3>
+                    <div className="cursor-default">
+                      <img
+                        src={`/api/text-image?fieldType=email&size=16&color=%23059669&bg=transparent`}
+                        alt="Email address (protected from bots)"
+                        className="protected-image"
+                        draggable={false}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center">
-                <FiPhone className="w-5 h-5 mr-2 print:w-4 print:h-4" />
-                <span>
-                  Phone:{" "}
-                  <img
-                    src={`/api/text-image?fieldType=phone&size=24&color=%23222&bg=transparent`}
-                    alt="Phone number"
-                    style={{
-                      display: "inline",
-                      verticalAlign: "middle",
-                      height: 24
-                    }}
-                    draggable={false}
-                  />
-                </span>
+              
+              <div className="contact-card">
+                <div className="contact-layout">
+                  <div className="contact-icon bg-green-100">
+                    <FiPhone className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-800 mb-1">Phone</h3>
+                    <div className="cursor-default">
+                      <img
+                        src={`/api/text-image?fieldType=phone&size=16&color=%2316a34a&bg=transparent`}
+                        alt="Phone number (protected from bots)"
+                        className="protected-image"
+                        draggable={false}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center">
-                <FiLinkedin className="w-5 h-5 mr-2 print:w-4 print:h-4" />
-                <span>
-                  LinkedIn:{" "}
-                  <a 
-                    href={`https://${userProfile.linkedin?.replace(/^https?:\/\//i, '') || 'www.linkedin.com/in/preslav-panayotov'}`}
-                    target="_blank" 
-                    title={`LinkedIn Profile of ${userProfile.name}`}
-                    rel="follow noopener noreferrer external"
-                    className="hover:underline"
-                  >
-                    {userProfile.linkedin?.replace(/^https?:\/\//i, '') || 'www.linkedin.com/in/preslav-panayotov'}
-                  </a>
-                </span>
-              </div>
+              
+              {userProfile.linkedin && (
+                <div className="contact-card">
+                  <div className="contact-layout">
+                    <div className="contact-icon bg-indigo-100">
+                      <FiLinkedin className="w-6 h-6 text-indigo-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-800 mb-1">LinkedIn</h3>
+                      <a 
+                        href={`https://${userProfile.linkedin.replace(/^https?:\/\//i, '')}`}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-indigo-600 hover:text-indigo-700 transition-colors"
+                      >
+                        {userProfile.linkedin.replace(/^https?:\/\//i, '')}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
+            
           </section>
         )}
+        
+        </div>
       </main>
 
-      <footer className="container mx-auto px-4 py-6 text-center text-gray-500 text-sm print:hidden">
-        <p>
-          © {new Date().getFullYear()} {userProfile.name}. All rights reserved.
-          <span className="ml-2 text-xs text-gray-400">
-            | powered by <a href="https://github.com/index-panayotov/ppanayotov-com" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">ppanayotov</a>
-          </span>
-        </p>
+      <footer className="bg-slate-900 text-slate-300 py-8">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-sm">
+            © {new Date().getFullYear()} {userProfile.name}. All rights reserved.
+          </p>
+          <p className="text-xs text-slate-400 mt-2">
+            Powered by{" "}
+            <a 
+              href="https://github.com/index-panayotov/ppanayotov-com" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              ppanayotov-com
+            </a>
+          </p>
+        </div>
       </footer>
     </div>
   );
