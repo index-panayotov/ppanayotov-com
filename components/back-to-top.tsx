@@ -3,6 +3,14 @@
 import { useEffect, useState } from "react"
 import { FiArrowUp } from "react-icons/fi"
 
+/**
+ * A client-side React component that renders a floating "Back to top" button.
+ *
+ * The button becomes visible when the page is scrolled more than 300 pixels and is hidden otherwise.
+ * Clicking the button scrolls the window to the top with a smooth animation. The component registers
+ * a window scroll listener on mount and removes it on unmount. The button is visually styled (Tailwind)
+ * and includes an accessible `aria-label`; it is also hidden when printing.
+ */
 export function BackToTop() {
   const [isVisible, setIsVisible] = useState(false)
 

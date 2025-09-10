@@ -2,6 +2,19 @@
 
 import { useEffect, useState } from "react"
 
+/**
+ * Renders a thin, fixed horizontal progress bar at the top of the page that reflects vertical scroll progress.
+ *
+ * The inner bar width is updated on mount and whenever the window scrolls to represent the current
+ * document scroll position as a percentage (0–100). The component reads `window.scrollY` and
+ * `document.documentElement.scrollHeight`, and removes its scroll listener on unmount.
+ *
+ * Notes:
+ * - Designed for client-side usage (reads `window` / `document`).
+ * - The outer container is hidden when printing.
+ *
+ * @returns The progress bar as a JSX element.
+ */
 export function ScrollProgress() {
   const [scrollProgress, setScrollProgress] = useState(0)
 

@@ -11,6 +11,18 @@ interface SkillCategoryProps {
   variant?: 'grid' | 'list'
 }
 
+/**
+ * Collapsible skill group UI that displays a title and a set of skill tags, with a print-friendly fallback.
+ *
+ * Renders a header button that toggles an internal expanded state. In screen view the skills are shown
+ * in either a responsive grid or a wrapping list of SkillTag components depending on `variant`. For printing,
+ * an always-visible, non-interactive block shows the title and skills as a comma-separated string.
+ *
+ * @param isExpanded - Initial expanded state for the interactive section (default: `false`).
+ * @param variant - Layout mode for the interactive section: `'grid'` renders a responsive multi-column grid,
+ *   any other value (commonly `'list'`) renders a wrapping horizontal list (default: `'grid'`).
+ * @returns The SkillCategory React element.
+ */
 export function SkillCategory({ title, skills, isExpanded = false, variant = 'grid' }: SkillCategoryProps) {
   const [expanded, setExpanded] = useState(isExpanded)
   

@@ -1,3 +1,13 @@
+/**
+ * Full-page, presentational loading skeleton for pages that have a hero and repeated content sections.
+ *
+ * Renders a static skeleton UI (no props or side effects) with a pulsing shimmer: a hero-area skeleton
+ * (title, subtitle, text lines, action button placeholders and an image placeholder) followed by three
+ * repeated content-section skeleton cards. Intended to be used as a temporary placeholder while real
+ * content is loading.
+ *
+ * @returns JSX element containing the skeleton layout
+ */
 export function LoadingSkeleton() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50/80 to-slate-100/50">
