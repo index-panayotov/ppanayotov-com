@@ -22,7 +22,7 @@
   Includes AI-powered tools to help polish and improve CV content, job descriptions, and professional summaries.
 
 - **Image Upload with Optimization**  
-  Upload and automatically optimize profile images for both web display and PDF exports.
+  Upload and automatically optimize profile images for web display. *(PDF export optimization temporarily disabled)*
 
 - **Modern Component Library**  
   Built using a comprehensive collection of accessible UI components based on Radix UI.
@@ -41,7 +41,7 @@ Planned features under development:
 - [x] Add settings file
 - [x] Add schema.org for the home page
 - [ ] Expand contact and social media link options
-- [ ] Introduce multiple visual templates for printable CVs
+- [ ] Introduce multiple visual templates for printable CVs *(work in progress - print functionality temporarily disabled)*
 - [ ] Add support for multiple languages/localization
 
 Have an idea? [Open an issue](https://github.com/index-panayotov/ppanayotov-com/issues) or contribute directly!
@@ -171,13 +171,14 @@ Thanks to all contributors and open-source libraries that make this project poss
 
 ## 📷 Image Upload Feature
 
-The project includes a comprehensive image upload feature with optimization for different contexts:
+The project includes a comprehensive image upload feature with optimization for web display:
 
 - **Web-optimized Images**: 400x400px, WebP format, 85% quality for fast web loading
-- **PDF-optimized Images**: 200x200px, WebP format, 80% quality for PDF exports
 - **Drag & Drop Support**: Easy uploading via drag and drop or file browser
 - **External URL Support**: Option to use images hosted elsewhere
 - **Validation**: File type and size validation to prevent issues
+
+> **Note**: PDF export optimization is temporarily disabled while print functionality is being redesigned for better ATS compatibility and professional appearance.
 
 ## 🧠 AI Enhancement Features
 

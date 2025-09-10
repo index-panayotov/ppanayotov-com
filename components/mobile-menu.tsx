@@ -9,6 +9,17 @@ interface MobileMenuProps {
   onClose: () => void
 }
 
+/**
+ * Mobile-only full-screen navigation menu that prevents background scrolling while open.
+ *
+ * When `isOpen` is true the component renders a full-screen, small-screen-only menu with navigation links
+ * and a "Print CV" action. Opening the menu sets `document.body.style.overflow` to `"hidden"` to prevent
+ * background scrolling; this is restored to `"auto"` when the menu closes or the component unmounts.
+ *
+ * @param isOpen - Whether the mobile menu is visible.
+ * @param onClose - Callback invoked to close the menu; also called when a navigation link is clicked or when the Print CV action triggers before opening the print dialog.
+ * @returns The menu's JSX when `isOpen` is true, otherwise `null`.
+ */
 export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   // Prevent scrolling when menu is open
   useEffect(() => {
@@ -40,30 +51,33 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         </div>
 
         <nav className="flex flex-col space-y-6 text-center">
-          <Link href="#summary" className="text-lg font-medium py-2 hover:text-gray-600" onClick={onClose}>
+          <Link href="#hero" className="text-lg font-medium py-3 text-slate-700 hover:text-blue-600 transition-colors border-b border-slate-100" onClick={onClose}>
+            Home
+          </Link>
+          <Link href="#summary" className="text-lg font-medium py-3 text-slate-700 hover:text-blue-600 transition-colors border-b border-slate-100" onClick={onClose}>
             Summary
           </Link>
-          <Link href="#experience" className="text-lg font-medium py-2 hover:text-gray-600" onClick={onClose}>
+          <Link href="#experience" className="text-lg font-medium py-3 text-slate-700 hover:text-blue-600 transition-colors border-b border-slate-100" onClick={onClose}>
             Experience
           </Link>
-          <Link href="#skills" className="text-lg font-medium py-2 hover:text-gray-600" onClick={onClose}>
+          <Link href="#skills" className="text-lg font-medium py-3 text-slate-700 hover:text-blue-600 transition-colors border-b border-slate-100" onClick={onClose}>
             Skills
           </Link>
-          <Link href="#languages" className="text-lg font-medium py-2 hover:text-gray-600" onClick={onClose}>
+          <Link href="#languages" className="text-lg font-medium py-3 text-slate-700 hover:text-blue-600 transition-colors border-b border-slate-100" onClick={onClose}>
             Languages
           </Link>
-          <Link href="#education" className="text-lg font-medium py-2 hover:text-gray-600" onClick={onClose}>
+          <Link href="#education" className="text-lg font-medium py-3 text-slate-700 hover:text-blue-600 transition-colors border-b border-slate-100" onClick={onClose}>
             Education
           </Link>
-          <Link href="#certifications" className="text-lg font-medium py-2 hover:text-gray-600" onClick={onClose}>
+          <Link href="#certifications" className="text-lg font-medium py-3 text-slate-700 hover:text-blue-600 transition-colors border-b border-slate-100" onClick={onClose}>
             Certifications
           </Link>
-          <Link href="#contact" className="text-lg font-medium py-2 hover:text-gray-600" onClick={onClose}>
+          <Link href="#contact" className="text-lg font-medium py-3 text-slate-700 hover:text-blue-600 transition-colors border-b border-slate-100" onClick={onClose}>
             Contact
           </Link>
           <button
             onClick={handlePrint}
-            className="flex items-center justify-center text-lg font-medium py-2 hover:text-gray-600 mt-4"
+            className="cv-button-primary mt-6 mx-auto"
           >
             <FiPrinter size={18} className="mr-2" />
             Print CV

@@ -15,11 +15,14 @@ interface ExperienceEntryProps {
 }
 
 /**
- * Renders a work experience entry with title, company, date range, optional location, description, and skill tags.
+ * Render a single work experience entry including title, company, dates, optional location, description, and skill tags.
  *
- * Displays the description as sanitized HTML if provided as a string, or as a bullet list if provided as an array. Shows a limited number of skill tags by default, with the option to expand and view all tags. Includes accessibility features and print-specific rendering for skill tags and ATS compatibility.
+ * The `description` prop is rendered as sanitized HTML when provided as a string, or as a bulleted list when provided as an array. Skill tags show up to five items by default with a screen-only toggle to expand/collapse; the print view always includes all tags and an ATS-friendly plain-text skills line.
  *
- * @remark The description prop, if a string, is rendered as sanitized HTML using `dangerouslySetInnerHTML`. Any HTML tags within the description will be interpreted and rendered accordingly.
+ * Accessibility: the tag toggle button includes an appropriate `aria-label`.
+ *
+ * @remarks
+ * Sanitization is applied to string descriptions to prevent injection when rendering HTML content.
  */
 export function ExperienceEntry({ title, company, dateRange, location, description, tags = [] }: ExperienceEntryProps) {
   const [showAllTags, setShowAllTags] = useState(false)
@@ -39,29 +42,40 @@ export function ExperienceEntry({ title, company, dateRange, location, descripti
   const visibleTags = showAllTags ? tags : tags.slice(0, initialTagCount)
 
   return (
-    <div className="mb-6 print:mb-4">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-1">
-        <h3 className="font-semibold">
-          {title}
-          {company && `, ${company}`}
-        </h3>
-        <span className="text-gray-500 text-sm">{dateRange}</span>
+    <div className="relative pl-8 print:pl-0 print:mb-4 experience-item">
+      {/* Timeline dot and line */}
+      <div className="absolute left-0 top-0 print:hidden">
+        <div className="w-4 h-4 bg-blue-600 rounded-full border-4 border-white shadow-lg"></div>
+        <div className="absolute left-1/2 top-4 w-0.5 h-full bg-slate-200 -translate-x-1/2"></div>
       </div>
+      
+      <div className="bg-white/50 backdrop-blur-sm border border-slate-200/50 rounded-lg p-6 print:bg-white print:border-none print:shadow-none print:p-0">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 print:mb-1">
+          <div>
+            <h3 className="font-bold text-slate-800 text-lg print:text-base">
+              {title}
+            </h3>
+            {company && <p className="text-blue-600 font-medium print:text-black print:inline print:before:content-[',_']">{company}</p>}
+          </div>
+          <span className="text-slate-500 text-sm bg-slate-100 px-3 py-1 rounded-full print:bg-white print:px-0 print:py-0 mt-2 sm:mt-0">
+            {dateRange}
+          </span>
+        </div>
 
-      {location && <p className="text-gray-500 text-sm mb-2">{location}</p>}
+        {location && <p className="text-slate-600 text-sm mb-3 print:mb-2">{location}</p>}
 
-      {description && typeof description === "string" ? (
-        <p className="text-gray-700 mb-3" dangerouslySetInnerHTML={{ __html: sanitize(description) }} />
-      ) : (
-        Array.isArray(description) &&
-        description.length > 0 && (
-          <ul className="text-gray-700 list-disc list-inside space-y-1 mb-3">
-            {description.map((item, index) => (
-              <li key={index}>{item}</li>
-            ))}
-          </ul>
-        )
-      )}
+        {description && typeof description === "string" ? (
+          <p className="text-slate-700 leading-relaxed mb-4 print:mb-3" dangerouslySetInnerHTML={{ __html: sanitize(description) }} />
+        ) : (
+          Array.isArray(description) &&
+          description.length > 0 && (
+            <ul className="text-slate-700 list-disc list-inside space-y-1 mb-4 print:mb-3">
+              {description.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
+          )
+        )}
 
       {tags.length > 0 && (
         <>
@@ -105,6 +119,7 @@ export function ExperienceEntry({ title, company, dateRange, location, descripti
           </div>
         </>
       )}
+      </div>
     </div>
   )
 }
