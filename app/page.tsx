@@ -25,9 +25,9 @@ import { SystemSettings } from "@/services/SystemSettings";
 import DOMPurify from 'isomorphic-dompurify';
 
 /**
- * Renders the main CV webpage with responsive layout, print optimization, and dynamic content sections.
+ * Client React component that renders a data-driven, accessible CV/resume page.
  *
- * Displays user profile information, summary, experience, skills, languages, education, certifications, and optionally contact details. Includes navigation, print-friendly formatting, and accessibility features. Content is data-driven and conditionally rendered based on system settings.
+ * Renders profile, summary, experience, skills, languages, education, certifications and an optional contact section (controlled by SystemSettings). Includes responsive header and mobile menu, print/ATS-friendly hidden metadata, sanitization of HTML snippets via DOMPurify, and UI helper components (progress, back-to-top, section headings, skill/experience entries, etc.).
  */
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

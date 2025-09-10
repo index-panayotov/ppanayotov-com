@@ -1,6 +1,16 @@
 import { userProfile } from "@/data/user-profile";
 import { experiences } from "@/data/cv-data";
 
+/**
+ * Renders a JSON-LD Person schema as an inline <script> tag.
+ *
+ * Builds structured data from imported `userProfile` and `experiences`: sets basic Person properties
+ * (name, jobTitle, address, email, telephone), normalizes LinkedIn into `sameAs` when present,
+ * includes up to 10 unique `knowsAbout` tags aggregated from experiences, maps education to
+ * `alumniOf` EducationalOrganization entries, and maps certifications to `hasCredential` entries.
+ *
+ * @returns A React element containing a script tag of type `application/ld+json` with the JSON-LD payload.
+ */
 export function StructuredData() {
   const structuredData = {
     "@context": "https://schema.org",

@@ -2,6 +2,13 @@
 
 import { useEffect, useState } from "react"
 
+/**
+ * Renders a print-only QR code linking to the current site origin.
+ *
+ * On the client, this component generates a QR code image URL (via a third-party QR API) for window.location.origin after mount and delays rendering until mounted to avoid hydration mismatches. The output is hidden on screen and displayed only when printing.
+ *
+ * @returns A JSX element containing the QR image and caption, or `null` until the component has mounted and the QR URL is available.
+ */
 export function PrintQRCode() {
   const [qrCodeUrl, setQrCodeUrl] = useState("")
   const [isMounted, setIsMounted] = useState(false)

@@ -9,6 +9,17 @@ interface MobileMenuProps {
   onClose: () => void
 }
 
+/**
+ * Mobile-only full-screen navigation menu that prevents background scrolling while open.
+ *
+ * When `isOpen` is true the component renders a full-screen, small-screen-only menu with navigation links
+ * and a "Print CV" action. Opening the menu sets `document.body.style.overflow` to `"hidden"` to prevent
+ * background scrolling; this is restored to `"auto"` when the menu closes or the component unmounts.
+ *
+ * @param isOpen - Whether the mobile menu is visible.
+ * @param onClose - Callback invoked to close the menu; also called when a navigation link is clicked or when the Print CV action triggers before opening the print dialog.
+ * @returns The menu's JSX when `isOpen` is true, otherwise `null`.
+ */
 export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   // Prevent scrolling when menu is open
   useEffect(() => {

@@ -8,6 +8,16 @@ interface TypingEffectProps {
   className?: string
 }
 
+/**
+ * Animated typing React client component that reveals `text` one character at a time.
+ *
+ * Renders the progressively revealed text and, while typing, a blinking cursor (`|`).
+ *
+ * @param text - The full text to animate.
+ * @param speed - Delay in milliseconds between each character (default: 100).
+ * @param className - Optional CSS class applied to the outer wrapper (default: "").
+ * @returns A React element containing the typed text and a blinking cursor until completion.
+ */
 export function TypingEffect({ text, speed = 100, className = "" }: TypingEffectProps) {
   const [displayText, setDisplayText] = useState("")
   const [currentIndex, setCurrentIndex] = useState(0)

@@ -4,6 +4,18 @@ interface SectionHeadingProps {
   subtitle?: string
 }
 
+/**
+ * Renders a section heading with a decorative gradient underline and an optional subtitle.
+ *
+ * The component outputs a top-level container with print-aware spacing, an H2 title that includes
+ * a short rounded gradient underline positioned beneath the title text, and an optional subtitle
+ * paragraph that is hidden when printing.
+ *
+ * @param id - Optional id used as the H2 anchor (omitted from the element if not provided).
+ * @param title - The main heading text to display.
+ * @param subtitle - Optional supporting line rendered below the title; hidden in print output.
+ * @returns A React element representing the styled section heading block.
+ */
 export function SectionHeading({ id, title, subtitle }: SectionHeadingProps) {
   return (
     <div className="mb-6 print:mb-3">
