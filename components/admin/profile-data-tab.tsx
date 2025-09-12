@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { AIEnhancedInput } from '@/components/admin/ai-enhanced-input';
 import { AIEnhancedTextarea } from '@/components/admin/ai-enhanced-textarea';
+import { adminClassNames } from './design-system';
 import { 
   Card, 
   CardContent, 
@@ -243,7 +244,7 @@ export default function ProfileDataTab({
                       </div>
                     </div>
                   ))}
-                  {!profileData.languages?.length && <p className="text-sm text-gray-500">No languages added</p>}
+                  {!profileData.languages?.length && <p className={`text-sm ${adminClassNames.text.muted}`}>No languages added</p>}
                 </div>
               </div>
               
@@ -260,7 +261,7 @@ export default function ProfileDataTab({
                       <div>
                         <p className="font-medium">{edu.institution}</p>
                         <p className="text-sm">{edu.degree}, {edu.field}</p>
-                        <p className="text-xs text-gray-500">{edu.dateRange}</p>
+                        <p className={`text-xs ${adminClassNames.text.muted}`}>{edu.dateRange}</p>
                       </div>
                       <div className="flex gap-2">
                         <Button 
@@ -296,7 +297,7 @@ export default function ProfileDataTab({
                       </div>
                     </div>
                   ))}
-                  {!profileData.education?.length && <p className="text-sm text-gray-500">No education entries added</p>}
+                  {!profileData.education?.length && <p className={`text-sm ${adminClassNames.text.muted}`}>No education entries added</p>}
                 </div>
               </div>
               
@@ -313,7 +314,7 @@ export default function ProfileDataTab({
                       <div>
                         <p className="font-medium">{cert.name}</p>
                         {cert.issuer && <p className="text-sm">{cert.issuer}</p>}
-                        {cert.date && <p className="text-xs text-gray-500">{cert.date}</p>}
+                        {cert.date && <p className={`text-xs ${adminClassNames.text.muted}`}>{cert.date}</p>}
                       </div>
                       <div className="flex gap-2">
                         <Button 
@@ -349,7 +350,7 @@ export default function ProfileDataTab({
                       </div>
                     </div>
                   ))}
-                  {!profileData.certifications?.length && <p className="text-sm text-gray-500">No certifications added</p>}
+                  {!profileData.certifications?.length && <p className={`text-sm ${adminClassNames.text.muted}`}>No certifications added</p>}
                 </div>
               </div>
             </CardContent>

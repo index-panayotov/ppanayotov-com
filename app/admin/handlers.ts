@@ -1,5 +1,7 @@
 import { ExperienceEntry } from "@/types";
 import { LanguageProficiency } from "@/types/profile";
+import { processFormValue, isEditorJSFormat } from "@/lib/editorjs-utils";
+import systemSettings from "@/data/system_settings";
 
 // Function to handle saving data to API
 export const handleSave = async (
@@ -142,9 +144,40 @@ export const saveExperience = (
 ) => {
   if (!currentExperience) return;
 
+  // Validate required fields
+  const requiredFields = [
+    { field: 'title', name: 'Title' },
+    { field: 'company', name: 'Company' },
+    { field: 'dateRange', name: 'Date Range' },
+    { field: 'description', name: 'Description' }
+  ];
+
+  const missingFields = requiredFields.filter(
+    ({ field }) => !currentExperience[field as keyof ExperienceEntry]?.toString().trim()
+  );
+
+  if (missingFields.length > 0) {
+    toast({
+      title: "Validation Error",
+      description: `Please fill in the following required fields: ${missingFields.map(f => f.name).join(', ')}`,
+      variant: "destructive"
+    });
+    return;
+  }
+
   const expToSave = { ...currentExperience };
   const index = expToSave._index;
   delete expToSave._index;
+
+  // Process description to handle EditorJS format
+  if (expToSave.description) {
+    expToSave.description = processFormValue(expToSave.description, systemSettings.useWysiwyg);
+  }
+
+  // Clean up empty optional fields
+  if (!expToSave.location?.trim()) {
+    expToSave.location = undefined;
+  }
 
   const newExperiences = [...experiences];
 

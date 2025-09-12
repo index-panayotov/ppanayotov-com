@@ -162,7 +162,7 @@ Respond with ONLY the improved text without any explanations or additional text.
         type="button"
         variant="ghost"
         size="icon"
-        className="absolute top-2 right-2 bg-background hover:bg-gray-100"
+        className="absolute top-2 right-2 bg-background hover:bg-slate-100 dark:hover:bg-slate-700"
         onClick={handleAIClick}
         disabled={isLoading}
         aria-label={

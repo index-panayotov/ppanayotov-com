@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useRef } from "react";
+import { textToEditorBlocks, editorBlocksToText, isEditorJSFormat } from "@/lib/editorjs-utils";
 
 // Define types for EditorJS
 interface OutputData {
@@ -43,24 +44,26 @@ const EditorJsWrapper: React.FC<EditorJsWrapperProps> = ({
     if (!editorRef.current && holderRef.current && EditorJS) {
       const initialData = value ? (() => {
         try {
-          const parsed = JSON.parse(value);
-          // If already in Editor.js format (has blocks), use as is
-          if (parsed && parsed.blocks) return parsed;
-          // If it's a plain string, wrap in a paragraph block
-          if (typeof parsed === "string") {
-            return { blocks: [{ type: "paragraph", data: { text: parsed } }] };
+          // Check if it's already in EditorJS format
+          if (isEditorJSFormat(value)) {
+            const parsed = JSON.parse(value);
+            // If it has blocks property, use it directly
+            if (parsed && parsed.blocks) {
+              return parsed;
+            }
+            // If it's an array of blocks, wrap it
+            if (Array.isArray(parsed)) {
+              return { blocks: parsed };
+            }
           }
-          // If it's an array (legacy), wrap in blocks
-          if (Array.isArray(parsed)) {
-            return { blocks: parsed };
-          }
-          // Fallback: treat as plain text
-          return { blocks: [{ type: "paragraph", data: { text: value } }] };
+          
+          // If not EditorJS format, treat as plain text and convert
+          return { blocks: textToEditorBlocks(value) };
         } catch {
-          // Not JSON, treat as plain text
-          return { blocks: [{ type: "paragraph", data: { text: value || "" } }] };
+          // If parsing fails, treat as plain text
+          return { blocks: textToEditorBlocks(value || "") };
         }
-      })() : undefined;
+      })() : { blocks: [] };
 
       editorRef.current = new EditorJS({
         ...config,
@@ -90,7 +93,7 @@ const EditorJsWrapper: React.FC<EditorJsWrapperProps> = ({
   }, []); // Run only once on unmount
 
   return (
-    <div ref={holderRef} className="min-h-[120px] border rounded bg-white" />
+    <div ref={holderRef} className="min-h-[120px] border rounded bg-background" />
   );
 };
 

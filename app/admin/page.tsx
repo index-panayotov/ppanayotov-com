@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExperienceEntry } from "@/types";
@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
 import dynamic from "next/dynamic";
 import * as handlers from "./handlers";
+import { AdminDashboard } from "@/components/admin/admin-dashboard";
 
 // Dynamically import components that use browser-only APIs
 const ExperiencesTab = dynamic(
@@ -74,10 +75,13 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Use a constant for client detection when needed
-  const isClient = typeof window !== "undefined";
+  // Client-side detection and navigation state
+  const [isClient, setIsClient] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState<"visual" | "json">("visual");
+  const [activeTab, setActiveTab] = useState("dashboard");
+  
+  const searchParams = useSearchParams();
   const [
     currentExperience,
     setCurrentExperience
@@ -109,65 +113,80 @@ export default function AdminPage() {
 
   const router = useRouter();
 
-  useEffect(
-    () => {
-      const checkEnv = async () => {
-        try {
-          setLoading(true);
-          // Check if user is authenticated
-          const isAuthenticated = document.cookie.includes(
-            "admin_authenticated=true"
-          );
-          if (!isAuthenticated) {
-            router.push("/admin/login");
-            return;
-          }
+  // Client-side detection effect
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-          const res = await fetch("/api/admin");
+  // URL parameter listening effect for tab switching
+  useEffect(() => {
+    if (!isClient) return;
+    
+    const currentTab = searchParams?.get('tab');
+    if (currentTab && ['experiences', 'topSkills', 'profileData'].includes(currentTab)) {
+      setActiveTab(currentTab);
+    } else {
+      setActiveTab('dashboard');
+    }
+  }, [searchParams, isClient]);
 
-          if (res.status === 403) {
-            setIsDev(false);
-            setError("Admin panel is only available in development mode");
-            return;
-          }
-
-          if (!res.ok) {
-            throw new Error("Failed to fetch data");
-          }
-
-          const data = await res.json();
-          setExperiences(data.experiences);
-          setTopSkills(data.topSkills);
-          setProfileData(
-            data.profileData || {
-              name: "",
-              title: "",
-              location: "",
-              email: "",
-              linkedin: "",
-              profileImageUrl: "",
-              summary: "",
-              languages: [],
-              education: [],
-              certifications: []
-            }
-          );
-          setIsDev(true);
-          setError(null);
-        } catch (err) {
-          setError(
-            "Error loading data. Make sure you are in development mode."
-          );
-          console.error(err);
-        } finally {
-          setLoading(false);
+  // Data loading effect
+  useEffect(() => {
+    const checkEnv = async () => {
+      try {
+        setLoading(true);
+        // Check if user is authenticated
+        const isAuthenticated = document.cookie.includes(
+          "admin_authenticated=true"
+        );
+        if (!isAuthenticated) {
+          router.push("/admin/login");
+          return;
         }
-      };
 
-      checkEnv();
-    },
-    [router]
-  );
+        const res = await fetch("/api/admin");
+
+        if (res.status === 403) {
+          setIsDev(false);
+          setError("Admin panel is only available in development mode");
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch data");
+        }
+
+        const data = await res.json();
+        setExperiences(data.experiences);
+        setTopSkills(data.topSkills);
+        setProfileData(
+          data.profileData || {
+            name: "",
+            title: "",
+            location: "",
+            email: "",
+            linkedin: "",
+            profileImageUrl: "",
+            summary: "",
+            languages: [],
+            education: [],
+            certifications: []
+          }
+        );
+        setIsDev(true);
+        setError(null);
+      } catch (err) {
+        setError(
+          "Error loading data. Make sure you are in development mode."
+        );
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkEnv();
+  }, [router]);
   // Wrapper functions that call the handlers with the necessary state
   const handleSave = async (file: string, data: any) => {
     return handlers.handleSave(file, data, setSaving, toast);
@@ -394,21 +413,19 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">Admin Panel</h1>
-      <p className="mb-6 text-muted-foreground">
-        Edit your data files here. Changes will be saved to the actual files in
-        the /data directory. After editing, you should manually commit these
-        changes to your repository.
-      </p>
-      <Tabs defaultValue="experiences">
-        <TabsList className="mb-4">
-          <TabsTrigger value="experiences">Experiences</TabsTrigger>
-          <TabsTrigger value="topSkills">Top Skills</TabsTrigger>
-          <TabsTrigger value="profileData">Profile Data</TabsTrigger>
-        </TabsList>
+    <div className="h-full">
+      {/* Dashboard */}
+      {activeTab === 'dashboard' && (
+        <AdminDashboard 
+          experiences={experiences}
+          topSkills={topSkills}
+          profileData={profileData}
+        />
+      )}
 
-        <TabsContent value="experiences">
+      {/* Experiences Tab */}
+      {activeTab === 'experiences' && (
+        <div className="p-6">
           <ExperiencesTab
             experiences={experiences}
             setExperiences={setExperiences}
@@ -422,9 +439,12 @@ export default function AdminPage() {
             deleteExperience={deleteExperience}
             moveExperience={moveExperience}
           />
-        </TabsContent>
+        </div>
+      )}
 
-        <TabsContent value="topSkills">
+      {/* Top Skills Tab */}
+      {activeTab === 'topSkills' && (
+        <div className="p-6">
           <TopSkillsTab
             topSkills={topSkills}
             setTopSkills={setTopSkills}
@@ -440,9 +460,12 @@ export default function AdminPage() {
             newSkill={newSkill}
             setNewSkill={setNewSkill}
           />
-        </TabsContent>
+        </div>
+      )}
 
-        <TabsContent value="profileData">
+      {/* Profile Data Tab */}
+      {activeTab === 'profileData' && (
+        <div className="p-6">
           <ProfileDataTab
             profileData={profileData}
             setProfileData={setProfileData}
@@ -465,8 +488,8 @@ export default function AdminPage() {
             deleteCertification={deleteCertification}
             moveCertification={moveCertification}
           />
-        </TabsContent>
-      </Tabs>{" "}
+        </div>
+      )}
       {/* Experience Dialog */}
       <ExperienceDialog
         open={dialogOpen}

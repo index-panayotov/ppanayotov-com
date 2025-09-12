@@ -2,8 +2,8 @@
 
 import { Toaster } from "@/components/ui/toaster";
 import { useRouter, usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { AdminThemeProvider } from "@/components/admin/theme-provider";
 
 export default function AdminLayout({
   children,
@@ -13,7 +13,7 @@ export default function AdminLayout({
   const router = useRouter();
   const pathname = usePathname();
   
-  // Don't show logout button on login page
+  // Don't show sidebar on login page
   const isLoginPage = pathname === '/admin/login';
   
   const handleLogout = () => {
@@ -23,18 +23,28 @@ export default function AdminLayout({
     router.push('/admin/login');
   };
   
+  if (isLoginPage) {
+    return (
+      <>
+        {children}
+        <Toaster />
+      </>
+    );
+  }
+  
   return (
-    <>
-      {!isLoginPage && (
-        <div className="fixed top-0 right-0 z-50 p-4">
-          <Button variant="outline" onClick={handleLogout} size="sm" className="bg-white shadow-md">
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
-        </div>
-      )}
-      {children}
-      <Toaster />
-    </>
+    <AdminThemeProvider defaultTheme="system">
+      <div className="flex h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
+        <AdminSidebar onLogout={handleLogout} />
+        
+        <main className="flex-1 overflow-hidden">
+          <div className="h-full overflow-y-auto bg-slate-50 dark:bg-slate-900">
+            {children}
+          </div>
+        </main>
+        
+        <Toaster />
+      </div>
+    </AdminThemeProvider>
   );
 }

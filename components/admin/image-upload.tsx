@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Upload, Link, X, Image as ImageIcon } from 'lucide-react';
+import { adminClassNames } from './design-system';
 import { useToast } from '@/hooks/use-toast';
 import { validateImageFile, isExternalImageUrl } from '@/lib/image-utils';
 import type { ImageUploadProps } from '@/types/admin-components';
@@ -166,7 +167,7 @@ export default function ImageUpload({
             <div
               className={`
                 relative border-2 border-dashed rounded-lg p-6 text-center transition-colors
-                ${dragOver ? 'border-primary bg-primary/5' : 'border-gray-300'}
+                ${dragOver ? 'border-primary bg-primary/5' : 'border-slate-300 dark:border-slate-600'}
                 ${uploading ? 'opacity-50' : 'cursor-pointer hover:border-primary hover:bg-primary/5'}
               `}
               onDrop={handleDrop}
@@ -183,11 +184,11 @@ export default function ImageUpload({
                 disabled={uploading}
               />
               
-              <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-              <p className="text-sm text-gray-600 mb-1">
+              <Upload className={`w-8 h-8 mx-auto mb-2 ${adminClassNames.text.muted}`} />
+              <p className={`text-sm ${adminClassNames.text.body} mb-1`}>
                 {uploading ? 'Uploading...' : 'Drop an image here or click to browse'}
               </p>
-              <p className="text-xs text-gray-400">
+              <p className={`text-xs ${adminClassNames.text.muted}`}>
                 Supports JPG, PNG, WebP (max 5MB)
               </p>
             </div>
@@ -224,7 +225,7 @@ export default function ImageUpload({
                 variant="outline"
                 size="sm"
                 onClick={handleRemoveImage}
-                className="text-red-600 hover:text-red-700"
+                className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -234,16 +235,16 @@ export default function ImageUpload({
               <img
                 src={currentImageUrl}
                 alt="Profile Preview"
-                className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+                className="w-20 h-20 rounded-full object-cover border-2 border-slate-200 dark:border-slate-700"
               />              <div className="text-sm space-y-1">
                 <p className="font-medium">
                   {isExternalImageUrl(currentImageUrl) ? 'External URL' : 'Local Upload'}
                 </p>
-                <p className="text-gray-500 break-all">
+                <p className={`${adminClassNames.text.muted} break-all`}>
                   {currentImageUrl}
                 </p>
                 {currentWebUrl && currentPdfUrl && (
-                  <div className="text-xs text-gray-400">
+                  <div className={`text-xs ${adminClassNames.text.muted}`}>
                     <p>Web: {currentWebUrl}</p>
                     <p>PDF: {currentPdfUrl}</p>
                   </div>

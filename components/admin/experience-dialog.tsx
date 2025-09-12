@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AIEnhancedInput } from '@/components/admin/ai-enhanced-input';
 import { AIEnhancedTextarea } from '@/components/admin/ai-enhanced-textarea';
 import { X } from 'lucide-react';
@@ -38,7 +39,41 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
   addTag,
   removeTag,
   saveExperience,
-}) => (
+}) => {
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
+  // Validate form when currentExperience changes
+  useEffect(() => {
+    if (!currentExperience) {
+      setValidationErrors([]);
+      return;
+    }
+
+    const errors: string[] = [];
+    if (!currentExperience.title?.trim()) {
+      errors.push('Title is required');
+    }
+    if (!currentExperience.company?.trim()) {
+      errors.push('Company is required');
+    }
+    if (!currentExperience.dateRange?.trim()) {
+      errors.push('Date Range is required');
+    }
+    if (!currentExperience.description?.trim()) {
+      errors.push('Description is required');
+    }
+
+    setValidationErrors(errors);
+  }, [currentExperience]);
+
+  const handleSave = () => {
+    if (validationErrors.length > 0) {
+      return; // Don't save if there are validation errors
+    }
+    saveExperience();
+  };
+
+  return (
   <Dialog open={open} onOpenChange={setOpen}>
     <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
       <DialogHeader>
@@ -49,6 +84,20 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
           Fill in the details for this experience entry
         </DialogDescription>
       </DialogHeader>
+      
+      {validationErrors.length > 0 && (
+        <Alert variant="destructive">
+          <AlertDescription>
+            Please fix the following errors:
+            <ul className="mt-2 list-disc list-inside">
+              {validationErrors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
+      )}
+
       {currentExperience && (
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-2 gap-4">            <div className="space-y-2">
@@ -125,10 +174,17 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
       )}
       <DialogFooter>
         <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-        <Button onClick={saveExperience}>Save</Button>
+        <Button 
+          onClick={handleSave}
+          disabled={validationErrors.length > 0}
+          className={validationErrors.length > 0 ? "opacity-50 cursor-not-allowed" : ""}
+        >
+          Save
+        </Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>
-);
+  );
+};
 
 export default ExperienceDialog;
