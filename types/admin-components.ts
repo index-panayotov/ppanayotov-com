@@ -37,6 +37,10 @@ export interface ProfileDataTabProps {
   editCertification: (cert: any, index: number) => void;
   deleteCertification: (index: number) => void;
   moveCertification: (index: number, direction: "up" | "down") => void;
+  addSocialLink: () => void;
+  editSocialLink: (link: any, index: number) => void;
+  deleteSocialLink: (index: number) => void;
+  moveSocialLink: (index: number, direction: "up" | "down") => void;
 }
 
 export interface ExperiencesTabProps {

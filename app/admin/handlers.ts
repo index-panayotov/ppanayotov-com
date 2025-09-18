@@ -1,5 +1,5 @@
 import { ExperienceEntry } from "@/types";
-import { LanguageProficiency } from "@/types/profile";
+import { LanguageProficiency, SocialLink } from "@/types/profile";
 import { processFormValue, isEditorJSFormat } from "@/lib/editorjs-utils";
 import systemSettings from "@/data/system_settings";
 
@@ -133,13 +133,14 @@ export const editExperience = (
   setDialogOpen(true);
 };
 
-export const saveExperience = (
+export const saveExperience = async (
   currentExperience: ExperienceEntry | null,
   experiences: ExperienceEntry[],
   setExperiences: (experiences: ExperienceEntry[]) => void,
   setDialogOpen: (open: boolean) => void,
   setCurrentExperience: (experience: ExperienceEntry | null) => void,
   setNewSkill: (skill: string) => void,
+  setSaving: (value: boolean) => void,
   toast: any
 ) => {
   if (!currentExperience) return;
@@ -184,25 +185,63 @@ export const saveExperience = (
   if (index !== undefined) {
     // Update existing
     newExperiences[index] = expToSave;
-    toast({
-      title: "Experience Updated",
-      description: `"${expToSave.title}" has been updated`,
-      className: "bg-blue-50 border-blue-200 text-blue-800"
-    });
   } else {
     // Add new
     newExperiences.push(expToSave);
-    toast({
-      title: "Experience Added",
-      description: `"${expToSave.title}" has been added`,
-      className: "bg-green-50 border-green-200 text-green-800"
-    });
   }
 
-  setExperiences(newExperiences);
-  setDialogOpen(false);
-  setCurrentExperience(null);
-  setNewSkill("");
+  try {
+    setSaving(true);
+    
+    // Update local state first
+    setExperiences(newExperiences);
+    
+    // Automatically persist to file system
+    const res = await fetch("/api/admin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ file: "cv-data.ts", data: newExperiences })
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "Failed to save data");
+    }
+    
+    // Show success message
+    if (index !== undefined) {
+      toast({
+        title: "Experience Updated & Saved",
+        description: `"${expToSave.title}" has been updated and saved to file`,
+        className: "bg-blue-50 border-blue-200 text-blue-800"
+      });
+    } else {
+      toast({
+        title: "Experience Added & Saved",
+        description: `"${expToSave.title}" has been added and saved to file`,
+        className: "bg-green-50 border-green-200 text-green-800"
+      });
+    }
+    
+    // Close dialog and reset state on success
+    setDialogOpen(false);
+    setCurrentExperience(null);
+    setNewSkill("");
+    
+  } catch (error) {
+    // Revert local state on error
+    setExperiences(experiences);
+    
+    toast({
+      title: "Save Failed",
+      description: `Failed to save "${expToSave.title}" to file. Please try again.`,
+      variant: "destructive"
+    });
+  } finally {
+    setSaving(false);
+  }
 };
 
 export const deleteExperience = (
@@ -223,11 +262,13 @@ export const deleteExperience = (
   });
 };
 
-export const moveExperience = (
+export const moveExperience = async (
   index: number,
   direction: "up" | "down",
   experiences: ExperienceEntry[],
-  setExperiences: (experiences: ExperienceEntry[]) => void
+  setExperiences: (experiences: ExperienceEntry[]) => void,
+  setSaving: (value: boolean) => void,
+  toast: any
 ) => {
   if (
     (direction === "up" && index === 0) ||
@@ -244,7 +285,45 @@ export const moveExperience = (
     newExperiences[index]
   ];
 
-  setExperiences(newExperiences);
+  try {
+    setSaving(true);
+    
+    // Update local state first
+    setExperiences(newExperiences);
+    
+    // Automatically persist to file system
+    const res = await fetch("/api/admin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ file: "cv-data.ts", data: newExperiences })
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "Failed to save data");
+    }
+    
+    // Show success message
+    toast({
+      title: "Experience Reordered & Saved",
+      description: `"${newExperiences[newIndex].title}" moved ${direction} and saved to file`,
+      className: "bg-green-50 border-green-200 text-green-800"
+    });
+    
+  } catch (error) {
+    // Revert local state on error
+    setExperiences(experiences);
+    
+    toast({
+      title: "Reorder Failed",
+      description: "Failed to save the new order. Please try again.",
+      variant: "destructive"
+    });
+  } finally {
+    setSaving(false);
+  }
 };
 
 // Functions for tags/skills
@@ -811,4 +890,275 @@ export const moveCertification = (
     ...profileData,
     certifications: newCertifications
   });
+};
+
+// Functions for managing social links
+export const addSocialLink = (
+  setCurrentSocialLink: (
+    socialLink: (SocialLink & { _index?: number }) | null
+  ) => void,
+  setSocialLinkDialogOpen: (open: boolean) => void,
+  profileData: any
+) => {
+  const newSocialLink: SocialLink = {
+    platform: "Custom",
+    url: "",
+    label: "",
+    visible: true,
+    visibleInHero: false,
+    position: (profileData.socialLinks || []).length // Set position as next available
+  };
+  setCurrentSocialLink(newSocialLink);
+  setSocialLinkDialogOpen(true);
+};
+
+export const editSocialLink = (
+  link: SocialLink,
+  index: number,
+  setCurrentSocialLink: (
+    socialLink: (SocialLink & { _index?: number }) | null
+  ) => void,
+  setSocialLinkDialogOpen: (open: boolean) => void
+) => {
+  setCurrentSocialLink({ ...link, _index: index });
+  setSocialLinkDialogOpen(true);
+};
+
+export const saveSocialLink = async (
+  currentSocialLink: (SocialLink & { _index?: number }) | null,
+  profileData: any,
+  setProfileData: (profileData: any) => void,
+  setSocialLinkDialogOpen: (open: boolean) => void,
+  setCurrentSocialLink: (
+    socialLink: (SocialLink & { _index?: number }) | null
+  ) => void,
+  setSaving: (value: boolean) => void,
+  toast: any
+) => {
+  if (!currentSocialLink) return;
+
+  // Validate required fields
+  const requiredFields = [
+    { field: 'url', name: 'URL' }
+  ];
+
+  if (currentSocialLink.platform === 'Custom') {
+    requiredFields.push({ field: 'label', name: 'Label' });
+  }
+
+  const missingFields = requiredFields.filter(
+    ({ field }) => !currentSocialLink[field as keyof SocialLink]?.toString().trim()
+  );
+
+  if (missingFields.length > 0) {
+    toast({
+      title: "Validation Error",
+      description: `Please fill in the following required fields: ${missingFields.map(f => f.name).join(', ')}`,
+      variant: "destructive"
+    });
+    return;
+  }
+
+  const linkToSave = { ...currentSocialLink };
+  const index = linkToSave._index;
+  delete linkToSave._index;
+
+  // Clean up empty optional fields
+  if (!linkToSave.label?.trim()) {
+    linkToSave.label = undefined;
+  }
+
+  const newSocialLinks = [...(profileData.socialLinks || [])];
+
+  try {
+    setSaving(true);
+    
+    if (index !== undefined) {
+      // Update existing
+      newSocialLinks[index] = linkToSave;
+    } else {
+      // Add new
+      newSocialLinks.push(linkToSave);
+    }
+
+    // Update local state first
+    setProfileData({
+      ...profileData,
+      socialLinks: newSocialLinks
+    });
+    
+    // Automatically persist to file system
+    const res = await fetch("/api/admin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ file: "user-profile.ts", data: { ...profileData, socialLinks: newSocialLinks } })
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "Failed to save data");
+    }
+    
+    // Show success message
+    if (index !== undefined) {
+      toast({
+        title: "Social Link Updated & Saved",
+        description: `"${linkToSave.platform}" link has been updated and saved to file`,
+        className: "bg-blue-50 border-blue-200 text-blue-800"
+      });
+    } else {
+      toast({
+        title: "Social Link Added & Saved",
+        description: `"${linkToSave.platform}" link has been added and saved to file`,
+        className: "bg-green-50 border-green-200 text-green-800"
+      });
+    }
+    
+    // Close dialog and reset state on success
+    setSocialLinkDialogOpen(false);
+    setCurrentSocialLink(null);
+    
+  } catch (error) {
+    // Revert local state on error
+    setProfileData(profileData);
+    
+    toast({
+      title: "Save Failed",
+      description: `Failed to save "${linkToSave.platform}" link to file. Please try again.`,
+      variant: "destructive"
+    });
+  } finally {
+    setSaving(false);
+  }
+};
+
+export const deleteSocialLink = async (
+  index: number,
+  profileData: any,
+  setProfileData: (profileData: any) => void,
+  setSaving: (value: boolean) => void,
+  toast: any
+) => {
+  const platform = profileData.socialLinks?.[index]?.platform || "";
+  const newSocialLinks = [...(profileData.socialLinks || [])];
+  newSocialLinks.splice(index, 1);
+
+  try {
+    setSaving(true);
+    
+    // Update local state first
+    setProfileData({
+      ...profileData,
+      socialLinks: newSocialLinks
+    });
+    
+    // Automatically persist to file system
+    const res = await fetch("/api/admin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ file: "user-profile.ts", data: { ...profileData, socialLinks: newSocialLinks } })
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "Failed to save data");
+    }
+    
+    toast({
+      title: "Social Link Deleted & Saved",
+      description: `"${platform}" link has been removed and changes saved to file`,
+      variant: "destructive"
+    });
+    
+  } catch (error) {
+    // Revert local state on error
+    setProfileData(profileData);
+    
+    toast({
+      title: "Delete Failed",
+      description: "Failed to delete social link. Please try again.",
+      variant: "destructive"
+    });
+  } finally {
+    setSaving(false);
+  }
+};
+
+export const moveSocialLink = async (
+  index: number,
+  direction: "up" | "down",
+  profileData: any,
+  setProfileData: (profileData: any) => void,
+  setSaving: (value: boolean) => void,
+  toast: any
+) => {
+  const socialLinks = profileData.socialLinks || [];
+  
+  if (
+    (direction === "up" && index === 0) ||
+    (direction === "down" && index === socialLinks.length - 1)
+  ) {
+    return;
+  }
+
+  const newSocialLinks = [...socialLinks];
+  const newIndex = direction === "up" ? index - 1 : index + 1;
+
+  // Swap the links
+  [newSocialLinks[index], newSocialLinks[newIndex]] = [
+    newSocialLinks[newIndex],
+    newSocialLinks[index]
+  ];
+
+  // Update position numbers
+  newSocialLinks.forEach((link, i) => {
+    link.position = i;
+  });
+
+  try {
+    setSaving(true);
+    
+    // Update local state first
+    setProfileData({
+      ...profileData,
+      socialLinks: newSocialLinks
+    });
+    
+    // Automatically persist to file system
+    const res = await fetch("/api/admin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ file: "user-profile.ts", data: { ...profileData, socialLinks: newSocialLinks } })
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "Failed to save data");
+    }
+    
+    // Show success message
+    toast({
+      title: "Social Link Reordered & Saved",
+      description: `"${newSocialLinks[newIndex].platform}" moved ${direction} and saved to file`,
+      className: "bg-green-50 border-green-200 text-green-800"
+    });
+    
+  } catch (error) {
+    // Revert local state on error
+    setProfileData(profileData);
+    
+    toast({
+      title: "Reorder Failed",
+      description: "Failed to save the new order. Please try again.",
+      variant: "destructive"
+    });
+  } finally {
+    setSaving(false);
+  }
 };

@@ -88,7 +88,10 @@ Keep the same meaning but enhance the wording. Respond with ONLY the improved te
           }
         } as React.ChangeEvent<HTMLInputElement>;
 
-        onChange(syntheticEvent);
+        // Use setTimeout to prevent state collision
+        setTimeout(() => {
+          onChange(syntheticEvent);
+        }, 0);
       }
 
       // Also call the onValueChange callback if provided

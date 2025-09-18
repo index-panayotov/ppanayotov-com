@@ -2,6 +2,16 @@ import { ExperienceEntry } from "@/types";
 
 export const experiences: ExperienceEntry[] = [
   {
+    "title": "sdsdsd",
+    "company": "sdsdsds",
+    "dateRange": "2006 - 2015",
+    "location": "Sofia, Sofia City, Bulgaria",
+    "description": "sdsdsds\n\ndsdsdsdsdsd",
+    "tags": [
+      "php"
+    ]
+  },
+  {
     "title": "Delivery Manager",
     "company": "MentorMate",
     "dateRange": "November 2020 - Present",

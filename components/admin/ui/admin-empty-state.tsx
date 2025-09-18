@@ -10,6 +10,7 @@ interface AdminEmptyStateProps {
   action?: {
     label: string;
     onClick: () => void;
+    disabled?: boolean;
   };
   className?: string;
 }
@@ -48,6 +49,7 @@ export function AdminEmptyState({
           <AdminButton 
             variant="primary" 
             onClick={action.onClick}
+            disabled={action.disabled}
           >
             {action.label}
           </AdminButton>

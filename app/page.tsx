@@ -8,8 +8,17 @@ import {
   FiLinkedin,
   FiMenu,
   FiX,
-  FiPhone
+  FiPhone,
+  FiGithub,
+  FiTwitter,
+  FiInstagram,
+  FiYoutube,
+  FiGlobe,
+  FiExternalLink
 } from "react-icons/fi";
+import {
+  FaFacebook
+} from "react-icons/fa";
 import { ExperienceEntry as ExperienceEntryComponent } from "@/components/experience-entry";
 import { SectionHeading } from "@/components/section-heading";
 import { SkillTag } from "@/components/skill-tag";
@@ -35,6 +44,28 @@ export default function Home() {
   // Sanitize function that works in both server and client environments
   const sanitize = (html: string): string => {
     return DOMPurify.sanitize(html);
+  };
+
+  // Helper function to get social media platform icon
+  const getSocialIcon = (platform: string) => {
+    const iconProps = { className: "h-5 w-5" };
+    switch (platform.toLowerCase()) {
+      case 'facebook':
+        return <FaFacebook {...iconProps} />;
+      case 'github':
+        return <FiGithub {...iconProps} />;
+      case 'twitter':
+        return <FiTwitter {...iconProps} />;
+      case 'linkedin':
+        return <FiLinkedin {...iconProps} />;
+      case 'instagram':
+        return <FiInstagram {...iconProps} />;
+      case 'youtube':
+        return <FiYoutube {...iconProps} />;
+      case 'custom':
+      default:
+        return <FiExternalLink {...iconProps} />;
+    }
   };
 
   const toggleMobileMenu = () => {
@@ -74,8 +105,7 @@ export default function Home() {
             {userProfile.name} - {userProfile.title}
           </h1>
           <p>
-            Contact: {userProfile.email},
-            {userProfile.linkedin}
+            Contact: {userProfile.email}
           </p>
           <p>
             Skills:{" "}
@@ -157,20 +187,29 @@ export default function Home() {
                 </p>
                 
                 {/* Social Media Links */}
-                <div className="flex gap-4 justify-center lg:justify-start mb-8">
-                  {userProfile.linkedin && (
-                    <a
-                      href={`https://${userProfile.linkedin}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-blue-100 hover:text-white transition-colors duration-200 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg backdrop-blur-sm"
-                      aria-label="LinkedIn Profile"
-                    >
-                      <FiLinkedin size={20} />
-                      <span className="hidden sm:inline">LinkedIn</span>
-                    </a>
-                  )}
-                </div>
+                {userProfile.socialLinks?.filter(link => link.visibleInHero).length > 0 && (
+                  <div className="flex gap-4 justify-center lg:justify-start mb-8 flex-wrap">
+                    {/* Dynamic Social Links */}
+                    {userProfile.socialLinks
+                      .filter(link => link.visibleInHero)
+                      .sort((a, b) => (a.position || 0) - (b.position || 0))
+                      .map((link, index) => (
+                        <a
+                          key={index}
+                          href={link.url.startsWith('http') ? link.url : `https://${link.url}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-blue-100 hover:text-white transition-colors duration-200 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg backdrop-blur-sm"
+                          aria-label={`${link.platform === 'Custom' ? link.label : link.platform} Profile`}
+                        >
+                          {getSocialIcon(link.platform)}
+                          <span className="hidden sm:inline">
+                            {link.platform === 'Custom' ? link.label : link.platform}
+                          </span>
+                        </a>
+                      ))}
+                  </div>
+                )}
                 {SystemSettings.get("showContacts") && (
                   <div className="flex justify-center lg:justify-start">
                     <a
@@ -338,7 +377,21 @@ export default function Home() {
         {SystemSettings.get("showContacts") && (
           <section id="contact" className="cv-section">
             <SectionHeading title="Contact" subtitle="Let's connect and discuss opportunities" />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {(() => {
+              // Find LinkedIn from social links
+              const linkedinLink = userProfile.socialLinks?.find(link =>
+                link.platform === 'LinkedIn' && link.visible
+              );
+
+              // Calculate grid columns based on available contact methods
+              const hasLinkedIn = !!linkedinLink;
+              const contactCount = 2 + (hasLinkedIn ? 1 : 0); // Email + Phone + LinkedIn (if available)
+              const gridClass = contactCount === 3
+                ? "grid grid-cols-1 md:grid-cols-3 gap-6"
+                : "grid grid-cols-1 md:grid-cols-2 gap-6 justify-center max-w-2xl mx-auto";
+
+              return (
+                <div className={gridClass}>
               <div className="contact-card">
                 <div className="contact-layout">
                   <div className="contact-icon bg-blue-100">
@@ -376,8 +429,9 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              
-              {userProfile.linkedin && (
+
+              {/* LinkedIn Card - only show if available in social links */}
+              {hasLinkedIn && (
                 <div className="contact-card">
                   <div className="contact-layout">
                     <div className="contact-icon bg-indigo-100">
@@ -385,19 +439,49 @@ export default function Home() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-slate-800 mb-1">LinkedIn</h3>
-                      <a 
-                        href={`https://${userProfile.linkedin.replace(/^https?:\/\//i, '')}`}
-                        target="_blank" 
+                      <a
+                        href={linkedinLink.url.startsWith('http') ? linkedinLink.url : `https://${linkedinLink.url}`}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="text-indigo-600 hover:text-indigo-700 transition-colors"
                       >
-                        {userProfile.linkedin.replace(/^https?:\/\//i, '')}
+                        {linkedinLink.url.replace(/^https?:\/\//i, '')}
                       </a>
                     </div>
                   </div>
                 </div>
               )}
-            </div>
+
+                </div>
+              );
+            })()}
+            
+            {/* Social Links Section */}
+            {userProfile.socialLinks && userProfile.socialLinks.filter(link => link.visible).length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-lg font-semibold text-slate-800 mb-4 text-center">Follow Me</h3>
+                <div className="flex justify-center flex-wrap gap-4">
+                  {userProfile.socialLinks
+                    .filter(link => link.visible)
+                    .sort((a, b) => (a.position || 0) - (b.position || 0))
+                    .map((link, index) => (
+                      <a
+                        key={index}
+                        href={link.url.startsWith('http') ? link.url : `https://${link.url}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg hover:border-slate-300 hover:shadow-md transition-all duration-200 text-slate-700 hover:text-slate-900"
+                        title={`Visit ${link.platform === 'Custom' ? link.label : link.platform}`}
+                      >
+                        {getSocialIcon(link.platform)}
+                        <span className="text-sm font-medium">
+                          {link.platform === 'Custom' ? link.label : link.platform}
+                        </span>
+                      </a>
+                    ))}
+                </div>
+              </div>
+            )}
             
           </section>
         )}

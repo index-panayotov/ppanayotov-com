@@ -377,3 +377,4 @@ const systemSettings = {
 - Location-based optimization (Sofia, Bulgaria)
 - Technical expertise visibility for relevant searches
 - Structured CV section indexing for better discoverability
+- no need to run npm  commands, i will do that

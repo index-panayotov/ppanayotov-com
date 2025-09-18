@@ -90,7 +90,7 @@ export function AdminDashboard({ experiences, topSkills, profileData }: AdminDas
       description: "Improve content with AI",
       icon: Brain,
       action: () => handleNavigation("experiences"),
-      color: "bg-orange-500"
+      color: "bg-blue-500"
     }
   ], [handleNavigation]);
 
@@ -215,9 +215,9 @@ export function AdminDashboard({ experiences, topSkills, profileData }: AdminDas
                 <span>Overall Progress</span>
                 <span>{stats.completionScore}%</span>
               </div>
-              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+              <div className="w-full bg-slate-200 rounded-full h-2">
                 <div 
-                  className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${stats.completionScore}%` }}
                 />
               </div>
@@ -260,7 +260,7 @@ export function AdminDashboard({ experiences, topSkills, profileData }: AdminDas
             <div className="space-y-3">
               {recentActivity.map((activity, index) => (
                 <div key={index} className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-blue-600 dark:bg-blue-500 rounded-full" />
+                  <div className="w-2 h-2 bg-blue-600 rounded-full" />
                   <div className="flex-1">
                     <div>{activity.action}</div>
                     <div className="text-muted-foreground text-xs">{activity.time}</div>

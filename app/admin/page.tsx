@@ -53,6 +53,10 @@ const CertificationDialog = dynamic(
   () => import("@/components/admin/certification-dialog"),
   { ssr: false }
 );
+const SocialLinkDialog = dynamic(
+  () => import("@/components/admin/social-link-dialog"),
+  { ssr: false }
+);
 
 export default function AdminPage() {
   const [experiences, setExperiences] = useState<ExperienceEntry[]>([]);
@@ -107,6 +111,16 @@ export default function AdminPage() {
     name: string;
     issuer?: string;
     date?: string;
+    _index?: number;
+  } | null>(null);
+  const [socialLinkDialogOpen, setSocialLinkDialogOpen] = useState(false);
+  const [currentSocialLink, setCurrentSocialLink] = useState<{
+    platform: string;
+    url: string;
+    label?: string;
+    visible: boolean;
+    visibleInHero: boolean;
+    position: number;
     _index?: number;
   } | null>(null);
   const { toast } = useToast();
@@ -233,6 +247,7 @@ export default function AdminPage() {
       setDialogOpen,
       setCurrentExperience,
       setNewSkill,
+      setSaving,
       toast
     );
   };
@@ -242,7 +257,7 @@ export default function AdminPage() {
   };
 
   const moveExperience = (index: number, direction: "up" | "down") => {
-    handlers.moveExperience(index, direction, experiences, setExperiences);
+    handlers.moveExperience(index, direction, experiences, setExperiences, setSaving, toast);
   };
 
   const addTag = () => {
@@ -381,6 +396,57 @@ export default function AdminPage() {
     handlers.moveCertification(index, direction, profileData, setProfileData);
   };
 
+  // Functions for managing social links
+  const addSocialLink = () => {
+    handlers.addSocialLink(
+      setCurrentSocialLink,
+      setSocialLinkDialogOpen,
+      profileData
+    );
+  };
+
+  const editSocialLink = (link: any, index: number) => {
+    handlers.editSocialLink(
+      link,
+      index,
+      setCurrentSocialLink,
+      setSocialLinkDialogOpen
+    );
+  };
+
+  const saveSocialLink = () => {
+    handlers.saveSocialLink(
+      currentSocialLink,
+      profileData,
+      setProfileData,
+      setSocialLinkDialogOpen,
+      setCurrentSocialLink,
+      setSaving,
+      toast
+    );
+  };
+
+  const deleteSocialLink = (index: number) => {
+    handlers.deleteSocialLink(
+      index,
+      profileData,
+      setProfileData,
+      setSaving,
+      toast
+    );
+  };
+
+  const moveSocialLink = (index: number, direction: "up" | "down") => {
+    handlers.moveSocialLink(
+      index,
+      direction,
+      profileData,
+      setProfileData,
+      setSaving,
+      toast
+    );
+  };
+
   if (loading) {
     return <div className="p-8">Loading...</div>;
   }
@@ -487,6 +553,10 @@ export default function AdminPage() {
             editCertification={editCertification}
             deleteCertification={deleteCertification}
             moveCertification={moveCertification}
+            addSocialLink={addSocialLink}
+            editSocialLink={editSocialLink}
+            deleteSocialLink={deleteSocialLink}
+            moveSocialLink={moveSocialLink}
           />
         </div>
       )}
@@ -501,6 +571,7 @@ export default function AdminPage() {
         addTag={addTag}
         removeTag={removeTag}
         saveExperience={saveExperience}
+        saving={saving}
       />{" "}
       {/* Language Dialog */}
       <LanguageDialog
@@ -525,6 +596,15 @@ export default function AdminPage() {
         currentCertification={currentCertification}
         setCurrentCertification={setCurrentCertification}
         saveCertification={saveCertification}
+      />
+      {/* Social Link Dialog */}
+      <SocialLinkDialog
+        open={socialLinkDialogOpen}
+        setOpen={setSocialLinkDialogOpen}
+        currentSocialLink={currentSocialLink}
+        setCurrentSocialLink={setCurrentSocialLink}
+        saveSocialLink={saveSocialLink}
+        saving={saving}
       />
     </div>
   );

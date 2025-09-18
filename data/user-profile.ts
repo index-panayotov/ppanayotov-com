@@ -8,9 +8,45 @@ export const userProfile: UserProfile = {
   "profileImageUrl": "/uploads/profile-1748252195923-web.webp",
   "profileImageWebUrl": "/uploads/profile-1748252195923-web.webp",
   "profileImagePdfUrl": "/uploads/profile-1748252195923-pdf.webp",
-  "summary": "Software Delivery Manager with over 10 years of experience in the IT industry, including 5 years in leading delivery and engineering teams. Proven expertise in software development, project execution, and process optimization, ensuring on-time delivery, high-quality outcomes, and continuous team performance improvement.",
+  "summary": "[{\"id\":\"wwkb293exok\",\"type\":\"paragraph\",\"data\":{\"text\":\"Software Delivery Manager with <b>over 10 years of experience </b>in the IT industry, including 5 years in leading delivery and engineering teams. Proven expertise in software development, project execution, and process optimization, ensuring on-time delivery, high-quality outcomes, and continuous team performance improvement.\"}}]",
   "email": "preslav.panayotov@gmail.com",
-  "linkedin": "www.linkedin.com/in/preslav-panayotov",
+  "socialLinks": [
+    {
+      "platform": "Facebook",
+      "url": "https://wrappai.com/",
+      "visible": true,
+      "position": 0,
+      "visibleInHero": true
+    },
+    {
+      "platform": "LinkedIn",
+      "url": "www.linkedin.com/in/preslav-panayotov",
+      "visible": true,
+      "visibleInHero": true,
+      "position": 1
+    },
+    {
+      "platform": "GitHub",
+      "url": "www.linkedin.com/in/preslav-panayotov",
+      "visible": true,
+      "visibleInHero": true,
+      "position": 2
+    },
+    {
+      "platform": "Twitter",
+      "url": "www.linkedin.com/in/preslav-panayotov",
+      "visible": true,
+      "visibleInHero": true,
+      "position": 3
+    },
+    {
+      "platform": "YouTube",
+      "url": "www.linkedin.com/in/preslav-panayotov",
+      "visible": true,
+      "visibleInHero": true,
+      "position": 4
+    }
+  ],
   "languages": [
     {
       "name": "Bulgarian",
@@ -31,10 +67,10 @@ export const userProfile: UserProfile = {
   ],
   "certifications": [
     {
-      "name": "Security Awareness Essentials"
+      "name": "Business English"
     },
     {
-      "name": "Business English"
+      "name": "Security Awareness Essentials"
     },
     {
       "name": "Shaping up with Angular.js"

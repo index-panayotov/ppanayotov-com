@@ -3,7 +3,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { useRouter, usePathname } from "next/navigation";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
-import { AdminThemeProvider } from "@/components/admin/theme-provider";
 
 export default function AdminLayout({
   children,
@@ -33,18 +32,16 @@ export default function AdminLayout({
   }
   
   return (
-    <AdminThemeProvider defaultTheme="system">
-      <div className="flex h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
-        <AdminSidebar onLogout={handleLogout} />
-        
-        <main className="flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto bg-slate-50 dark:bg-slate-900">
-            {children}
-          </div>
-        </main>
-        
-        <Toaster />
-      </div>
-    </AdminThemeProvider>
+    <div className="flex h-screen bg-slate-50">
+      <AdminSidebar onLogout={handleLogout} />
+      
+      <main className="flex-1 overflow-hidden">
+        <div className="h-full overflow-y-auto bg-slate-50">
+          {children}
+        </div>
+      </main>
+      
+      <Toaster />
+    </div>
   );
 }

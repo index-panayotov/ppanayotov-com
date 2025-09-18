@@ -67,7 +67,11 @@ export default function ProfileDataTab({
   addCertification,
   editCertification,
   deleteCertification,
-  moveCertification
+  moveCertification,
+  addSocialLink,
+  editSocialLink,
+  deleteSocialLink,
+  moveSocialLink
 }: ProfileDataTabProps) {
   return (
     <div className="space-y-4">
@@ -142,26 +146,16 @@ export default function ProfileDataTab({
                   />
                 </div>
               </div>
-                <div className="grid grid-cols-2 gap-4">                <div className="space-y-2">
-                  <label htmlFor="linkedin" className="text-sm font-medium">LinkedIn</label>
-                  <AIEnhancedInput 
-                    id="linkedin" 
-                    fieldName="LinkedIn URL"
-                    value={profileData.linkedin || ''} 
-                    onChange={(e) => handleProfileFieldChange('linkedin', e.target.value)}
-                  />
-                </div>
                 <div className="space-y-2">
                   <label htmlFor="phone" className="text-sm font-medium">Phone</label>
-                  <AIEnhancedInput 
-                    id="phone" 
+                  <AIEnhancedInput
+                    id="phone"
                     fieldName="phone"
                     type="tel"
-                    value={profileData.phone || ''} 
+                    value={profileData.phone || ''}
                     onChange={(e) => handleProfileFieldChange('phone', e.target.value)}
                   />
                 </div>
-              </div>
 
               {/* Profile Image Upload Section */}
               <ImageUpload
@@ -186,6 +180,90 @@ export default function ProfileDataTab({
                   value={profileData.summary || ''} 
                   onChange={(e) => handleProfileFieldChange('summary', e.target.value)}
                 />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Social Links</CardTitle>
+              <CardDescription>Manage your social media profiles and links. Use the visibility toggle to control which links appear on your homepage.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-sm font-medium">Social Links</h3>
+                  <Button onClick={addSocialLink} variant="outline" size="sm" disabled={saving}>
+                    <Plus className="h-4 w-4 mr-1" /> Add Social Link
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  {(!profileData.socialLinks || profileData.socialLinks.length === 0) ? (
+                    <div className="text-sm text-muted-foreground italic p-4 text-center border-2 border-dashed border-muted rounded-md">
+                      No social links added yet. Click "Add Social Link" to get started.
+                    </div>
+                  ) : (
+                    profileData.socialLinks
+                      ?.sort((a: any, b: any) => (a.position || 0) - (b.position || 0))
+                      ?.map((link: any, index: number) => (
+                        <div key={index} className="flex items-center justify-between p-3 border rounded-md">
+                          <div className="flex items-center gap-3">
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{link.platform}</span>
+                                {link.platform === 'Custom' && link.label && (
+                                  <span className="text-sm text-muted-foreground">({link.label})</span>
+                                )}
+                                <div className="flex gap-1">
+                                  <Badge variant={link.visible ? "default" : "secondary"} className="text-xs">
+                                    {link.visible ? "Contact" : "No Contact"}
+                                  </Badge>
+                                  <Badge variant={link.visibleInHero ? "default" : "secondary"} className="text-xs">
+                                    {link.visibleInHero ? "Hero" : "No Hero"}
+                                  </Badge>
+                                </div>
+                              </div>
+                              <span className="text-xs text-muted-foreground truncate max-w-xs">{link.url}</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => moveSocialLink(index, 'up')}
+                              disabled={index === 0 || saving}
+                            >
+                              <ArrowUp className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => moveSocialLink(index, 'down')}
+                              disabled={!profileData.socialLinks || index === profileData.socialLinks.length - 1 || saving}
+                            >
+                              <ArrowDown className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => editSocialLink(link, index)}
+                              disabled={saving}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => deleteSocialLink(index)}
+                              disabled={saving}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>

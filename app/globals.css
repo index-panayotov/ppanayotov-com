@@ -3,28 +3,43 @@
 @tailwind utilities;
 
 :root {
+  /* RGB fallbacks used by some legacy utilities (kept for compatibility) */
   --foreground-rgb: 0, 0, 0;
-  --background-rgb: 255, 255, 255;
-  --background: 0 0% 100%;
-  --foreground: 0 0% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 3.9%;
-  --primary: 220 70% 50%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 210 40% 95%;
-  --secondary-foreground: 220 70% 30%;
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
-  --accent: 216 100% 50%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 220 70% 50%;
+  --background-rgb: 248, 249, 250;
+
+  /* Optimal light theme for professional admin dashboard (HSL tokens) */
+  /* Use HSL tokens because Tailwind config maps colors with hsl(var(--...)) */
+  --background: 0 0% 97.6%; /* ~#f8f9fa - Clean, spacious interface */
+  --foreground: 0 0% 0%; /* #000000 - True black for maximum readability */
+  /* Card backgrounds: subtle light gray */
+  --card: 0 0% 96.1%; /* ~#f5f5f5 - Light gray */
+  --card-foreground: 0 0% 0%; /* #000000 - True black text */
+  --popover: 0 0% 100%; /* #ffffff - White popover background */
+  --popover-foreground: 0 0% 0%; /* #000000 - True black text */
+  /* Primary/secondary as HSL-ish approximations (kept simple) */
+  --primary: 212 63% 53%; /* ~#3b86d1 - Calming blue for navigation */
+  --primary-foreground: 0 0% 100%; /* #ffffff - White text on primary */
+  --secondary: 210 6% 48%; /* ~#6c757d - Balanced neutral gray */
+  --secondary-foreground: 0 0% 100%; /* #ffffff - White text on secondary */
+  --muted: 0 0% 92%; /* ~#e9ecef - Subtle gray background */
+  --muted-foreground: 210 8% 70%; /* ~#adb5bd - Light gray for muted content */
+  /* Use a neutral light-gray accent for subtle panels instead of bright/yellow tones */
+  --accent: 0 0% 96.1%; /* ~#f5f5f5 - Light gray */
+  --accent-foreground: 0 0% 0%; /* #000000 - True black text on bright backgrounds */
+  --destructive: 207 16% 44%; /* ~#64748b - Professional slate for errors */
+  --destructive-foreground: 0 0% 100%; /* #ffffff - White text */
+  --border: 0 0% 92%; /* ~#ebebeb - Slightly lighter neutral border */
+  --input: 0 0% 89.8%; /* ~#e9ecef - Input border color */
+  --ring: 212 63% 53%; /* ~#3b86d1 - Focus ring matches primary */
   --radius: 0.5rem;
+  
+  /* Success color for positive metrics */
+  --success: 33 191 6; /* #21bf06 - Professional green */
+  --success-foreground: 255 255 255; /* #ffffff - White text */
+  
+  /* Warning color */
+  --warning: 248 249 250; /* #f8f9fa - Light gray, closer to white */
+  --warning-foreground: 0 0 0; /* #000000 - True black text */
   
   /* Custom CV colors - Professional & Subtle */
   --cv-hero-gradient-from: 220 30% 25%;
@@ -33,7 +48,74 @@
   --cv-card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --cv-skill-primary: 220 30% 30%;
   --cv-skill-secondary: 210 20% 96%;
+
+  /* Chart & sidebar tokens (merged from styles/globals.css) */
+  --chart-1: 12 76% 61%;
+  --chart-2: 173 58% 39%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
+  --sidebar-background: 0 0% 98%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 240 5.9% 10%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+  
+  /* Normalize amber/yellow tokens (override vendor & third-party defaults) */
+  --color-amber-100: #f5f5f5;
+  --color-amber-200: #ebebeb;
+  --color-amber-300: #e1e1e1;
+  --color-amber-400: #d6d6d6;
+  --color-amber-500: #cccccc;
+  --color-amber-600: #bfbfbf;
+  --color-amber-700: #a6a6a6;
+  --color-amber-800: #8c8c8c;
+  --color-amber-900: #737373;
+  --color-amber-1000: #4a4a4a;
+  /* ANSI color overrides used by vendor libs */
+  --color-ansi-yellow: #6b7280;
+  --color-ansi-bright-yellow: #9ca3af;
 }
+
+/* Dark theme variables (merged from styles/globals.css) */
+.dark {
+  --background: 0 0% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 0 0% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 0 0% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 0 0% 98%;
+  --primary-foreground: 0 0% 9%;
+  --secondary: 0 0% 14.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 0 0% 14.9%;
+  --muted-foreground: 0 0% 63.9%;
+  --accent: 0 0% 14.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 12%;
+  --input: 0 0% 14.9%;
+  --ring: 0 0% 83.1%;
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
+  --sidebar-background: 240 5.9% 10%;
+  --sidebar-foreground: 240 4.8% 95.9%;
+  --sidebar-primary: 224.3 76.3% 48%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 3.7% 15.9%;
+  --sidebar-accent-foreground: 240 4.8% 95.9%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+}
+
 
 @layer base {
   * {

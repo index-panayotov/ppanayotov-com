@@ -167,7 +167,7 @@ export default function ImageUpload({
             <div
               className={`
                 relative border-2 border-dashed rounded-lg p-6 text-center transition-colors
-                ${dragOver ? 'border-primary bg-primary/5' : 'border-slate-300 dark:border-slate-600'}
+                ${dragOver ? 'border-primary bg-primary/5' : 'border-slate-300'}
                 ${uploading ? 'opacity-50' : 'cursor-pointer hover:border-primary hover:bg-primary/5'}
               `}
               onDrop={handleDrop}
@@ -225,7 +225,7 @@ export default function ImageUpload({
                 variant="outline"
                 size="sm"
                 onClick={handleRemoveImage}
-                className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                className="text-slate-600 hover:text-slate-700"
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -235,7 +235,7 @@ export default function ImageUpload({
               <img
                 src={currentImageUrl}
                 alt="Profile Preview"
-                className="w-20 h-20 rounded-full object-cover border-2 border-slate-200 dark:border-slate-700"
+                className="w-20 h-20 rounded-full object-cover border-2 border-slate-200"
               />              <div className="text-sm space-y-1">
                 <p className="font-medium">
                   {isExternalImageUrl(currentImageUrl) ? 'External URL' : 'Local Upload'}

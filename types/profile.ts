@@ -8,11 +8,28 @@ export enum LanguageProficiency {
 }
 
 /**
+ * Supported social media platforms
+ */
+export type SocialPlatform = 'Facebook' | 'GitHub' | 'Twitter' | 'LinkedIn' | 'Instagram' | 'YouTube' | 'Custom';
+
+/**
+ * Interface for social media links with position ordering and dual visibility control
+ */
+export interface SocialLink {
+  platform: SocialPlatform;
+  url: string;
+  label?: string; // For custom platform names or display text
+  visible: boolean; // Visibility in contact section
+  visibleInHero: boolean; // Visibility in hero section
+  position: number; // 0 = first, 1 = second, etc.
+  icon?: string;
+}
+
+/**
  * Interface for user profile based on current CV layout
  */
 export interface UserProfile {
   phone: string;
-  linkedin: string;
   email: string;
   name: string;
   title: string;
@@ -21,6 +38,7 @@ export interface UserProfile {
   profileImageWebUrl?: string; // Optimized for web display
   profileImagePdfUrl?: string; // Optimized for PDF generation
   summary: string;
+  socialLinks?: SocialLink[]; // New social links array
   languages: Array<{
     name: string;
     proficiency: LanguageProficiency;

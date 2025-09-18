@@ -99,7 +99,10 @@ Respond with ONLY the improved text without any explanations or additional text.
           }
         } as React.ChangeEvent<HTMLTextAreaElement>;
 
-        onChange(syntheticEvent);
+        // Use setTimeout to prevent state collision
+        setTimeout(() => {
+          onChange(syntheticEvent);
+        }, 0);
       }
 
       // Also call the onValueChange callback if provided
@@ -162,7 +165,7 @@ Respond with ONLY the improved text without any explanations or additional text.
         type="button"
         variant="ghost"
         size="icon"
-        className="absolute top-2 right-2 bg-background hover:bg-slate-100 dark:hover:bg-slate-700"
+        className="absolute top-2 right-2 bg-background hover:bg-slate-100"
         onClick={handleAIClick}
         disabled={isLoading}
         aria-label={

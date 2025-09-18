@@ -20,9 +20,6 @@ import {
   Target
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ThemeToggle } from "./theme-toggle";
-import { useAdminTheme } from "./theme-provider";
-import { adminColorsDark } from './design-system';
 
 interface AdminSidebarProps {
   onLogout: () => void;
@@ -75,7 +72,6 @@ function SidebarContent({
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { actualTheme } = useAdminTheme();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -85,21 +81,12 @@ function SidebarContent({
   return (
     <div 
       className={cn(
-        "flex h-full flex-col transition-colors", 
+        "flex h-full flex-col bg-slate-700 text-slate-50", 
         className
       )}
-      style={{
-        backgroundColor: actualTheme === "dark" ? adminColorsDark.background.primary : "rgb(51 65 85)",
-        color: actualTheme === "dark" ? adminColorsDark.text.primary : "rgb(248 250 252)"
-      }}
     >
       {/* Header */}
-      <div 
-        className="flex h-14 items-center border-b px-4"
-        style={{
-          borderBottomColor: actualTheme === "dark" ? adminColorsDark.background.focus : "rgb(71 85 105)"
-        }}
-      >
+      <div className="flex h-14 items-center border-b border-slate-600 px-4">
         {!collapsed && (
           <div className="flex items-center space-x-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
@@ -108,31 +95,11 @@ function SidebarContent({
             <span className="text-lg font-semibold">Admin Panel</span>
           </div>
         )}
-        <div className="ml-auto flex items-center space-x-1">
-          {!collapsed && <ThemeToggle />}
+        <div className="ml-auto">
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 transition-colors"
-            style={{
-              color: actualTheme === "dark" ? adminColorsDark.text.muted : "rgb(148 163 184)",
-              ...(actualTheme === "dark" ? {
-                '--hover-bg': adminColorsDark.background.elevated,
-                '--hover-text': adminColorsDark.text.primary
-              } : {})
-            }}
-            onMouseEnter={(e) => {
-              if (actualTheme === "dark") {
-                e.currentTarget.style.backgroundColor = adminColorsDark.background.elevated;
-                e.currentTarget.style.color = adminColorsDark.text.primary;
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (actualTheme === "dark") {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = adminColorsDark.text.muted;
-              }
-            }}
+            className="h-8 w-8 text-slate-400 hover:text-slate-100"
             onClick={onToggle}
           >
             {collapsed ? (
@@ -168,39 +135,17 @@ function SidebarContent({
                   variant="ghost"
                   className={cn(
                     "w-full justify-start h-auto p-3 transition-colors",
-                    collapsed && "px-2"
+                    collapsed && "px-2",
+                    isActive
+                      ? "bg-slate-600 text-slate-50"
+                      : "text-slate-300 hover:bg-slate-600/50 hover:text-slate-50"
                   )}
-                  style={{
-                    color: actualTheme === "dark" ? 
-                      (isActive ? adminColorsDark.text.primary : adminColorsDark.text.secondary) : 
-                      (isActive ? "rgb(248 250 252)" : "rgb(203 213 225)"),
-                    backgroundColor: actualTheme === "dark" ? 
-                      (isActive ? adminColorsDark.background.elevated : 'transparent') : 
-                      (isActive ? "rgb(71 85 105)" : 'transparent')
-                  }}
-                  onMouseEnter={(e) => {
-                    if (actualTheme === "dark" && !isActive) {
-                      e.currentTarget.style.backgroundColor = adminColorsDark.background.elevated;
-                      e.currentTarget.style.color = adminColorsDark.text.primary;
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (actualTheme === "dark" && !isActive) {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                      e.currentTarget.style.color = adminColorsDark.text.secondary;
-                    }
-                  }}
                 >
                   <Icon className={cn("h-5 w-5", !collapsed && "mr-3")} />
                   {!collapsed && (
                     <div className="flex flex-col items-start">
                       <span className="text-sm font-medium">{item.title}</span>
-                      <span 
-                        className="text-xs"
-                        style={{
-                          color: actualTheme === "dark" ? adminColorsDark.text.muted : "rgb(148 163 184)"
-                        }}
-                      >
+                      <span className="text-xs text-slate-400">
                         {item.description}
                       </span>
                     </div>
@@ -213,45 +158,20 @@ function SidebarContent({
       </ScrollArea>
 
       {/* Footer */}
-      <div 
-        className="border-t p-2"
-        style={{
-          borderTopColor: actualTheme === "dark" ? adminColorsDark.background.focus : "rgb(30 41 59)"
-        }}
-      >
+      <div className="border-t border-slate-600 p-2">
         <Button
           variant="ghost"
           className={cn(
-            "w-full justify-start h-auto p-3 transition-colors",
+            "w-full justify-start h-auto p-3 transition-colors text-slate-300 hover:bg-slate-600/20 hover:text-slate-400",
             collapsed && "px-2"
           )}
-          style={{
-            color: actualTheme === "dark" ? adminColorsDark.text.secondary : "rgb(203 213 225)"
-          }}
-          onMouseEnter={(e) => {
-            if (actualTheme === "dark") {
-              e.currentTarget.style.backgroundColor = adminColorsDark.background.elevated;
-              e.currentTarget.style.color = adminColorsDark.semantic.error;
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (actualTheme === "dark") {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = adminColorsDark.text.secondary;
-            }
-          }}
           onClick={onLogout}
         >
           <LogOut className={cn("h-5 w-5", !collapsed && "mr-3")} />
           {!collapsed && (
             <div className="flex flex-col items-start">
               <span className="text-sm font-medium">Logout</span>
-              <span 
-                className="text-xs"
-                style={{
-                  color: actualTheme === "dark" ? adminColorsDark.text.muted : "rgb(148 163 184)"
-                }}
-              >
+              <span className="text-xs text-slate-400 group-hover:text-slate-300">
                 Exit admin panel
               </span>
             </div>

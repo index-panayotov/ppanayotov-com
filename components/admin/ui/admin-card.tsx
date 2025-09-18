@@ -75,12 +75,12 @@ export function AdminCardHeader({
       <div className={adminClassNames.layout.flexBetween}>
         <div className="flex-1">
           {title && (
-            <h3 className={cn(adminClassNames.text.subheading, "text-lg")}>
+            <h3 className="text-lg font-semibold text-foreground">
               {title}
             </h3>
           )}
           {description && (
-            <p className={cn(adminClassNames.text.muted, "mt-1")}>
+            <p className="mt-1 text-muted-foreground">
               {description}
             </p>
           )}

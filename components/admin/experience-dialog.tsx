@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -27,6 +27,7 @@ interface ExperienceDialogProps {
   addTag: () => void;
   removeTag: (tag: string) => void;
   saveExperience: () => void;
+  saving?: boolean;
 }
 
 const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
@@ -39,49 +40,105 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
   addTag,
   removeTag,
   saveExperience,
+  saving = false,
 }) => {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
-  // Validate form when currentExperience changes
+  // Stable state updater functions using useCallback
+  const updateField = useCallback((field: keyof ExperienceEntry, value: string) => {
+    setCurrentExperience(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        [field]: value
+      };
+    });
+  }, [setCurrentExperience]);
+
+  const updateTitle = useCallback((value: string) => updateField('title', value), [updateField]);
+  const updateCompany = useCallback((value: string) => updateField('company', value), [updateField]);
+  const updateDateRange = useCallback((value: string) => updateField('dateRange', value), [updateField]);
+  const updateLocation = useCallback((value: string) => updateField('location', value), [updateField]);
+  const updateDescription = useCallback((value: string) => updateField('description', value), [updateField]);
+
+  // Memoized values for input stabilization
+  const inputValues = useMemo(() => ({
+    title: currentExperience?.title || '',
+    company: currentExperience?.company || '',
+    dateRange: currentExperience?.dateRange || '',
+    location: currentExperience?.location || '',
+    description: currentExperience?.description || ''
+  }), [currentExperience]);
+
+  // Debounced validation to prevent excessive re-renders during typing
   useEffect(() => {
     if (!currentExperience) {
       setValidationErrors([]);
       return;
     }
 
-    const errors: string[] = [];
-    if (!currentExperience.title?.trim()) {
-      errors.push('Title is required');
-    }
-    if (!currentExperience.company?.trim()) {
-      errors.push('Company is required');
-    }
-    if (!currentExperience.dateRange?.trim()) {
-      errors.push('Date Range is required');
-    }
-    if (!currentExperience.description?.trim()) {
-      errors.push('Description is required');
-    }
+    const timeoutId = setTimeout(() => {
+      const errors: string[] = [];
+      if (!currentExperience.title?.trim()) {
+        errors.push('Title is required');
+      }
+      if (!currentExperience.company?.trim()) {
+        errors.push('Company is required');
+      }
+      if (!currentExperience.dateRange?.trim()) {
+        errors.push('Date Range is required');
+      }
+      if (!currentExperience.description?.trim()) {
+        errors.push('Description is required');
+      }
 
-    setValidationErrors(errors);
+      setValidationErrors(errors);
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
   }, [currentExperience]);
 
   const handleSave = () => {
     if (validationErrors.length > 0) {
       return; // Don't save if there are validation errors
     }
+    if (saving) {
+      return; // Prevent double-submit while saving
+    }
     saveExperience();
   };
 
+  // Handle dialog close with confirmation if there are unsaved changes
+  const handleDialogClose = useCallback((newOpen: boolean) => {
+    if (!newOpen && saving) {
+      // Prevent closing while saving
+      return;
+    }
+    
+    if (!newOpen && currentExperience && (
+      inputValues.title.trim() || 
+      inputValues.company.trim() || 
+      inputValues.description.trim() ||
+      inputValues.dateRange.trim()
+    )) {
+      // Show confirmation for unsaved changes
+      if (window.confirm("You have unsaved changes. Are you sure you want to close without saving?")) {
+        setOpen(newOpen);
+      }
+    } else {
+      setOpen(newOpen);
+    }
+  }, [saving, currentExperience, inputValues, setOpen]);
+
   return (
-  <Dialog open={open} onOpenChange={setOpen}>
+  <Dialog open={open} onOpenChange={handleDialogClose}>
     <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle>
           {currentExperience?._index !== undefined ? 'Edit Experience' : 'Add New Experience'}
         </DialogTitle>
         <DialogDescription>
-          Fill in the details for this experience entry
+          Fill in the details for this experience entry. All changes will be automatically saved to your CV file.
         </DialogDescription>
       </DialogHeader>
       
@@ -105,8 +162,8 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
               <AIEnhancedInput 
                 id="title" 
                 fieldName="job title"
-                value={currentExperience.title} 
-                onChange={(e) => setCurrentExperience({ ...currentExperience, title: e.target.value })}
+                value={inputValues.title} 
+                onChange={(e) => updateTitle(e.target.value)}
               />
             </div>
             <div className="space-y-2">
@@ -114,8 +171,8 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
               <AIEnhancedInput 
                 id="company" 
                 fieldName="company name"
-                value={currentExperience.company} 
-                onChange={(e) => setCurrentExperience({ ...currentExperience, company: e.target.value })}
+                value={inputValues.company} 
+                onChange={(e) => updateCompany(e.target.value)}
               />
             </div>
           </div>
@@ -124,8 +181,8 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
               <AIEnhancedInput 
                 id="dateRange" 
                 fieldName="date range"
-                value={currentExperience.dateRange} 
-                onChange={(e) => setCurrentExperience({ ...currentExperience, dateRange: e.target.value })}
+                value={inputValues.dateRange} 
+                onChange={(e) => updateDateRange(e.target.value)}
               />
             </div>
             <div className="space-y-2">
@@ -133,18 +190,24 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
               <AIEnhancedInput 
                 id="location" 
                 fieldName="job location"
-                value={currentExperience.location || ''} 
-                onChange={(e) => setCurrentExperience({ ...currentExperience, location: e.target.value })}
+                value={inputValues.location} 
+                onChange={(e) => updateLocation(e.target.value)}
               />
             </div>
           </div>          <div className="space-y-2">
-            <label htmlFor="description" className="text-sm font-medium">Description</label>
+            <div className="flex justify-between items-center">
+              <label htmlFor="description" className="text-sm font-medium">Description</label>
+              <span className="text-xs text-muted-foreground">
+                {inputValues.description.length} characters
+              </span>
+            </div>
             <AIEnhancedTextarea 
               id="description" 
               fieldName="job description"
               rows={5}
-              value={currentExperience.description} 
-              onChange={(e) => setCurrentExperience({ ...currentExperience, description: e.target.value })}
+              value={inputValues.description} 
+              onChange={(e) => updateDescription(e.target.value)}
+              placeholder="Describe your role, responsibilities, and key achievements..."
             />
           </div>
           <div className="space-y-2">
@@ -173,13 +236,26 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
         </div>
       )}
       <DialogFooter>
-        <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+        <Button 
+          variant="outline" 
+          onClick={() => handleDialogClose(false)}
+          disabled={saving}
+        >
+          Cancel
+        </Button>
         <Button 
           onClick={handleSave}
-          disabled={validationErrors.length > 0}
+          disabled={validationErrors.length > 0 || saving}
           className={validationErrors.length > 0 ? "opacity-50 cursor-not-allowed" : ""}
         >
-          Save
+          {saving ? (
+            <>
+              <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-foreground" />
+              Saving...
+            </>
+          ) : (
+            "Save & Persist to File"
+          )}
         </Button>
       </DialogFooter>
     </DialogContent>
