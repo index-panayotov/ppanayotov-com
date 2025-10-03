@@ -1,20 +1,64 @@
 import { ExperienceEntry } from "@/types";
-import { LanguageProficiency, SocialLink } from "@/types/profile";
+import {
+  LanguageProficiency,
+  SocialLink,
+  UserProfile,
+  LanguageEntry,
+  EducationEntry,
+  Certification
+} from "@/types/profile";
 import { processFormValue, isEditorJSFormat } from "@/lib/editorjs-utils";
 import systemSettings from "@/data/system_settings";
+import { ApiResponse } from "@/types/core";
+
+// Type definitions for admin handlers
+export interface ToastFunction {
+  (config: {
+    title: string;
+    description: string;
+    variant?: 'default' | 'destructive';
+    className?: string;
+  }): void;
+}
+
+export interface AdminApiResponse {
+  success?: boolean;
+  error?: string;
+}
+
+// Extended types for editing with temporary index
+export interface ExperienceEntryWithIndex extends ExperienceEntry {
+  _index?: number;
+}
+
+export interface LanguageEntryWithIndex extends LanguageEntry {
+  _index?: number;
+}
+
+export interface EducationEntryWithIndex extends EducationEntry {
+  _index?: number;
+}
+
+export interface CertificationWithIndex extends Certification {
+  _index?: number;
+}
+
+export interface SocialLinkWithIndex extends SocialLink {
+  _index?: number;
+}
 
 // Function to handle saving data to API
 export const handleSave = async (
   file: string,
-  data: any,
+  data: unknown,
   setSaving: (value: boolean) => void,
-  toast: any
+  toast: ToastFunction
 ) => {
   try {
     setSaving(true);
     // Convert language proficiency string values to enum if needed
-    if (data.languages && Array.isArray(data.languages)) {
-      data.languages = data.languages.map((lang: any) => ({
+    if (data && typeof data === 'object' && 'languages' in data && Array.isArray((data as UserProfile).languages)) {
+      (data as UserProfile).languages = ((data as UserProfile).languages as LanguageEntry[]).map((lang: LanguageEntry) => ({
         ...lang,
         proficiency:
           typeof lang.proficiency === "string"
@@ -33,7 +77,7 @@ export const handleSave = async (
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await res.json() as AdminApiResponse;
       throw new Error(errorData.error || "Failed to save data");
     }
 
@@ -43,10 +87,10 @@ export const handleSave = async (
       variant: "default",
       className: "bg-green-50 border-green-200 text-green-800"
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     toast({
       title: "Error",
-      description: err.message || "Failed to save data",
+      description: err instanceof Error ? err.message : "Failed to save data",
       variant: "destructive"
     });
   } finally {
@@ -83,10 +127,10 @@ export const handleTopSkillsChange = (
 
 export const handleProfileDataChange = (
   e: React.ChangeEvent<HTMLTextAreaElement>,
-  setProfileData: (profileData: any) => void
+  setProfileData: (profileData: UserProfile) => void
 ) => {
   try {
-    const parsed = JSON.parse(e.target.value);
+    const parsed = JSON.parse(e.target.value) as UserProfile;
     setProfileData(parsed);
   } catch (err) {
     // Don't update state if JSON is invalid
@@ -95,23 +139,23 @@ export const handleProfileDataChange = (
 };
 
 export const handleProfileFieldChange = (
-  field: string,
+  field: keyof UserProfile,
   value: string,
-  profileData: any,
-  setProfileData: (profileData: any) => void
+  profileData: UserProfile,
+  setProfileData: (profileData: UserProfile) => void
 ) => {
   setProfileData({
     ...profileData,
     [field]: value
-  });
+  } as UserProfile);
 };
 
 // Functions for experiences
 export const addExperience = (
-  setCurrentExperience: (experience: ExperienceEntry | null) => void,
+  setCurrentExperience: (experience: ExperienceEntryWithIndex | null) => void,
   setDialogOpen: (open: boolean) => void
 ) => {
-  const newExperience: ExperienceEntry = {
+  const newExperience: ExperienceEntryWithIndex = {
     title: "",
     company: "",
     dateRange: "",
@@ -126,7 +170,7 @@ export const addExperience = (
 export const editExperience = (
   exp: ExperienceEntry,
   index: number,
-  setCurrentExperience: (experience: ExperienceEntry | null) => void,
+  setCurrentExperience: (experience: ExperienceEntryWithIndex | null) => void,
   setDialogOpen: (open: boolean) => void
 ) => {
   setCurrentExperience({ ...exp, _index: index });
@@ -134,14 +178,14 @@ export const editExperience = (
 };
 
 export const saveExperience = async (
-  currentExperience: ExperienceEntry | null,
+  currentExperience: ExperienceEntryWithIndex | null,
   experiences: ExperienceEntry[],
   setExperiences: (experiences: ExperienceEntry[]) => void,
   setDialogOpen: (open: boolean) => void,
-  setCurrentExperience: (experience: ExperienceEntry | null) => void,
+  setCurrentExperience: (experience: ExperienceEntryWithIndex | null) => void,
   setNewSkill: (skill: string) => void,
   setSaving: (value: boolean) => void,
-  toast: any
+  toast: ToastFunction
 ) => {
   if (!currentExperience) return;
 
@@ -177,7 +221,7 @@ export const saveExperience = async (
 
   // Clean up empty optional fields
   if (!expToSave.location?.trim()) {
-    expToSave.location = undefined;
+    delete expToSave.location;
   }
 
   const newExperiences = [...experiences];
@@ -206,7 +250,7 @@ export const saveExperience = async (
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await res.json() as AdminApiResponse;
       throw new Error(errorData.error || "Failed to save data");
     }
     
@@ -248,7 +292,7 @@ export const deleteExperience = (
   index: number,
   experiences: ExperienceEntry[],
   setExperiences: (experiences: ExperienceEntry[]) => void,
-  toast: any
+  toast: ToastFunction
 ) => {
   const title = experiences[index].title;
   const newExperiences = [...experiences];
@@ -268,7 +312,7 @@ export const moveExperience = async (
   experiences: ExperienceEntry[],
   setExperiences: (experiences: ExperienceEntry[]) => void,
   setSaving: (value: boolean) => void,
-  toast: any
+  toast: ToastFunction
 ) => {
   if (
     (direction === "up" && index === 0) ||
@@ -301,7 +345,7 @@ export const moveExperience = async (
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await res.json() as AdminApiResponse;
       throw new Error(errorData.error || "Failed to save data");
     }
     
@@ -328,9 +372,9 @@ export const moveExperience = async (
 
 // Functions for tags/skills
 export const addTag = (
-  currentExperience: ExperienceEntry | null,
+  currentExperience: ExperienceEntryWithIndex | null,
   newSkill: string,
-  setCurrentExperience: (experience: ExperienceEntry | null) => void,
+  setCurrentExperience: (experience: ExperienceEntryWithIndex | null) => void,
   setNewSkill: (skill: string) => void
 ) => {
   if (!currentExperience || !newSkill.trim()) return;
@@ -347,8 +391,8 @@ export const addTag = (
 
 export const removeTag = (
   tag: string,
-  currentExperience: ExperienceEntry | null,
-  setCurrentExperience: (experience: ExperienceEntry | null) => void
+  currentExperience: ExperienceEntryWithIndex | null,
+  setCurrentExperience: (experience: ExperienceEntryWithIndex | null) => void
 ) => {
   if (!currentExperience) return;
 
@@ -363,7 +407,7 @@ export const addTopSkill = (
   topSkills: string[],
   setTopSkills: (topSkills: string[]) => void,
   setNewSkill: (skill: string) => void,
-  toast: any
+  toast: ToastFunction
 ) => {
   if (!newSkill.trim()) return;
 
@@ -390,7 +434,7 @@ export const removeTopSkill = (
   skill: string,
   topSkills: string[],
   setTopSkills: (topSkills: string[]) => void,
-  toast: any
+  toast: ToastFunction
 ) => {
   setTopSkills(topSkills.filter((s) => s !== skill));
 
@@ -429,7 +473,7 @@ export const generateAutomaticTopSkills = async (
   experiences: ExperienceEntry[],
   setTopSkills: (topSkills: string[]) => void,
   setSaving: (saving: boolean) => void,
-  toast: any
+  toast: ToastFunction
 ) => {
   try {
     setSaving(true);
@@ -440,7 +484,7 @@ export const generateAutomaticTopSkills = async (
       },
       body: JSON.stringify({ experiences })
     });
-    const data = await res.json();
+    const data = await res.json() as { topSkills?: string[]; error?: string };
 
     if (!res.ok) {
       throw new Error(data.error || "Failed to generate top skills");
@@ -458,10 +502,10 @@ export const generateAutomaticTopSkills = async (
         "Top skills have been automatically generated based on your experience",
       className: "bg-green-50 border-green-200 text-green-800"
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     toast({
       title: "Error",
-      description: err.message || "Failed to generate top skills",
+      description: err instanceof Error ? err.message : "Failed to generate top skills",
       variant: "destructive"
     });
   } finally {
@@ -471,16 +515,10 @@ export const generateAutomaticTopSkills = async (
 
 // Functions for managing languages
 export const addLanguage = (
-  setCurrentLanguage: (
-    language: {
-      name: string;
-      proficiency: LanguageProficiency;
-      _index?: number;
-    } | null
-  ) => void,
+  setCurrentLanguage: (language: LanguageEntryWithIndex | null) => void,
   setLanguageDialogOpen: (open: boolean) => void
 ) => {
-  const newLanguage = {
+  const newLanguage: LanguageEntryWithIndex = {
     name: "",
     proficiency: LanguageProficiency.Professional
   };
@@ -489,15 +527,9 @@ export const addLanguage = (
 };
 
 export const editLanguage = (
-  lang: any,
+  lang: LanguageEntry,
   index: number,
-  setCurrentLanguage: (
-    language: {
-      name: string;
-      proficiency: LanguageProficiency;
-      _index?: number;
-    } | null
-  ) => void,
+  setCurrentLanguage: (language: LanguageEntryWithIndex | null) => void,
   setLanguageDialogOpen: (open: boolean) => void
 ) => {
   setCurrentLanguage({ ...lang, _index: index });
@@ -505,22 +537,12 @@ export const editLanguage = (
 };
 
 export const saveLanguage = (
-  currentLanguage: {
-    name: string;
-    proficiency: LanguageProficiency;
-    _index?: number;
-  } | null,
-  profileData: any,
-  setProfileData: (profileData: any) => void,
+  currentLanguage: LanguageEntryWithIndex | null,
+  profileData: UserProfile,
+  setProfileData: (profileData: UserProfile) => void,
   setLanguageDialogOpen: (open: boolean) => void,
-  setCurrentLanguage: (
-    language: {
-      name: string;
-      proficiency: LanguageProficiency;
-      _index?: number;
-    } | null
-  ) => void,
-  toast: any
+  setCurrentLanguage: (language: LanguageEntryWithIndex | null) => void,
+  toast: ToastFunction
 ) => {
   if (!currentLanguage) return;
 
@@ -558,9 +580,9 @@ export const saveLanguage = (
 
 export const deleteLanguage = (
   index: number,
-  profileData: any,
-  setProfileData: (profileData: any) => void,
-  toast: any
+  profileData: UserProfile,
+  setProfileData: (profileData: UserProfile) => void,
+  toast: ToastFunction
 ) => {
   const name = profileData.languages?.[index]?.name || "";
   const newLanguages = [...(profileData.languages || [])];
@@ -580,8 +602,8 @@ export const deleteLanguage = (
 export const moveLanguage = (
   index: number,
   direction: "up" | "down",
-  profileData: any,
-  setProfileData: (profileData: any) => void
+  profileData: UserProfile,
+  setProfileData: (profileData: UserProfile) => void
 ) => {
   if (
     !profileData.languages ||
@@ -607,18 +629,10 @@ export const moveLanguage = (
 
 // Functions for managing education
 export const addEducation = (
-  setCurrentEducation: (
-    education: {
-      institution: string;
-      degree: string;
-      field: string;
-      dateRange: string;
-      _index?: number;
-    } | null
-  ) => void,
+  setCurrentEducation: (education: EducationEntryWithIndex | null) => void,
   setEducationDialogOpen: (open: boolean) => void
 ) => {
-  const newEducation = {
+  const newEducation: EducationEntryWithIndex = {
     institution: "",
     degree: "",
     field: "",
@@ -629,17 +643,9 @@ export const addEducation = (
 };
 
 export const editEducation = (
-  edu: any,
+  edu: EducationEntry,
   index: number,
-  setCurrentEducation: (
-    education: {
-      institution: string;
-      degree: string;
-      field: string;
-      dateRange: string;
-      _index?: number;
-    } | null
-  ) => void,
+  setCurrentEducation: (education: EducationEntryWithIndex | null) => void,
   setEducationDialogOpen: (open: boolean) => void
 ) => {
   setCurrentEducation({ ...edu, _index: index });
@@ -647,26 +653,12 @@ export const editEducation = (
 };
 
 export const saveEducation = (
-  currentEducation: {
-    institution: string;
-    degree: string;
-    field: string;
-    dateRange: string;
-    _index?: number;
-  } | null,
-  profileData: any,
-  setProfileData: (profileData: any) => void,
+  currentEducation: EducationEntryWithIndex | null,
+  profileData: UserProfile,
+  setProfileData: (profileData: UserProfile) => void,
   setEducationDialogOpen: (open: boolean) => void,
-  setCurrentEducation: (
-    education: {
-      institution: string;
-      degree: string;
-      field: string;
-      dateRange: string;
-      _index?: number;
-    } | null
-  ) => void,
-  toast: any
+  setCurrentEducation: (education: EducationEntryWithIndex | null) => void,
+  toast: ToastFunction
 ) => {
   if (!currentEducation) return;
 
@@ -704,9 +696,9 @@ export const saveEducation = (
 
 export const deleteEducation = (
   index: number,
-  profileData: any,
-  setProfileData: (profileData: any) => void,
-  toast: any
+  profileData: UserProfile,
+  setProfileData: (profileData: UserProfile) => void,
+  toast: ToastFunction
 ) => {
   const institution = profileData.education?.[index]?.institution || "";
   const newEducation = [...(profileData.education || [])];
@@ -726,8 +718,8 @@ export const deleteEducation = (
 export const moveEducation = (
   index: number,
   direction: "up" | "down",
-  profileData: any,
-  setProfileData: (profileData: any) => void
+  profileData: UserProfile,
+  setProfileData: (profileData: UserProfile) => void
 ) => {
   if (
     !profileData.education ||
@@ -753,17 +745,10 @@ export const moveEducation = (
 
 // Functions for managing certifications
 export const addCertification = (
-  setCurrentCertification: (
-    certification: {
-      name: string;
-      issuer?: string;
-      date?: string;
-      _index?: number;
-    } | null
-  ) => void,
+  setCurrentCertification: (certification: CertificationWithIndex | null) => void,
   setCertificationDialogOpen: (open: boolean) => void
 ) => {
-  const newCertification = {
+  const newCertification: CertificationWithIndex = {
     name: "",
     issuer: "",
     date: ""
@@ -773,16 +758,9 @@ export const addCertification = (
 };
 
 export const editCertification = (
-  cert: any,
+  cert: Certification,
   index: number,
-  setCurrentCertification: (
-    certification: {
-      name: string;
-      issuer?: string;
-      date?: string;
-      _index?: number;
-    } | null
-  ) => void,
+  setCurrentCertification: (certification: CertificationWithIndex | null) => void,
   setCertificationDialogOpen: (open: boolean) => void
 ) => {
   setCurrentCertification({ ...cert, _index: index });
@@ -790,24 +768,12 @@ export const editCertification = (
 };
 
 export const saveCertification = (
-  currentCertification: {
-    name: string;
-    issuer?: string;
-    date?: string;
-    _index?: number;
-  } | null,
-  profileData: any,
-  setProfileData: (profileData: any) => void,
+  currentCertification: CertificationWithIndex | null,
+  profileData: UserProfile,
+  setProfileData: (profileData: UserProfile) => void,
   setCertificationDialogOpen: (open: boolean) => void,
-  setCurrentCertification: (
-    certification: {
-      name: string;
-      issuer?: string;
-      date?: string;
-      _index?: number;
-    } | null
-  ) => void,
-  toast: any
+  setCurrentCertification: (certification: CertificationWithIndex | null) => void,
+  toast: ToastFunction
 ) => {
   if (!currentCertification) return;
 
@@ -845,9 +811,9 @@ export const saveCertification = (
 
 export const deleteCertification = (
   index: number,
-  profileData: any,
-  setProfileData: (profileData: any) => void,
-  toast: any
+  profileData: UserProfile,
+  setProfileData: (profileData: UserProfile) => void,
+  toast: ToastFunction
 ) => {
   const name = profileData.certifications?.[index]?.name || "";
   const newCertifications = [...(profileData.certifications || [])];
@@ -867,8 +833,8 @@ export const deleteCertification = (
 export const moveCertification = (
   index: number,
   direction: "up" | "down",
-  profileData: any,
-  setProfileData: (profileData: any) => void
+  profileData: UserProfile,
+  setProfileData: (profileData: UserProfile) => void
 ) => {
   if (
     !profileData.certifications ||
@@ -894,13 +860,11 @@ export const moveCertification = (
 
 // Functions for managing social links
 export const addSocialLink = (
-  setCurrentSocialLink: (
-    socialLink: (SocialLink & { _index?: number }) | null
-  ) => void,
+  setCurrentSocialLink: (socialLink: SocialLinkWithIndex | null) => void,
   setSocialLinkDialogOpen: (open: boolean) => void,
-  profileData: any
+  profileData: UserProfile
 ) => {
-  const newSocialLink: SocialLink = {
+  const newSocialLink: SocialLinkWithIndex = {
     platform: "Custom",
     url: "",
     label: "",
@@ -915,9 +879,7 @@ export const addSocialLink = (
 export const editSocialLink = (
   link: SocialLink,
   index: number,
-  setCurrentSocialLink: (
-    socialLink: (SocialLink & { _index?: number }) | null
-  ) => void,
+  setCurrentSocialLink: (socialLink: SocialLinkWithIndex | null) => void,
   setSocialLinkDialogOpen: (open: boolean) => void
 ) => {
   setCurrentSocialLink({ ...link, _index: index });
@@ -925,15 +887,13 @@ export const editSocialLink = (
 };
 
 export const saveSocialLink = async (
-  currentSocialLink: (SocialLink & { _index?: number }) | null,
-  profileData: any,
-  setProfileData: (profileData: any) => void,
+  currentSocialLink: SocialLinkWithIndex | null,
+  profileData: UserProfile,
+  setProfileData: (profileData: UserProfile) => void,
   setSocialLinkDialogOpen: (open: boolean) => void,
-  setCurrentSocialLink: (
-    socialLink: (SocialLink & { _index?: number }) | null
-  ) => void,
+  setCurrentSocialLink: (socialLink: SocialLinkWithIndex | null) => void,
   setSaving: (value: boolean) => void,
-  toast: any
+  toast: ToastFunction
 ) => {
   if (!currentSocialLink) return;
 
@@ -997,7 +957,7 @@ export const saveSocialLink = async (
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await res.json() as AdminApiResponse;
       throw new Error(errorData.error || "Failed to save data");
     }
     
@@ -1036,10 +996,10 @@ export const saveSocialLink = async (
 
 export const deleteSocialLink = async (
   index: number,
-  profileData: any,
-  setProfileData: (profileData: any) => void,
+  profileData: UserProfile,
+  setProfileData: (profileData: UserProfile) => void,
   setSaving: (value: boolean) => void,
-  toast: any
+  toast: ToastFunction
 ) => {
   const platform = profileData.socialLinks?.[index]?.platform || "";
   const newSocialLinks = [...(profileData.socialLinks || [])];
@@ -1064,7 +1024,7 @@ export const deleteSocialLink = async (
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await res.json() as AdminApiResponse;
       throw new Error(errorData.error || "Failed to save data");
     }
     
@@ -1091,10 +1051,10 @@ export const deleteSocialLink = async (
 export const moveSocialLink = async (
   index: number,
   direction: "up" | "down",
-  profileData: any,
-  setProfileData: (profileData: any) => void,
+  profileData: UserProfile,
+  setProfileData: (profileData: UserProfile) => void,
   setSaving: (value: boolean) => void,
-  toast: any
+  toast: ToastFunction
 ) => {
   const socialLinks = profileData.socialLinks || [];
   
@@ -1138,7 +1098,7 @@ export const moveSocialLink = async (
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await res.json() as AdminApiResponse;
       throw new Error(errorData.error || "Failed to save data");
     }
     

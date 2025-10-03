@@ -12,38 +12,38 @@ export const userProfile: UserProfile = {
   "email": "preslav.panayotov@gmail.com",
   "socialLinks": [
     {
-      "platform": "Facebook",
-      "url": "https://wrappai.com/",
-      "visible": true,
-      "position": 0,
-      "visibleInHero": true
-    },
-    {
       "platform": "LinkedIn",
-      "url": "www.linkedin.com/in/preslav-panayotov",
+      "url": "https://www.linkedin.com/in/preslav-panayotov",
       "visible": true,
       "visibleInHero": true,
-      "position": 1
+      "position": 0
     },
     {
       "platform": "GitHub",
-      "url": "www.linkedin.com/in/preslav-panayotov",
-      "visible": true,
-      "visibleInHero": true,
-      "position": 2
+      "url": "",
+      "visible": false,
+      "visibleInHero": false,
+      "position": 1
     },
     {
       "platform": "Twitter",
-      "url": "www.linkedin.com/in/preslav-panayotov",
-      "visible": true,
-      "visibleInHero": true,
-      "position": 3
+      "url": "",
+      "visible": false,
+      "visibleInHero": false,
+      "position": 2
     },
     {
       "platform": "YouTube",
-      "url": "www.linkedin.com/in/preslav-panayotov",
-      "visible": true,
-      "visibleInHero": true,
+      "url": "",
+      "visible": false,
+      "visibleInHero": false,
+      "position": 3
+    },
+    {
+      "platform": "Facebook",
+      "url": "",
+      "visible": false,
+      "visibleInHero": false,
       "position": 4
     }
   ],

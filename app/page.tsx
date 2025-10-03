@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MobileMenu } from "@/components/mobile-menu";
 import {
   FiMail,
@@ -19,6 +19,17 @@ import {
 import {
   FaFacebook
 } from "react-icons/fa";
+import {
+  SiTiktok,
+  SiMedium,
+  SiDevdotto,
+  SiStackoverflow,
+  SiDiscord,
+  SiTelegram,
+  SiWhatsapp,
+  SiMastodon,
+  SiThreads
+} from "react-icons/si";
 import { ExperienceEntry as ExperienceEntryComponent } from "@/components/experience-entry";
 import { SectionHeading } from "@/components/section-heading";
 import { SkillTag } from "@/components/skill-tag";
@@ -32,6 +43,8 @@ import { userProfile } from "@/data/user-profile";
 import { getProfileImageUrl } from "@/lib/image-utils";
 import { SystemSettings } from "@/services/SystemSettings";
 import DOMPurify from 'isomorphic-dompurify';
+import { getSocialIcon } from "@/lib/social-platforms";
+import { initPerformanceMonitoring } from "@/lib/performance-monitoring";
 
 /**
  * Client React component that renders a data-driven, accessible CV/resume page.
@@ -40,32 +53,20 @@ import DOMPurify from 'isomorphic-dompurify';
  */
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+
+  // Initialize performance monitoring on client side
+  useEffect(() => {
+    initPerformanceMonitoring();
+  }, []);
+
   // Sanitize function that works in both server and client environments
   const sanitize = (html: string): string => {
     return DOMPurify.sanitize(html);
   };
 
-  // Helper function to get social media platform icon
-  const getSocialIcon = (platform: string) => {
-    const iconProps = { className: "h-5 w-5" };
-    switch (platform.toLowerCase()) {
-      case 'facebook':
-        return <FaFacebook {...iconProps} />;
-      case 'github':
-        return <FiGithub {...iconProps} />;
-      case 'twitter':
-        return <FiTwitter {...iconProps} />;
-      case 'linkedin':
-        return <FiLinkedin {...iconProps} />;
-      case 'instagram':
-        return <FiInstagram {...iconProps} />;
-      case 'youtube':
-        return <FiYoutube {...iconProps} />;
-      case 'custom':
-      default:
-        return <FiExternalLink {...iconProps} />;
-    }
+  // Helper function to get social media platform icon using the new platform system
+  const getSocialIconForDisplay = (platform: string) => {
+    return getSocialIcon(platform, "h-5 w-5");
   };
 
   const toggleMobileMenu = () => {
@@ -96,25 +97,27 @@ export default function Home() {
       <BackToTop />
       
       {/* Hidden metadata for ATS */}
-      <div className="hidden print:block">
-        <div
-          aria-hidden="true"
-          className="text-[0.1px] text-white overflow-hidden h-[0.1px]"
-        >
-          <h1>
-            {userProfile.name} - {userProfile.title}
-          </h1>
-          <p>
-            Contact: {userProfile.email}
-          </p>
-          <p>
-            Skills:{" "}
-            {Array.from(new Set(experiences.flatMap(exp => exp.tags))).join(
-              ", "
-            )}
-          </p>
+      {SystemSettings.get("showPrint") && (
+        <div className="hidden print:block">
+          <div
+            aria-hidden="true"
+            className="text-[0.1px] text-white overflow-hidden h-[0.1px]"
+          >
+            <h1>
+              {userProfile.name} - {userProfile.title}
+            </h1>
+            <p>
+              Contact: {userProfile.email}
+            </p>
+            <p>
+              Skills:{" "}
+              {Array.from(new Set(experiences.flatMap(exp => exp.tags))).join(
+                ", "
+              )}
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       <header className="px-4 py-6 md:sticky md:top-0 md:z-50 md:bg-white/80 md:backdrop-blur-md md:shadow-sm md:border-b md:border-slate-200/50" role="banner">
         <div className="container mx-auto">
@@ -202,7 +205,7 @@ export default function Home() {
                           className="flex items-center gap-2 text-blue-100 hover:text-white transition-colors duration-200 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg backdrop-blur-sm"
                           aria-label={`${link.platform === 'Custom' ? link.label : link.platform} Profile`}
                         >
-                          {getSocialIcon(link.platform)}
+                          {getSocialIconForDisplay(link.platform)}
                           <span className="hidden sm:inline">
                             {link.platform === 'Custom' ? link.label : link.platform}
                           </span>

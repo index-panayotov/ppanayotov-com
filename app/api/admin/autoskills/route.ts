@@ -1,37 +1,64 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { ExperienceEntry } from "@/types";
 import { experiences } from "@/data/cv-data";
-import { userProfile } from "@/data/user-profile";
+import {
+  GenerateSkillsApiRequestSchema,
+  GenerateSkillsApiResponse,
+  API_ERROR_CODES,
+  createTypedSuccessResponse,
+  createTypedErrorResponse,
+  validateRequestBody
+} from "@/types/api";
 
 // Only allow in development mode
 const isDev = process.env.NODE_ENV === "development";
 
 /**
- * Handles a POST request to analyze experience data and return the top 10 most frequently used skills.
+ * Type-safe POST handler to analyze experience data and return the top skills.
  *
- * Accepts a JSON payload containing an array of experience entries; if not provided, uses default imported data. Only available in development mode.
+ * Accepts a validated JSON payload containing experience texts and optional maxSkills parameter.
+ * If no experiences provided, uses default imported data. Only available in development mode.
  *
- * @returns A JSON response with a `topSkills` array listing the most common skill tags.
- *
- * @remark Returns a 403 error if accessed outside development mode, and a 500 error if processing fails.
+ * @returns A typed JSON response with skills array including frequency and confidence metrics.
  */
 export async function POST(request: NextRequest) {
   if (!isDev) {
-    return NextResponse.json(
-      { error: "Admin API only available in development mode" },
-      { status: 403 }
+    return createTypedErrorResponse(
+      API_ERROR_CODES.FORBIDDEN,
+      "Admin API only available in development mode"
     );
   }
 
   try {
-    // Get experiences from the request body or fallback to the imported data
-    const reqBody = await request.json();
-    const experienceData: ExperienceEntry[] =
-      reqBody.experiences || experiences;
+    // Validate request body
+    const validation = await validateRequestBody(request, GenerateSkillsApiRequestSchema);
+
+    if (!validation.success) {
+      return createTypedErrorResponse(
+        validation.error.code,
+        validation.error.message,
+        validation.error.details?.zodErrors?.map(err => ({
+          field: err.path.join('.'),
+          message: err.message,
+          code: err.code,
+          value: err.input
+        }))
+      );
+    }
+
+    const { experienceTexts, maxSkills = 20 } = validation.data;
+
+    // If no experience texts provided, extract from default experiences
+    let textsToAnalyze = experienceTexts;
+    if (!textsToAnalyze || textsToAnalyze.length === 0) {
+      textsToAnalyze = experiences.map(exp =>
+        Array.isArray(exp.tags) ? exp.tags.join(', ') : ''
+      ).filter(text => text.length > 0);
+    }
 
     // Collect all tags from experience entries
     const allTags: string[] = [];
-    experienceData.forEach((exp) => {
+    experiences.forEach((exp) => {
       if (exp.tags && Array.isArray(exp.tags)) {
         exp.tags.forEach((tag) => {
           allTags.push(tag);
@@ -45,20 +72,32 @@ export async function POST(request: NextRequest) {
       tagCounts[tag] = (tagCounts[tag] || 0) + 1;
     });
 
-    // Sort tags by frequency (most frequent first)
+    const totalTags = allTags.length;
+
+    // Sort tags by frequency and calculate confidence
     const sortedTags = Object.entries(tagCounts)
       .sort((a, b) => b[1] - a[1]) // Sort by count (descending)
-      .map((entry) => entry[0]); // Extract just the tag names
+      .slice(0, maxSkills)
+      .map(([name, frequency]) => ({
+        name,
+        frequency,
+        confidence: Math.min(frequency / totalTags, 1) // Normalize to 0-1
+      }));
 
-    // Return the top 10 skills
-    return NextResponse.json({
-      topSkills: sortedTags.slice(0, 10)
-    });
+    const response: GenerateSkillsApiResponse = {
+      skills: sortedTags,
+      totalExperiences: experiences.length
+    };
+
+    return createTypedSuccessResponse(
+      response,
+      `Generated ${sortedTags.length} skills from ${experiences.length} experiences`
+    );
   } catch (error) {
     console.error("Error generating top skills:", error);
-    return NextResponse.json(
-      { error: "Failed to generate top skills" },
-      { status: 500 }
+    return createTypedErrorResponse(
+      API_ERROR_CODES.INTERNAL_ERROR,
+      "Failed to generate top skills"
     );
   }
 }

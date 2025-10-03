@@ -121,15 +121,24 @@
   * {
     @apply border-border;
   }
-  
+
   html {
     scroll-behavior: smooth;
+    /* Font rendering optimization */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
-  
+
   body {
     color: rgb(var(--foreground-rgb));
     background: rgb(var(--background-rgb));
     @apply bg-background text-foreground;
+    /* Font performance optimizations */
+    font-display: swap;
+    font-feature-settings: "kern" 1, "liga" 1, "clig" 1, "calt" 1;
+    font-variant-ligatures: common-ligatures contextual;
+    text-size-adjust: 100%;
   }
   h1 {
     @apply text-3xl font-bold tracking-tight;
@@ -250,14 +259,203 @@
     .cv-nav-link {
       @apply py-3 px-2;
     }
-    
+
     .cv-skill-tag {
       @apply px-4 py-2 text-base;
     }
-    
+
     button, a {
       min-height: 44px;
       min-width: 44px;
+    }
+  }
+
+  /* Enhanced Mobile Typography & Layout */
+  @media (max-width: 768px) {
+    /* Mobile typography system with fluid scaling */
+    :root {
+      --mobile-text-xs: clamp(12px, 3vw, 14px);
+      --mobile-text-sm: clamp(14px, 3.5vw, 16px);
+      --mobile-text-base: clamp(16px, 4vw, 18px);
+      --mobile-text-lg: clamp(18px, 4.5vw, 20px);
+      --mobile-text-xl: clamp(20px, 5vw, 24px);
+      --mobile-text-2xl: clamp(24px, 6vw, 28px);
+      --mobile-text-3xl: clamp(28px, 7vw, 32px);
+
+      /* Enhanced line heights for mobile reading */
+      --mobile-leading-tight: 1.3;
+      --mobile-leading-normal: 1.6;
+      --mobile-leading-relaxed: 1.7;
+
+      /* Mobile-optimized spacing */
+      --mobile-space-xs: clamp(8px, 2vw, 12px);
+      --mobile-space-sm: clamp(12px, 3vw, 16px);
+      --mobile-space-md: clamp(16px, 4vw, 24px);
+      --mobile-space-lg: clamp(24px, 6vw, 32px);
+      --mobile-space-xl: clamp(32px, 8vw, 48px);
+
+      /* Touch-friendly targets */
+      --mobile-touch-target: 48px;
+      --mobile-touch-comfortable: 56px;
+    }
+
+    /* Mobile-optimized base typography */
+    body {
+      font-size: var(--mobile-text-base);
+      line-height: var(--mobile-leading-normal);
+      letter-spacing: 0.01em;
+    }
+
+    /* Mobile heading optimizations */
+    h1 {
+      font-size: var(--mobile-text-3xl);
+      line-height: var(--mobile-leading-tight);
+      margin-bottom: var(--mobile-space-md);
+    }
+
+    h2 {
+      font-size: var(--mobile-text-2xl);
+      line-height: var(--mobile-leading-tight);
+      margin-bottom: var(--mobile-space-sm);
+    }
+
+    h3 {
+      font-size: var(--mobile-text-xl);
+      line-height: var(--mobile-leading-normal);
+      margin-bottom: var(--mobile-space-sm);
+    }
+
+    /* Mobile paragraph optimization */
+    p {
+      font-size: var(--mobile-text-base);
+      line-height: var(--mobile-leading-relaxed);
+      margin-bottom: var(--mobile-space-md);
+    }
+
+    /* Mobile-optimized experience cards */
+    .experience-item {
+      margin-bottom: var(--mobile-space-lg);
+      padding: var(--mobile-space-md);
+    }
+
+    .experience-item .cv-card-shadow {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Enhanced mobile skill tags */
+    .cv-skill-tag {
+      font-size: var(--mobile-text-sm);
+      padding: var(--mobile-space-xs) var(--mobile-space-sm);
+      margin: 4px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      line-height: 1.2;
+    }
+
+    /* Mobile section spacing */
+    .cv-section {
+      padding: var(--mobile-space-xl) var(--mobile-space-md);
+      margin-bottom: var(--mobile-space-lg);
+    }
+
+    /* Mobile card layouts */
+    .cv-card {
+      padding: var(--mobile-space-md);
+      margin-bottom: var(--mobile-space-md);
+      border-radius: 12px;
+    }
+
+    /* Touch-friendly buttons */
+    .cv-button-primary,
+    .cv-button-secondary {
+      min-height: var(--mobile-touch-target);
+      font-size: var(--mobile-text-base);
+      padding: var(--mobile-space-sm) var(--mobile-space-md);
+      border-radius: 8px;
+    }
+
+    /* Mobile form inputs */
+    input, textarea, select {
+      min-height: var(--mobile-touch-target);
+      font-size: var(--mobile-text-base);
+      padding: var(--mobile-space-sm);
+      border-radius: 8px;
+    }
+
+    /* Mobile list improvements */
+    ul, ol {
+      padding-left: var(--mobile-space-md);
+    }
+
+    li {
+      margin-bottom: var(--mobile-space-xs);
+      line-height: var(--mobile-leading-relaxed);
+    }
+
+    /* Mobile link enhancements */
+    a {
+      min-height: var(--mobile-touch-target);
+      display: inline-flex;
+      align-items: center;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    /* Mobile navigation improvements */
+    nav a {
+      min-height: var(--mobile-touch-comfortable);
+      padding: var(--mobile-space-sm) var(--mobile-space-md);
+    }
+  }
+
+  /* High contrast mode for mobile accessibility */
+  @media (max-width: 768px) and (prefers-contrast: high) {
+    :root {
+      --cv-skill-primary: 0 0% 0%;
+      --cv-skill-secondary: 0 0% 100%;
+    }
+
+    .cv-skill-tag {
+      border: 2px solid currentColor;
+    }
+
+    .cv-card {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  /* Reduced motion support for mobile */
+  @media (max-width: 768px) and (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Mobile dark mode optimizations */
+  @media (max-width: 768px) and (prefers-color-scheme: dark) {
+    :root {
+      --mobile-contrast-boost: 1.1;
+    }
+
+    body {
+      background-color: hsl(220, 15%, 8%);
+      color: hsl(0, 0%, 95%);
+    }
+
+    .cv-card {
+      background-color: hsl(220, 15%, 12%);
+      border: 1px solid hsl(220, 15%, 20%);
+    }
+
+    .cv-skill-tag {
+      background-color: hsl(220, 15%, 15%);
+      color: hsl(0, 0%, 90%);
     }
   }
 }

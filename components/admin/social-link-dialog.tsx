@@ -14,6 +14,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AIEnhancedInput } from '@/components/admin/ai-enhanced-input';
 import { SocialLink, SocialPlatform } from '@/types/profile';
+import {
+  getAvailablePlatforms,
+  getPlatformDefinition,
+  detectPlatformFromUrl,
+  validateSocialUrl,
+  getSocialIcon
+} from '@/lib/social-platforms';
 
 interface SocialLinkDialogProps {
   open: boolean;
@@ -24,9 +31,29 @@ interface SocialLinkDialogProps {
   saving?: boolean;
 }
 
-const SOCIAL_PLATFORMS: SocialPlatform[] = [
-  'Facebook', 'GitHub', 'Twitter', 'LinkedIn', 'Instagram', 'YouTube', 'Custom'
-];
+// Get platforms from configuration system
+const SOCIAL_PLATFORMS: SocialPlatform[] = getAvailablePlatforms().map(key => {
+  // Convert platform keys to the format expected by the SocialPlatform type
+  const platformMap: Record<string, SocialPlatform> = {
+    facebook: 'Facebook',
+    github: 'GitHub',
+    twitter: 'Twitter',
+    linkedin: 'LinkedIn',
+    instagram: 'Instagram',
+    youtube: 'YouTube',
+    tiktok: 'TikTok',
+    medium: 'Medium',
+    devto: 'DevTo',
+    stackoverflow: 'StackOverflow',
+    discord: 'Discord',
+    telegram: 'Telegram',
+    whatsapp: 'WhatsApp',
+    mastodon: 'Mastodon',
+    threads: 'Threads',
+    custom: 'Custom'
+  };
+  return platformMap[key] || 'Custom';
+});
 
 const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
   open,
@@ -37,6 +64,7 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
   saving = false,
 }) => {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [validationSuggestion, setValidationSuggestion] = useState<string>('');
 
   // Stable state updater functions using useCallback
   const updateField = useCallback((field: keyof SocialLink, value: string | boolean | number) => {
@@ -50,7 +78,39 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
   }, [setCurrentSocialLink]);
 
   const updatePlatform = useCallback((value: SocialPlatform) => updateField('platform', value), [updateField]);
-  const updateUrl = useCallback((value: string) => updateField('url', value), [updateField]);
+
+  const updateUrl = useCallback((value: string) => {
+    updateField('url', value);
+
+    // Auto-detect platform from URL
+    if (value && !currentSocialLink?.platform) {
+      const detectedPlatform = detectPlatformFromUrl(value);
+      if (detectedPlatform) {
+        const platformMap: Record<string, SocialPlatform> = {
+          facebook: 'Facebook',
+          github: 'GitHub',
+          twitter: 'Twitter',
+          linkedin: 'LinkedIn',
+          instagram: 'Instagram',
+          youtube: 'YouTube',
+          tiktok: 'TikTok',
+          medium: 'Medium',
+          devto: 'DevTo',
+          stackoverflow: 'StackOverflow',
+          discord: 'Discord',
+          telegram: 'Telegram',
+          whatsapp: 'WhatsApp',
+          mastodon: 'Mastodon',
+          threads: 'Threads'
+        };
+        const mappedPlatform = platformMap[detectedPlatform];
+        if (mappedPlatform) {
+          updateField('platform', mappedPlatform);
+        }
+      }
+    }
+  }, [updateField, currentSocialLink?.platform]);
+
   const updateLabel = useCallback((value: string) => updateField('label', value), [updateField]);
   const updateVisible = useCallback((value: boolean) => updateField('visible', value), [updateField]);
   const updateVisibleInHero = useCallback((value: boolean) => updateField('visibleInHero', value), [updateField]);
@@ -64,32 +124,60 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
     visibleInHero: currentSocialLink?.visibleInHero || false
   }), [currentSocialLink]);
 
-  // Debounced validation to prevent excessive re-renders during typing
+  // Debounced validation using the new platform system
   useEffect(() => {
     if (!currentSocialLink) {
       setValidationErrors([]);
+      setValidationSuggestion('');
       return;
     }
 
     const timeoutId = setTimeout(() => {
       const errors: string[] = [];
-      
-      if (!currentSocialLink.url?.trim()) {
-        errors.push('URL is required');
-      } else {
-        // Basic URL validation
-        try {
-          new URL(currentSocialLink.url.startsWith('http') ? currentSocialLink.url : `https://${currentSocialLink.url}`);
-        } catch {
-          errors.push('Please enter a valid URL');
+      let suggestion = '';
+
+      // Platform-specific validation
+      if (currentSocialLink.url?.trim()) {
+        // Convert PascalCase platform names to lowercase keys for validation
+        const platformKeyMap: Record<SocialPlatform, string> = {
+          'Facebook': 'facebook',
+          'GitHub': 'github',
+          'Twitter': 'twitter',
+          'LinkedIn': 'linkedin',
+          'Instagram': 'instagram',
+          'YouTube': 'youtube',
+          'TikTok': 'tiktok',
+          'Medium': 'medium',
+          'DevTo': 'devto',
+          'StackOverflow': 'stackoverflow',
+          'Discord': 'discord',
+          'Telegram': 'telegram',
+          'WhatsApp': 'whatsapp',
+          'Mastodon': 'mastodon',
+          'Threads': 'threads',
+          'Custom': 'custom'
+        };
+
+        const platformKey = platformKeyMap[currentSocialLink.platform] || 'custom';
+        const validation = validateSocialUrl(platformKey, currentSocialLink.url);
+
+        if (!validation.isValid && validation.error) {
+          errors.push(validation.error);
+          if (validation.suggestion) {
+            suggestion = validation.suggestion;
+          }
         }
+      } else {
+        errors.push('URL is required');
       }
-      
+
+      // Custom platform label validation
       if (currentSocialLink.platform === 'Custom' && !currentSocialLink.label?.trim()) {
         errors.push('Label is required for custom platforms');
       }
 
       setValidationErrors(errors);
+      setValidationSuggestion(suggestion);
     }, 300); // 300ms debounce
 
     return () => clearTimeout(timeoutId);
@@ -148,6 +236,11 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
                   <li key={index}>{error}</li>
                 ))}
               </ul>
+              {validationSuggestion && (
+                <p className="mt-2 text-sm font-medium">
+                  💡 {validationSuggestion}
+                </p>
+              )}
             </AlertDescription>
           </Alert>
         )}
@@ -159,12 +252,22 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
                 <label htmlFor="platform" className="text-sm font-medium">Platform</label>
                 <Select value={inputValues.platform} onValueChange={updatePlatform}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a platform" />
+                    <SelectValue placeholder="Select a platform">
+                      {inputValues.platform && (
+                        <div className="flex items-center gap-2">
+                          {getSocialIcon(inputValues.platform.toLowerCase(), "h-4 w-4")}
+                          <span>{inputValues.platform}</span>
+                        </div>
+                      )}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {SOCIAL_PLATFORMS.map((platform) => (
                       <SelectItem key={platform} value={platform}>
-                        {platform}
+                        <div className="flex items-center gap-2">
+                          {getSocialIcon(platform.toLowerCase(), "h-4 w-4")}
+                          <span>{platform}</span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -187,14 +290,21 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
 
             <div className="space-y-2">
               <label htmlFor="url" className="text-sm font-medium">URL</label>
-              <AIEnhancedInput 
-                id="url" 
+              <AIEnhancedInput
+                id="url"
                 fieldName={`${inputValues.platform} URL`}
                 type="url"
-                value={inputValues.url} 
+                value={inputValues.url}
                 onChange={(e) => updateUrl(e.target.value)}
-                placeholder="https://..."
+                placeholder={
+                  getPlatformDefinition(inputValues.platform.toLowerCase())?.placeholder || "https://..."
+                }
               />
+              {inputValues.platform && getPlatformDefinition(inputValues.platform.toLowerCase()) && (
+                <p className="text-xs text-gray-600">
+                  {getPlatformDefinition(inputValues.platform.toLowerCase())?.helpText}
+                </p>
+              )}
             </div>
 
             <div className="space-y-3">

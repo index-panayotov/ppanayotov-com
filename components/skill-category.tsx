@@ -1,7 +1,7 @@
 "use client"
 
 import { SkillTag } from "./skill-tag"
-import { useState } from "react"
+import { useState, useMemo, useCallback, memo } from "react"
 import { FiChevronDown, FiChevronUp } from "react-icons/fi"
 
 interface SkillCategoryProps {
@@ -23,13 +23,42 @@ interface SkillCategoryProps {
  *   any other value (commonly `'list'`) renders a wrapping horizontal list (default: `'grid'`).
  * @returns The SkillCategory React element.
  */
-export function SkillCategory({ title, skills, isExpanded = false, variant = 'grid' }: SkillCategoryProps) {
+export const SkillCategory = memo(function SkillCategory({ title, skills, isExpanded = false, variant = 'grid' }: SkillCategoryProps) {
   const [expanded, setExpanded] = useState(isExpanded)
+
+  // Memoize toggle function to prevent unnecessary re-renders
+  const toggleExpanded = useCallback(() => {
+    setExpanded(!expanded)
+  }, [expanded])
+
+  // Memoize skills rendering based on variant and skills array
+  const skillsContent = useMemo(() => {
+    if (variant === 'grid') {
+      return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          {skills.map((skill, index) => (
+            <SkillTag key={index} name={skill} />
+          ))}
+        </div>
+      )
+    } else {
+      return (
+        <div className="flex flex-wrap gap-2">
+          {skills.map((skill, index) => (
+            <SkillTag key={index} name={skill} />
+          ))}
+        </div>
+      )
+    }
+  }, [skills, variant])
+
+  // Memoize print skills text
+  const printSkillsText = useMemo(() => skills.join(", "), [skills])
   
   return (
     <div className="cv-card print:bg-white print:border-none print:shadow-none print:p-0 print:mb-4 cv-skill-category">
       <button
-        onClick={() => setExpanded(!expanded)}
+        onClick={toggleExpanded}
         className="w-full flex items-center justify-between text-left print:hidden"
       >
         <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
@@ -37,33 +66,21 @@ export function SkillCategory({ title, skills, isExpanded = false, variant = 'gr
           {expanded ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
         </div>
       </button>
-      
+
       {/* Print version - always show title and skills */}
       <div className="hidden print:block">
         <h3 className="font-semibold text-gray-800 mb-2">{title}</h3>
         <div className="text-gray-700 leading-relaxed">
-          {skills.join(", ")}
+          {printSkillsText}
         </div>
       </div>
-      
+
       {/* Interactive version */}
       <div className={`mt-4 print:hidden transition-all duration-300 overflow-hidden ${
         expanded ? 'max-h-screen opacity-100' : 'max-h-16 opacity-70'
       }`}>
-        {variant === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-            {skills.map((skill, index) => (
-              <SkillTag key={index} name={skill} />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {skills.map((skill, index) => (
-              <SkillTag key={index} name={skill} />
-            ))}
-          </div>
-        )}
+        {skillsContent}
       </div>
     </div>
   )
-}
+});

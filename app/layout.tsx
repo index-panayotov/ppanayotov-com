@@ -1,12 +1,21 @@
 import type React from "react"
 import "./globals.css"
+import "../styles/mobile-typography.css"
 import { Inter } from "next/font/google"
 import { userProfile } from "@/data/user-profile"
 import systemSettings from "@/data/system_settings"
 import { GoogleTagManager } from '@next/third-parties/google'
 import { StructuredData } from "@/components/structured-data"
 
-const inter = Inter({ subsets: ["latin"] })
+// Optimized font loading with display swap and preload
+const inter = Inter({
+  subsets: ["latin"],
+  display: 'swap',
+  preload: true,
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+  adjustFontFallback: true,
+  variable: '--font-inter'
+})
 
 export const metadata = {
   title: `${userProfile.name} - ${userProfile.title}`,
@@ -60,12 +69,38 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="scroll-smooth md:scroll-pt-20">
+    <html lang="en" className={`scroll-smooth md:scroll-pt-20 ${inter.variable}`}>
       <head>
         <StructuredData />
+        {/* Font preload for critical rendering */}
+        <link
+          rel="preload"
+          href="/_next/static/media/inter-latin.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        {/* DNS prefetch for external font resources */}
+        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+        {/* PWA Manifest */}
+        <link rel="manifest" href="/manifest" />
+        {/* Mobile viewport optimization */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+        <meta name="format-detection" content="telephone=no" />
+        {/* iOS specific meta tags */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content={systemSettings.pwa.shortName} />
+        {/* Theme colors for mobile browsers */}
+        <meta name="theme-color" content={systemSettings.pwa.themeColor} />
+        <meta name="msapplication-TileColor" content={systemSettings.pwa.themeColor} />
+        {/* Resource hints for better performance */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       {systemSettings.gtagEnabled && (<GoogleTagManager gtmId={`${systemSettings.gtagCode}`} />)}
-      <body className={`${inter.className}`}>{children}</body>
+      <body className={`${inter.className} font-sans antialiased`}>{children}</body>
     </html>
   )
 }
