@@ -1,0 +1,22 @@
+# PWA Icons Directory
+
+This directory contains Progressive Web App (PWA) icons in multiple sizes.
+
+## Required Icons:
+- icon-72x72.png
+- icon-144x144.png
+- icon-192x192.png (maskable)
+- icon-512x512.png
+
+## How to Generate Icons:
+
+You can generate these icons from a single source image using:
+1. Online tools like https://realfavicongenerator.net/
+2. CLI tools like `pwa-asset-generator`
+3. Or manually resize with image editing software
+
+## Icon Requirements:
+- Format: PNG
+- Background: Should match theme color (#0f172a) or be transparent
+- Purpose: Professional CV branding
+- Maskable: 192x192 icon should work with icon masking (safe zone in center)

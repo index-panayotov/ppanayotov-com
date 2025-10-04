@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { EditorJSData, EditorJSBlock } from "@/types/core";
+import type { EditorJSData, EditorJSBlock } from "@/lib/schemas";
 
 /**
  * Combines multiple class name values into a single string, merging Tailwind CSS classes and resolving conflicts.

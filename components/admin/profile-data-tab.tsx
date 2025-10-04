@@ -74,9 +74,14 @@ export default function ProfileDataTab({
   moveSocialLink
 }: ProfileDataTabProps) {
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Edit Profile Data</h2>
+    <div className="space-y-6">
+      {/* Action Buttons */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-slate-600">
+            Update your personal information, education, and certifications
+          </p>
+        </div>
         <div className="flex gap-2">
           <Button 
             variant="outline" 

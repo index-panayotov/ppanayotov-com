@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useEffect } from "react"
+// Optimized individual icon imports for better tree-shaking
 import { FiPrinter, FiX } from "react-icons/fi"
 import { useHorizontalSwipe } from "@/hooks/use-touch-gestures"
 import { SystemSettings } from "@/services/SystemSettings"

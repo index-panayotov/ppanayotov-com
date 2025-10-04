@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
 import type { ApiResponse, ApiError } from './core';
+import { API_ERROR_CODES, type ApiErrorCode } from './core';
 import {
   UserProfileSchema,
   ExperienceEntrySchema,
@@ -15,7 +16,7 @@ import {
   type SystemSettings,
   type TopSkill,
   type SocialLink
-} from '@/lib/validation';
+} from '@/lib/schemas';
 
 /**
  * API Types and Schemas for Type-Safe Request/Response Handling
@@ -369,21 +370,8 @@ export const ValidationErrorDetailsSchema = z.object({
   value: z.unknown().optional()
 });
 
-/**
- * Common API error codes
- */
-export const API_ERROR_CODES = {
-  VALIDATION_ERROR: 'VALIDATION_ERROR',
-  NOT_FOUND: 'NOT_FOUND',
-  UNAUTHORIZED: 'UNAUTHORIZED',
-  FORBIDDEN: 'FORBIDDEN',
-  INTERNAL_ERROR: 'INTERNAL_ERROR',
-  FILE_UPLOAD_ERROR: 'FILE_UPLOAD_ERROR',
-  AI_SERVICE_ERROR: 'AI_SERVICE_ERROR',
-  RATE_LIMIT_EXCEEDED: 'RATE_LIMIT_EXCEEDED'
-} as const;
-
-export type ApiErrorCode = typeof API_ERROR_CODES[keyof typeof API_ERROR_CODES];
+// Re-export API_ERROR_CODES from core for backward compatibility
+export { API_ERROR_CODES, type ApiErrorCode } from './core';
 
 // === UTILITY TYPES ===
 

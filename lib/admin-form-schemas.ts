@@ -2,12 +2,10 @@ import { z } from 'zod';
 import {
   NonEmptyStringSchema,
   OptionalStringSchema,
-  StringArraySchema
-} from '@/lib/validation';
-import {
+  StringArraySchema,
   LanguageProficiencySchema,
   SocialPlatformSchema
-} from '@/types/profile';
+} from '@/lib/schemas';
 
 /**
  * Form schemas for admin components using Zod validation

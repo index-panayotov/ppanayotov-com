@@ -34,7 +34,12 @@ export async function POST(request: NextRequest) {
     // Get the password from environment variable
     const adminPassword = process.env.ADMIN_PASSWORD;
 
+    console.log('[Admin Login] Attempting login...');
+    console.log('[Admin Login] Password configured:', !!adminPassword);
+    console.log('[Admin Login] Password match:', password === adminPassword);
+
     if (!adminPassword) {
+      console.error('[Admin Login] ADMIN_PASSWORD not configured in environment');
       return createTypedErrorResponse(
         API_ERROR_CODES.INTERNAL_ERROR,
         'Admin password not configured'
@@ -42,6 +47,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (password === adminPassword) {
+      console.log('[Admin Login] ✓ Login successful');
       const response: AdminLoginApiResponse = {
         success: true,
         token: 'authenticated', // Simple token for client-side auth state
@@ -50,6 +56,7 @@ export async function POST(request: NextRequest) {
 
       return createTypedSuccessResponse(response, 'Login successful');
     } else {
+      console.log('[Admin Login] ✗ Invalid password');
       return createTypedErrorResponse(
         API_ERROR_CODES.UNAUTHORIZED,
         'Invalid password'

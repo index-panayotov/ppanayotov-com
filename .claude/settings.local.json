@@ -5,9 +5,14 @@
       "WebFetch(domain:github.com)",
       "Bash(sed:*)",
       "Bash(cat:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(grep:*)",
+      "Bash(rm:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "spinnerTipsEnabled": false,
+  "outputStyle": "default"
 }

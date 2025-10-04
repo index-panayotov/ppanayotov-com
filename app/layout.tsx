@@ -6,6 +6,9 @@ import { userProfile } from "@/data/user-profile"
 import systemSettings from "@/data/system_settings"
 import { GoogleTagManager } from '@next/third-parties/google'
 import { StructuredData } from "@/components/structured-data"
+import { ServiceWorkerRegistration } from "@/components/service-worker-registration"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { PerformanceDashboard } from "@/components/performance-dashboard"
 
 // Optimized font loading with display swap and preload
 const inter = Inter({
@@ -72,17 +75,6 @@ export default function RootLayout({
     <html lang="en" className={`scroll-smooth md:scroll-pt-20 ${inter.variable}`}>
       <head>
         <StructuredData />
-        {/* Font preload for critical rendering */}
-        <link
-          rel="preload"
-          href="/_next/static/media/inter-latin.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        {/* DNS prefetch for external font resources */}
-        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="//fonts.gstatic.com" />
         {/* PWA Manifest */}
         <link rel="manifest" href="/manifest" />
         {/* Mobile viewport optimization */}
@@ -98,9 +90,17 @@ export default function RootLayout({
         {/* Resource hints for better performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
       </head>
       {systemSettings.gtagEnabled && (<GoogleTagManager gtmId={`${systemSettings.gtagCode}`} />)}
-      <body className={`${inter.className} font-sans antialiased`}>{children}</body>
+      <body className={`${inter.className} font-sans antialiased`}>
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
+        <ServiceWorkerRegistration />
+        <PerformanceDashboard />
+      </body>
     </html>
   )
 }

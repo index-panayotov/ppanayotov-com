@@ -15,6 +15,7 @@ import {
   validateRequestBody
 } from "@/types/api";
 import { z } from "zod";
+import { createOptimizedResponse } from "@/lib/api-compression";
 
 // Only allow in development mode
 const isDev = process.env.NODE_ENV === "development";
@@ -75,12 +76,12 @@ export async function GET(request: NextRequest) {
         topSkills: sortedTags
       };
 
-      return createTypedSuccessResponse(response, 'Top skills generated successfully');
+      return createOptimizedResponse(response, { maxAge: 60 });
     }
 
-    // Default: return all data
-    const response: GetProfileApiResponse = {
-      userProfile,
+    // Default: return all data (using consistent field names)
+    const response = {
+      profileData: userProfile, // Normalized field name for consistency
       experiences,
       topSkills,
       systemSettings: {
@@ -93,7 +94,13 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    return createTypedSuccessResponse(response, 'Admin data retrieved successfully');
+    console.log('[Admin API] Returning data:', {
+      profileData: !!response.profileData,
+      experiences: response.experiences.length,
+      topSkills: response.topSkills.length
+    });
+
+    return createOptimizedResponse(response, { maxAge: 60 });
   } catch (error) {
     console.error('Error in admin GET handler:', error);
     return createTypedErrorResponse(
@@ -151,7 +158,7 @@ export async function POST(request: NextRequest) {
         2
       )};\n`;
     } else if (file === "user-profile.ts") {
-      fileContent = `import { LanguageProficiency, UserProfile } from "@/types/profile";
+      fileContent = `import { LanguageProficiency, UserProfile } from "@/lib/schemas";
 
 export const userProfile: UserProfile = ${JSON.stringify(data, null, 2)};\n`;
     }
@@ -159,9 +166,9 @@ export const userProfile: UserProfile = ${JSON.stringify(data, null, 2)};\n`;
     // Write the file
     fs.writeFileSync(filePath, fileContent);
 
-    return createTypedSuccessResponse(
+    return createOptimizedResponse(
       { success: true, file, timestamp: Date.now() },
-      `Successfully updated ${file}`
+      { maxAge: 0 }
     );
   } catch (error) {
     console.error("Error saving data:", error);

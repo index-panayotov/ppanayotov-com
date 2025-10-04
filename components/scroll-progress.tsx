@@ -1,22 +1,25 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 
 /**
  * Renders a thin, fixed horizontal progress bar at the top of the page that reflects vertical scroll progress.
  *
+ * Optimized with requestAnimationFrame for better performance.
  * The inner bar width is updated on mount and whenever the window scrolls to represent the current
- * document scroll position as a percentage (0–100). The component reads `window.scrollY` and
- * `document.documentElement.scrollHeight`, and removes its scroll listener on unmount.
+ * document scroll position as a percentage (0–100).
  *
- * Notes:
- * - Designed for client-side usage (reads `window` / `document`).
- * - The outer container is hidden when printing.
+ * Performance optimizations:
+ * - Uses requestAnimationFrame for smooth 60fps updates
+ * - Prevents excessive re-renders during scroll
+ * - Properly cancels RAF on unmount
  *
  * @returns The progress bar as a JSX element.
  */
 export function ScrollProgress() {
   const [scrollProgress, setScrollProgress] = useState(0)
+  const rafId = useRef<number | null>(null)
+  const ticking = useRef(false)
 
   useEffect(() => {
     const updateScrollProgress = () => {
@@ -24,13 +27,24 @@ export function ScrollProgress() {
       const docHeight = Math.max(1, document.documentElement.scrollHeight - window.innerHeight)
       const progress = Math.min(100, Math.max(0, (scrollTop / docHeight) * 100))
       setScrollProgress(progress)
+      ticking.current = false
     }
 
-    window.addEventListener('scroll', updateScrollProgress, { passive: true })
-    updateScrollProgress()
+    const requestTick = () => {
+      if (!ticking.current) {
+        rafId.current = requestAnimationFrame(updateScrollProgress)
+        ticking.current = true
+      }
+    }
+
+    window.addEventListener('scroll', requestTick, { passive: true })
+    updateScrollProgress() // Initial calculation
 
     return () => {
-      window.removeEventListener('scroll', updateScrollProgress, { passive: true })
+      window.removeEventListener('scroll', requestTick)
+      if (rafId.current) {
+        cancelAnimationFrame(rafId.current)
+      }
     }
   }, [])
 

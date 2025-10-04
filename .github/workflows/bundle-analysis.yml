@@ -1,0 +1,50 @@
+name: Bundle Size Analysis
+
+on:
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [main, master]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Analyze bundle size
+        run: |
+          echo "📦 Analyzing bundle size..."
+          du -sh .next/static
+          find .next/static -name "*.js" -exec du -h {} \; | sort -rh | head -20
+
+      - name: Check bundle size limits
+        run: |
+          TOTAL_SIZE=$(du -sk .next/static | cut -f1)
+          MAX_SIZE=5120  # 5MB in KB
+
+          echo "Total bundle size: ${TOTAL_SIZE}KB"
+          echo "Maximum allowed: ${MAX_SIZE}KB"
+
+          if [ "$TOTAL_SIZE" -gt "$MAX_SIZE" ]; then
+            echo "❌ Bundle size exceeds limit!"
+            exit 1
+          else
+            echo "✅ Bundle size within limits"
+          fi

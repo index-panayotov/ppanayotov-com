@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AIEnhancedInput } from '@/components/admin/ai-enhanced-input';
-import { SocialLink, SocialPlatform } from '@/types/profile';
+import { SocialLink, SocialPlatform } from '@/lib/schemas';
 import {
   getAvailablePlatforms,
   getPlatformDefinition,

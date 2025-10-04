@@ -31,30 +31,36 @@ export default function TopSkillsTab({
   setNewSkill
 }: TopSkillsTabProps) {
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Edit Top Skills</h2>
+    <div className="space-y-6">
+      {/* Action Buttons */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-slate-600">
+            Manage featured skills displayed on your CV
+          </p>
+        </div>
         <div className="flex gap-2">
           <Button
             variant="outline"
-            onClick={() =>
-              setEditMode(editMode === "visual" ? "json" : "visual")}
-          >
-            Switch to {editMode === "visual" ? "JSON" : "Visual"} Editor
-          </Button>
-          <Button
-            variant="default"
             onClick={generateAutomaticTopSkills}
             disabled={saving}
           >
-            Automatic Top Skills
+            Auto-Generate
           </Button>
           <Button
-            onClick={() => handleSave("topSkills.ts", topSkills)}
-            disabled={saving}
+            variant="outline"
+            onClick={() => setEditMode(editMode === "visual" ? "json" : "visual")}
           >
-            {saving ? "Saving..." : "Save Top Skills"}
+            {editMode === "visual" ? "JSON Mode" : "Visual Mode"}
           </Button>
+          {editMode === "json" && (
+            <Button
+              onClick={() => handleSave("topSkills.ts", topSkills)}
+              disabled={saving}
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          )}
         </div>
       </div>
 

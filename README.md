@@ -128,12 +128,82 @@ npm run start   # Optional: run in production mode locally
 
 ## 📦 Deployment
 
-You can deploy this project to [Vercel](https://vercel.com) with one click:
+### Deploying to Vercel (Recommended)
 
-1. Push your forked repository to GitHub.
-2. Go to [vercel.com/import](https://vercel.com/import) and import your GitHub project.
-3. Set the `ADMIN_PASSWORD` environment variable in Vercel.
-4. Deploy and enjoy your personal CV site.
+**Prerequisites:**
+1. **Generate PWA Icons**: Follow instructions in `/public/icons/GENERATE_ICONS.md` to create required icon files
+2. **Test Locally**: Run `npm run build && npm run start` to ensure production build works
+3. **(Optional) Commit Profile Images**: If using custom profile images, commit them to git or use external hosting
+
+**Deployment Steps:**
+
+1. **Push to GitHub**
+   ```bash
+   git add .
+   git commit -m "Production-ready release v2.0.0"
+   git push origin main
+   ```
+
+2. **Import to Vercel**
+   - Go to [vercel.com/import](https://vercel.com/import)
+   - Select your GitHub repository
+   - Configure project settings (accept defaults)
+
+3. **Set Environment Variables** (Vercel Dashboard → Settings → Environment Variables)
+   ```env
+   ADMIN_PASSWORD=your-secure-production-password
+   OPENROUTER_KEY=your-openrouter-api-key
+   OPENROUTER_MODEL=openai/gpt-4.1-nano
+   # Optional: Enable admin in production (NOT RECOMMENDED)
+   # NEXT_PUBLIC_ENABLE_ADMIN=true
+   ```
+
+4. **Deploy**
+   - Click "Deploy"
+   - Wait for build to complete (~2-3 minutes)
+   - Visit your live site!
+
+### Admin Panel in Production
+
+**⚠️ Security Notice**: By default, the admin panel is **DISABLED in production** for security.
+
+**Options:**
+- **Recommended**: Use admin panel only in development mode locally
+- **Advanced**: Enable in production by setting `NEXT_PUBLIC_ENABLE_ADMIN=true` environment variable in Vercel
+  - Only do this if you understand the security implications
+  - Ensure `ADMIN_PASSWORD` is very strong
+  - Consider IP whitelisting or additional authentication
+
+### Post-Deployment Checklist
+
+- [ ] PWA icons generated and committed
+- [ ] Environment variables set in Vercel
+- [ ] Production build tested locally
+- [ ] Live site loads correctly
+- [ ] PWA installation works (test on mobile)
+- [ ] Admin panel blocked (or secured if enabled)
+- [ ] Lighthouse score > 90 (Performance, Accessibility, SEO)
+
+### Deployment Troubleshooting
+
+**Issue**: "PWA won't install"
+- **Fix**: Ensure all icon files exist in `/public/icons/`
+
+**Issue**: "Admin panel shows in production"
+- **Fix**: Remove `NEXT_PUBLIC_ENABLE_ADMIN` environment variable
+
+**Issue**: "Images missing after deploy"
+- **Fix**: Commit images to git or use external image hosting (Cloudinary, etc.)
+
+**Issue**: "Build fails with TypeScript errors"
+- **Fix**: This is expected - build config ignores TS errors. Check for actual runtime issues.
+
+### Alternative Deployment Platforms
+
+While Vercel is recommended, you can also deploy to:
+- **Netlify**: Similar process, configure environment variables
+- **Railway**: Full-stack hosting with database options
+- **Docker**: Use `output: 'standalone'` in `next.config.mjs`
 
 ---
 

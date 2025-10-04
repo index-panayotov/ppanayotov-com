@@ -103,98 +103,92 @@ export function AdminDashboard({ experiences, topSkills, profileData }: AdminDas
   ], []);
 
   return (
-    <div className={adminClassNames.layout.pageContainer}>
-      {/* Header */}
-      <AdminPageHeader
-        title="Dashboard"
-        description="Manage your professional CV content"
-        actions={
-          <Badge 
-            variant={stats.completionScore >= 80 ? "default" : "secondary"}
-            className="text-sm px-3 py-1"
-          >
-            {stats.completionScore}% Complete
-          </Badge>
-        }
-      />
-
+    <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => handleNavigation('experiences')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Experiences</CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-slate-700">Experiences</CardTitle>
+            <Briefcase className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.experiences}</div>
-            <p className="text-xs text-muted-foreground">Work experiences</p>
+            <div className="text-3xl font-bold text-slate-900">{stats.experiences}</div>
+            <p className="text-xs text-slate-500 mt-1">Work experiences</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => handleNavigation('topSkills')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Top Skills</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-slate-700">Top Skills</CardTitle>
+            <Target className="h-5 w-5 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.topSkills}</div>
-            <p className="text-xs text-muted-foreground">Featured skills</p>
+            <div className="text-3xl font-bold text-slate-900">{stats.topSkills}</div>
+            <p className="text-xs text-slate-500 mt-1">Featured skills</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Words</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-blue-900">Total Words</CardTitle>
+            <BarChart3 className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalWords.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Content words</p>
+            <div className="text-3xl font-bold text-blue-900">{stats.totalWords.toLocaleString()}</div>
+            <p className="text-xs text-blue-700 mt-1">Content words</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => handleNavigation('profileData')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Languages</CardTitle>
-            <Globe className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-slate-700">Languages</CardTitle>
+            <Globe className="h-5 w-5 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.languages}</div>
-            <p className="text-xs text-muted-foreground">Known languages</p>
+            <div className="text-3xl font-bold text-slate-900">{stats.languages}</div>
+            <p className="text-xs text-slate-500 mt-1">Known languages</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Quick Actions */}
-      <AdminCard variant="base">
-        <AdminCardHeader
-          title="Quick Actions"
-          description="Common tasks to manage your CV content"
-        />
-        <AdminCardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Common tasks to manage your CV content</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             {quickActions.map((action, index) => {
               const Icon = action.icon;
               return (
-                <AdminButton
+                <button
                   key={index}
-                  variant="secondary"
-                  className="h-auto p-4 flex flex-col items-center space-y-2"
                   onClick={action.action}
+                  className="flex flex-col items-center gap-3 p-4 rounded-lg border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all group"
                 >
-                  <div className={`p-2 rounded-lg ${action.color} text-white`}>
-                    <Icon className="h-5 w-5" />
+                  <div className={`p-3 rounded-lg ${action.color} text-white group-hover:scale-110 transition-transform`}>
+                    <Icon className="h-6 w-6" />
                   </div>
                   <div className="text-center">
-                    <div className="font-medium text-sm">{action.title}</div>
-                    <div className={cn(adminClassNames.text.caption)}>{action.description}</div>
+                    <div className="font-semibold text-sm text-slate-900">{action.title}</div>
+                    <div className="text-xs text-slate-500 mt-1">{action.description}</div>
                   </div>
-                </AdminButton>
+                </button>
               );
             })}
           </div>
-        </AdminCardContent>
-      </AdminCard>
+        </CardContent>
+      </Card>
 
       {/* Content Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

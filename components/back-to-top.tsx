@@ -1,31 +1,51 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
+// Optimized individual icon import for better tree-shaking
 import { FiArrowUp } from "react-icons/fi"
 
 /**
  * A client-side React component that renders a floating "Back to top" button.
  *
- * The button becomes visible when the page is scrolled more than 300 pixels and is hidden otherwise.
- * Clicking the button scrolls the window to the top with a smooth animation. The component registers
- * a window scroll listener on mount and removes it on unmount. The button is visually styled (Tailwind)
- * and includes an accessible `aria-label`; it is also hidden when printing.
+ * Optimized with requestAnimationFrame for better scroll performance.
+ * The button becomes visible when the page is scrolled more than 300 pixels.
+ * Clicking the button scrolls the window to the top with a smooth animation.
+ *
+ * Performance optimizations:
+ * - Uses RAF throttling for scroll events
+ * - Prevents excessive visibility state updates
+ * - Properly cancels RAF on unmount
  */
 export function BackToTop() {
   const [isVisible, setIsVisible] = useState(false)
+  const rafId = useRef<number | null>(null)
+  const ticking = useRef(false)
 
   useEffect(() => {
     const toggleVisibility = () => {
-      if (window.scrollY > 300) {
-        setIsVisible(true)
-      } else {
-        setIsVisible(false)
+      const shouldBeVisible = window.scrollY > 300
+      if (shouldBeVisible !== isVisible) {
+        setIsVisible(shouldBeVisible)
+      }
+      ticking.current = false
+    }
+
+    const requestTick = () => {
+      if (!ticking.current) {
+        rafId.current = requestAnimationFrame(toggleVisibility)
+        ticking.current = true
       }
     }
 
-    window.addEventListener('scroll', toggleVisibility)
-    return () => window.removeEventListener('scroll', toggleVisibility)
-  }, [])
+    window.addEventListener('scroll', requestTick, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', requestTick)
+      if (rafId.current) {
+        cancelAnimationFrame(rafId.current)
+      }
+    }
+  }, [isVisible])
 
   const scrollToTop = () => {
     window.scrollTo({

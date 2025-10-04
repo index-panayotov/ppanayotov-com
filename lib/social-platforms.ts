@@ -1,27 +1,15 @@
+/**
+ * Social Platform Definitions with Optimized Icon Loading
+ *
+ * Icons are loaded individually for better tree-shaking and bundle optimization.
+ * This module uses direct imports to prevent bundling entire icon libraries.
+ */
+
 import React from 'react';
-import {
-  FiLinkedin,
-  FiGithub,
-  FiTwitter,
-  FiInstagram,
-  FiYoutube,
-  FiGlobe,
-  FiExternalLink
-} from 'react-icons/fi';
-import {
-  FaFacebook
-} from 'react-icons/fa';
-import {
-  SiTiktok,
-  SiMedium,
-  SiDevdotto,
-  SiStackoverflow,
-  SiDiscord,
-  SiTelegram,
-  SiWhatsapp,
-  SiMastodon,
-  SiThreads
-} from 'react-icons/si';
+// Optimized individual icon imports for better tree-shaking
+import { FiLinkedin, FiGithub, FiTwitter, FiInstagram, FiYoutube, FiGlobe, FiExternalLink } from 'react-icons/fi';
+import { FaFacebook } from 'react-icons/fa';
+import { SiTiktok, SiMedium, SiDevdotto, SiStackoverflow, SiDiscord, SiTelegram, SiWhatsapp, SiMastodon, SiThreads } from 'react-icons/si';
 
 export interface PlatformDefinition {
   name: string;

@@ -10,7 +10,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { AIEnhancedInput } from '@/components/admin/ai-enhanced-input';
-import { LanguageProficiency } from '@/types/profile';
+import { LanguageProficiency } from '@/lib/schemas';
 
 interface LanguageDialogProps {
   open: boolean;

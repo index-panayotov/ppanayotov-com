@@ -3,13 +3,15 @@ import {
   LanguageProficiency,
   SocialLink,
   UserProfile,
-  LanguageEntry,
+  Language as LanguageEntry,
   EducationEntry,
   Certification
-} from "@/types/profile";
+} from "@/lib/schemas";
 import { processFormValue, isEditorJSFormat } from "@/lib/editorjs-utils";
 import systemSettings from "@/data/system_settings";
 import { ApiResponse } from "@/types/core";
+import { OptimisticList } from "@/lib/optimistic-updates";
+import { apiClient } from "@/lib/api-client";
 
 // Type definitions for admin handlers
 export interface ToastFunction {
@@ -68,18 +70,7 @@ export const handleSave = async (
             : lang.proficiency
       }));
     }
-    const res = await fetch("/api/admin", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ file, data })
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json() as AdminApiResponse;
-      throw new Error(errorData.error || "Failed to save data");
-    }
+    await apiClient.post("/api/admin", { file, data }, { retries: 1 });
 
     toast({
       title: "Success",
@@ -189,7 +180,7 @@ export const saveExperience = async (
 ) => {
   if (!currentExperience) return;
 
-  // Validate required fields
+  // Validate required fields FIRST before any updates
   const requiredFields = [
     { field: 'title', name: 'Title' },
     { field: 'company', name: 'Company' },
@@ -224,38 +215,32 @@ export const saveExperience = async (
     delete expToSave.location;
   }
 
-  const newExperiences = [...experiences];
+  // Build new array for optimistic update
+  const isNew = index === undefined;
+  const optimisticList = new OptimisticList(experiences);
+  let newExperiences: ExperienceEntry[];
 
-  if (index !== undefined) {
-    // Update existing
-    newExperiences[index] = expToSave;
+  if (isNew) {
+    newExperiences = optimisticList.add(expToSave);
   } else {
-    // Add new
-    newExperiences.push(expToSave);
+    newExperiences = [...experiences];
+    newExperiences[index] = expToSave;
   }
 
   try {
     setSaving(true);
-    
-    // Update local state first
+
+    // Optimistic update: Update UI immediately AFTER validation
     setExperiences(newExperiences);
-    
+
     // Automatically persist to file system
-    const res = await fetch("/api/admin", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ file: "cv-data.ts", data: newExperiences })
+    await apiClient.post("/api/admin", {
+      file: "cv-data.ts",
+      data: newExperiences
     });
 
-    if (!res.ok) {
-      const errorData = await res.json() as AdminApiResponse;
-      throw new Error(errorData.error || "Failed to save data");
-    }
-    
     // Show success message
-    if (index !== undefined) {
+    if (!isNew) {
       toast({
         title: "Experience Updated & Saved",
         description: `"${expToSave.title}" has been updated and saved to file`,
@@ -334,21 +319,13 @@ export const moveExperience = async (
     
     // Update local state first
     setExperiences(newExperiences);
-    
+
     // Automatically persist to file system
-    const res = await fetch("/api/admin", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ file: "cv-data.ts", data: newExperiences })
+    await apiClient.post("/api/admin", {
+      file: "cv-data.ts",
+      data: newExperiences
     });
 
-    if (!res.ok) {
-      const errorData = await res.json() as AdminApiResponse;
-      throw new Error(errorData.error || "Failed to save data");
-    }
-    
     // Show success message
     toast({
       title: "Experience Reordered & Saved",
@@ -948,18 +925,10 @@ export const saveSocialLink = async (
     });
     
     // Automatically persist to file system
-    const res = await fetch("/api/admin", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ file: "user-profile.ts", data: { ...profileData, socialLinks: newSocialLinks } })
+    await apiClient.post("/api/admin", {
+      file: "user-profile.ts",
+      data: { ...profileData, socialLinks: newSocialLinks }
     });
-
-    if (!res.ok) {
-      const errorData = await res.json() as AdminApiResponse;
-      throw new Error(errorData.error || "Failed to save data");
-    }
     
     // Show success message
     if (index !== undefined) {
@@ -1015,18 +984,10 @@ export const deleteSocialLink = async (
     });
     
     // Automatically persist to file system
-    const res = await fetch("/api/admin", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ file: "user-profile.ts", data: { ...profileData, socialLinks: newSocialLinks } })
+    await apiClient.post("/api/admin", {
+      file: "user-profile.ts",
+      data: { ...profileData, socialLinks: newSocialLinks }
     });
-
-    if (!res.ok) {
-      const errorData = await res.json() as AdminApiResponse;
-      throw new Error(errorData.error || "Failed to save data");
-    }
     
     toast({
       title: "Social Link Deleted & Saved",
@@ -1089,18 +1050,10 @@ export const moveSocialLink = async (
     });
     
     // Automatically persist to file system
-    const res = await fetch("/api/admin", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ file: "user-profile.ts", data: { ...profileData, socialLinks: newSocialLinks } })
+    await apiClient.post("/api/admin", {
+      file: "user-profile.ts",
+      data: { ...profileData, socialLinks: newSocialLinks }
     });
-
-    if (!res.ok) {
-      const errorData = await res.json() as AdminApiResponse;
-      throw new Error(errorData.error || "Failed to save data");
-    }
     
     // Show success message
     toast({

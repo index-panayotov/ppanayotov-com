@@ -25,33 +25,33 @@ export default function ExperiencesTab({
   moveExperience
 }: ExperiencesTabProps) {
   return (
-    <div className={adminClassNames.layout.sectionSpacing}>
-      {/* Header Section */}
-      <AdminPageHeader
-        title="Work Experience"
-        description="Manage your professional work history and achievements. Changes auto-save when you add or edit experiences."
-        actions={
-          <AdminButtonGroup>
+    <div className="space-y-6">
+      {/* Action Buttons */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-slate-600">
+            Manage your professional work history and achievements
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <AdminButton
+            variant="secondary"
+            onClick={() => setEditMode(editMode === "visual" ? "json" : "visual")}
+          >
+            {editMode === "visual" ? "JSON Mode" : "Visual Mode"}
+          </AdminButton>
+          {editMode === "json" && (
             <AdminButton
-              variant="secondary"
-              onClick={() =>
-                setEditMode(editMode === "visual" ? "JSON" : "visual")}
+              variant="primary"
+              onClick={() => handleSave("cv-data.ts", experiences)}
+              disabled={saving}
+              loading={saving}
             >
-              Switch to {editMode === "visual" ? "JSON" : "Visual"} Mode
+              Save Changes
             </AdminButton>
-            {editMode === "json" && (
-              <AdminButton
-                variant="primary"
-                onClick={() => handleSave("cv-data.ts", experiences)}
-                disabled={saving}
-                loading={saving}
-              >
-                Save JSON Changes
-              </AdminButton>
-            )}
-          </AdminButtonGroup>
-        }
-      />
+          )}
+        </div>
+      </div>
 
       {editMode === "json"
         ? <Textarea
@@ -59,10 +59,10 @@ export default function ExperiencesTab({
             value={JSON.stringify(experiences, null, 2)}
             onChange={handleExperiencesChange}
           />
-        : <div className={adminClassNames.layout.sectionSpacing}>
+        : <div className="space-y-4">
             {/* Add Experience Button */}
-            <div className={adminClassNames.layout.flexCenter}>
-              <AdminButton 
+            <div className="flex justify-center">
+              <AdminButton
                 variant="primary"
                 size="lg"
                 onClick={addExperience}
@@ -73,7 +73,7 @@ export default function ExperiencesTab({
             </div>
 
             {/* Experience Cards */}
-            <div className={adminClassNames.layout.cardGrid}>
+            <div className="space-y-4">
               {experiences.length === 0 ? (
                 <AdminEmptyState
                   icon={<Briefcase className="h-12 w-12" />}

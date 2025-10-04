@@ -17,6 +17,7 @@ import { adminClassNames } from './design-system';
 import { useToast } from '@/hooks/use-toast';
 import { validateImageFile, isExternalImageUrl } from '@/lib/image-utils';
 import type { ImageUploadProps } from '@/types/admin-components';
+import { apiClient } from '@/lib/api-client';
 
 export default function ImageUpload({
   currentImageUrl, 
@@ -41,21 +42,12 @@ export default function ImageUpload({
     }
 
     setUploading(true);
-    
+
     try {
       const formData = new FormData();
       formData.append('file', file);
-      
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(result.error || 'Upload failed');
-      }
+
+      const result = await apiClient.upload<{ webUrl: string; pdfUrl: string }>('/api/upload', formData);
         // Update all three image fields with the new uploaded images
       onImageChange(result.webUrl, result.webUrl, result.pdfUrl);
       

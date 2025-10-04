@@ -1,35 +1,10 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 import { MobileMenu } from "@/components/mobile-menu";
-import {
-  FiMail,
-  FiLinkedin,
-  FiMenu,
-  FiX,
-  FiPhone,
-  FiGithub,
-  FiTwitter,
-  FiInstagram,
-  FiYoutube,
-  FiGlobe,
-  FiExternalLink
-} from "react-icons/fi";
-import {
-  FaFacebook
-} from "react-icons/fa";
-import {
-  SiTiktok,
-  SiMedium,
-  SiDevdotto,
-  SiStackoverflow,
-  SiDiscord,
-  SiTelegram,
-  SiWhatsapp,
-  SiMastodon,
-  SiThreads
-} from "react-icons/si";
+// Optimized individual icon imports for better tree-shaking
+import { FiMail, FiLinkedin, FiMenu, FiX, FiPhone } from "react-icons/fi";
 import { ExperienceEntry as ExperienceEntryComponent } from "@/components/experience-entry";
 import { SectionHeading } from "@/components/section-heading";
 import { SkillTag } from "@/components/skill-tag";
@@ -37,8 +12,10 @@ import { SkillCategory } from "@/components/skill-category";
 import { ScrollProgress } from "@/components/scroll-progress";
 import { BackToTop } from "@/components/back-to-top";
 import { TypingEffect } from "@/components/typing-effect";
+import { LazySection } from "@/components/lazy-section";
 import { experiences } from "@/data/cv-data";
 import { topSkills } from "@/data/topSkills";
+import { OptimizedExperienceList } from "@/components/performance/optimized-experience-list";
 import { userProfile } from "@/data/user-profile";
 import { getProfileImageUrl } from "@/lib/image-utils";
 import { SystemSettings } from "@/services/SystemSettings";
@@ -54,28 +31,35 @@ import { initPerformanceMonitoring } from "@/lib/performance-monitoring";
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Initialize performance monitoring on client side
+  // Initialize performance monitoring on client side (production + development)
   useEffect(() => {
+    // Always initialize performance monitoring
     initPerformanceMonitoring();
+
+    // Log that monitoring is active
+    if (process.env.NODE_ENV === 'production') {
+      console.log('📊 Performance monitoring active');
+    }
   }, []);
 
-  // Sanitize function that works in both server and client environments
-  const sanitize = (html: string): string => {
+  // Memoized sanitize function - prevents recreation on every render
+  const sanitize = useCallback((html: string): string => {
     return DOMPurify.sanitize(html);
-  };
+  }, []);
 
-  // Helper function to get social media platform icon using the new platform system
-  const getSocialIconForDisplay = (platform: string) => {
+  // Memoized helper function to get social media platform icon
+  const getSocialIconForDisplay = useCallback((platform: string) => {
     return getSocialIcon(platform, "h-5 w-5");
-  };
+  }, []);
 
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
+  // Memoized menu handlers to prevent re-renders
+  const toggleMobileMenu = useCallback(() => {
+    setMobileMenuOpen(prev => !prev);
+  }, []);
 
-  const closeMobileMenu = () => {
+  const closeMobileMenu = useCallback(() => {
     setMobileMenuOpen(false);
-  };
+  }, []);
 
 
   // Experience data is imported from @/data/cv-data
@@ -165,8 +149,8 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Mobile Menu */}
-      <MobileMenu isOpen={mobileMenuOpen} onClose={closeMobileMenu} />
+      {/* Mobile Menu - Only render when open for better performance */}
+      {mobileMenuOpen && <MobileMenu isOpen={mobileMenuOpen} onClose={closeMobileMenu} />}
 
       <main id="main-content">
         {/* Hero Section */}
@@ -228,15 +212,15 @@ export default function Home() {
               <div className="flex-shrink-0">
                 <div className="relative">
                   <div className="w-48 h-48 lg:w-56 lg:h-56 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20">
-                    <Image
+                    <OptimizedImage
                       src={getProfileImageUrl(userProfile, 'web')}
                       alt={`Profile picture of ${userProfile.name}`}
                       width={224}
                       height={224}
                       className="object-cover w-full h-full"
-                      priority
-                      placeholder="blur"
-                      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                      priority={true}
+                      quality={90}
+                      sizes="(max-width: 768px) 192px, 224px"
                     />
                   </div>
                   <div className="absolute -bottom-4 -right-4 w-12 h-12 bg-green-400 rounded-full border-4 border-white flex items-center justify-center">
@@ -251,134 +235,135 @@ export default function Home() {
 
         <div className="container mx-auto px-4 max-w-4xl">
 
-        <section id="summary" className="cv-section" aria-labelledby="summary-heading">
-          <SectionHeading id="summary-heading" title="Summary" subtitle="Professional overview and core competencies" />
-          <p className="text-slate-700 leading-relaxed">{userProfile.summary}</p>
+        <LazySection rootMargin="100px" minHeight="300px">
+          <section id="summary" className="cv-section" aria-labelledby="summary-heading">
+            <SectionHeading id="summary-heading" title="Summary" subtitle="Professional overview and core competencies" />
+            <p className="text-slate-700 leading-relaxed">{userProfile.summary}</p>
 
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold text-slate-800 mb-3">Top Skills</h3>
-            <div className="flex flex-wrap gap-2">
-              {topSkills.slice(0, 8).map((tag, index) => <SkillTag key={index} name={tag} variant="featured" />)}
-            </div>
-          </div>
-        </section>
-
-        <section id="experience" className="cv-section" role="region" aria-labelledby="experience-heading">
-          <SectionHeading title="Experience" subtitle="Professional work history and achievements" />
-
-          <div className="relative">
-            {/* Timeline line */}
-            <div className="absolute left-2 top-8 bottom-0 w-0.5 bg-slate-200"></div>
-            
-            <div className="space-y-8">
-              {experiences.map((exp, index) =>
-                <ExperienceEntryComponent
-                  key={index}
-                  title={exp.title}
-                  company={exp.company}
-                  dateRange={exp.dateRange}
-                  location={exp.location}
-                  description={exp.description}
-                  tags={exp.tags}
-                />
-              )}
-            </div>
-          </div>
-        </section>
-
-        <section id="skills" className="cv-section" role="region" aria-labelledby="skills-heading">
-          <SectionHeading title="Skills" subtitle="Technical expertise and professional capabilities" />
-          
-          <div className="space-y-6">
-            <SkillCategory
-              title="Leadership & Management"
-              skills={["Team Management", "Engineering Management", "Project Management", "Delivery Management", "Team Leadership", "Coaching & Mentoring", "Program Management"]}
-              isExpanded={true}
-            />
-            
-            <SkillCategory
-              title="Technical Skills"
-              skills={["Programming", "Web Architecture", "Microservices", "Databases", "Software as a Service (SaaS)", "Service-Oriented Architecture (SOA)", "Deployment Management"]}
-              isExpanded={true}
-            />
-            
-            <SkillCategory
-              title="Quality & Process"
-              skills={["Software Quality", "Code Review", "Coding Standards", "Defect Management", "Technical Design", "Scrum", "Software Project Management"]}
-            />
-            
-            <SkillCategory
-              title="Communication & Collaboration"
-              skills={["Team Collaboration", "Communication", "Interpersonal Communication", "Client Requirements", "Knowledge Sharing", "Problem Solving"]}
-            />
-            
-            <SkillCategory
-              title="Strategy & Planning"
-              skills={["Solution Architecture", "Product Strategy", "Project Plans", "Capacity Planning", "Hands-on Technical Leadership"]}
-            />
-          </div>
-
-        </section>
-
-        <section id="languages" className="cv-section" role="region" aria-labelledby="languages-heading">
-          <SectionHeading title="Languages" subtitle="Communication abilities" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {userProfile.languages.map((language, index) =>
-              <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
-                <span className="font-medium text-slate-800">{language.name}</span>
-                <span className="cv-badge">
-                  {language.proficiency}
-                </span>
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold text-slate-800 mb-3">Top Skills</h3>
+              <div className="flex flex-wrap gap-2">
+                {topSkills.slice(0, 8).map((tag, index) => <SkillTag key={index} name={tag} variant="featured" />)}
               </div>
-            )}
-          </div>
-        </section>
+            </div>
+          </section>
+        </LazySection>
 
-        <section id="education" className="cv-section" role="region" aria-labelledby="education-heading">
-          <SectionHeading id="education-heading" title="Education" subtitle="Academic background and qualifications" />
-          <div className="space-y-4">
-            {userProfile.education.map((edu, index) =>
-              <div key={index} className="cv-card education-item">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
-                  <h3 className="font-semibold text-slate-800">
-                    {edu.institution}
-                  </h3>
-                  <span className="cv-badge bg-slate-100 text-slate-500">
-                    {edu.dateRange}
+        <LazySection rootMargin="150px" minHeight="600px">
+          <section id="experience" className="cv-section" role="region" aria-labelledby="experience-heading">
+            <SectionHeading title="Experience" subtitle="Professional work history and achievements" />
+
+            {/* Use optimized list for better performance with many experiences */}
+            <OptimizedExperienceList
+              experiences={experiences}
+              showImages={false}
+              sortBy="date"
+            />
+          </section>
+        </LazySection>
+
+        <LazySection rootMargin="150px" minHeight="500px">
+          <section id="skills" className="cv-section" role="region" aria-labelledby="skills-heading">
+            <SectionHeading title="Skills" subtitle="Technical expertise and professional capabilities" />
+
+            <div className="space-y-6">
+              <SkillCategory
+                title="Leadership & Management"
+                skills={["Team Management", "Engineering Management", "Project Management", "Delivery Management", "Team Leadership", "Coaching & Mentoring", "Program Management"]}
+                isExpanded={true}
+              />
+
+              <SkillCategory
+                title="Technical Skills"
+                skills={["Programming", "Web Architecture", "Microservices", "Databases", "Software as a Service (SaaS)", "Service-Oriented Architecture (SOA)", "Deployment Management"]}
+                isExpanded={true}
+              />
+
+              <SkillCategory
+                title="Quality & Process"
+                skills={["Software Quality", "Code Review", "Coding Standards", "Defect Management", "Technical Design", "Scrum", "Software Project Management"]}
+              />
+
+              <SkillCategory
+                title="Communication & Collaboration"
+                skills={["Team Collaboration", "Communication", "Interpersonal Communication", "Client Requirements", "Knowledge Sharing", "Problem Solving"]}
+              />
+
+              <SkillCategory
+                title="Strategy & Planning"
+                skills={["Solution Architecture", "Product Strategy", "Project Plans", "Capacity Planning", "Hands-on Technical Leadership"]}
+              />
+            </div>
+
+          </section>
+        </LazySection>
+
+        <LazySection rootMargin="150px" minHeight="250px">
+          <section id="languages" className="cv-section" role="region" aria-labelledby="languages-heading">
+            <SectionHeading title="Languages" subtitle="Communication abilities" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {userProfile.languages.map((language, index) =>
+                <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                  <span className="font-medium text-slate-800">{language.name}</span>
+                  <span className="cv-badge">
+                    {language.proficiency}
                   </span>
                 </div>
-                <p className="text-slate-700">{`${edu.degree}, ${edu.field}`}</p>
-              </div>
-            )}
-          </div>
-        </section>
+              )}
+            </div>
+          </section>
+        </LazySection>
 
-        <section id="certifications" className="cv-section" role="region" aria-labelledby="certifications-heading">
-          <SectionHeading title="Certifications" subtitle="Professional credentials and achievements" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {userProfile.certifications.map((cert, index) =>
-              <div key={index} className="flex items-center p-4 bg-slate-50 rounded-lg">
-                <div className="flex-1">
-                  <div className="font-medium text-slate-800">{cert.name}</div>
-                  {cert.issuer && (
-                    <div className="text-slate-600 text-sm">
-                      {cert.issuer}
-                    </div>
-                  )}
-                  {cert.date && (
-                    <div className="text-slate-500 text-xs">
-                      {cert.date}
-                    </div>
-                  )}
+        <LazySection rootMargin="150px" minHeight="300px">
+          <section id="education" className="cv-section" role="region" aria-labelledby="education-heading">
+            <SectionHeading id="education-heading" title="Education" subtitle="Academic background and qualifications" />
+            <div className="space-y-4">
+              {userProfile.education.map((edu, index) =>
+                <div key={index} className="cv-card education-item">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+                    <h3 className="font-semibold text-slate-800">
+                      {edu.institution}
+                    </h3>
+                    <span className="cv-badge bg-slate-100 text-slate-500">
+                      {edu.dateRange}
+                    </span>
+                  </div>
+                  <p className="text-slate-700">{`${edu.degree}, ${edu.field}`}</p>
                 </div>
-              </div>
-            )}
-          </div>
-        </section>
+              )}
+            </div>
+          </section>
+        </LazySection>
+
+        <LazySection rootMargin="150px" minHeight="300px">
+          <section id="certifications" className="cv-section" role="region" aria-labelledby="certifications-heading">
+            <SectionHeading title="Certifications" subtitle="Professional credentials and achievements" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {userProfile.certifications.map((cert, index) =>
+                <div key={index} className="flex items-center p-4 bg-slate-50 rounded-lg">
+                  <div className="flex-1">
+                    <div className="font-medium text-slate-800">{cert.name}</div>
+                    {cert.issuer && (
+                      <div className="text-slate-600 text-sm">
+                        {cert.issuer}
+                      </div>
+                    )}
+                    {cert.date && (
+                      <div className="text-slate-500 text-xs">
+                        {cert.date}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        </LazySection>
 
         {/* Contact Section - show/hide based on system settings */}
         {SystemSettings.get("showContacts") && (
-          <section id="contact" className="cv-section">
+          <LazySection rootMargin="150px" minHeight="400px">
+            <section id="contact" className="cv-section">
             <SectionHeading title="Contact" subtitle="Let's connect and discuss opportunities" />
             {(() => {
               // Find LinkedIn from social links
@@ -485,10 +470,11 @@ export default function Home() {
                 </div>
               </div>
             )}
-            
+
           </section>
+        </LazySection>
         )}
-        
+
         </div>
       </main>
 

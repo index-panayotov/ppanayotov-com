@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOpenRouterAnswer } from "@/services/openrouter";
+import { createOptimizedResponse } from "@/lib/api-compression";
 
 // In-memory storage for rate limiting
 // Note: This will reset when the serverless function cold starts
@@ -283,8 +284,8 @@ export async function POST(req: NextRequest) {
       // Log successful API calls (optional)
       console.log(`AI API call successful: ${new Date().toISOString()}`);
 
-      // Return the AI response
-      return NextResponse.json({ response: aiResponse });
+      // Return the AI response with compression
+      return createOptimizedResponse({ response: aiResponse }, { maxAge: 0 });
     } catch (error) {
       // Make sure to clear the timeout if there was an error
       clearTimeout(timeoutId);

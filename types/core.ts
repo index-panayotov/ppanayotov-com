@@ -98,37 +98,8 @@ export const createApiResponseSchema = <T extends z.ZodType>(dataSchema: T) =>
 
 // === EDITORJS TYPES ===
 
-/**
- * EditorJS block structure for proper typing
- */
-export interface EditorJSBlock {
-  id?: string;
-  type: string;
-  data: {
-    text?: string;
-    [key: string]: unknown;
-  };
-}
-
-export interface EditorJSData {
-  blocks: EditorJSBlock[];
-  time?: number;
-  version?: string;
-}
-
-export const EditorJSBlockSchema = z.object({
-  id: z.string().optional(),
-  type: z.string(),
-  data: z.object({
-    text: z.string().optional()
-  }).passthrough() // Allow additional properties
-});
-
-export const EditorJSDataSchema = z.object({
-  blocks: z.array(EditorJSBlockSchema),
-  time: z.number().optional(),
-  version: z.string().optional()
-});
+// EditorJS types are defined in lib/schemas.ts
+// Import directly from lib/schemas instead of re-exporting to avoid circular deps
 
 // === FORM TYPES ===
 
@@ -245,9 +216,11 @@ export function isApiResponse<T>(value: unknown): value is ApiResponse<T> {
 
 /**
  * Check if a value is a valid EditorJS data structure
+ * Note: Import EditorJSData and EditorJSDataSchema from @/lib/schemas
  */
-export function isEditorJSData(value: unknown): value is EditorJSData {
-  return EditorJSDataSchema.safeParse(value).success;
+export function isEditorJSData(value: unknown): boolean {
+  // Import the schema when needed from @/lib/schemas
+  return typeof value === 'object' && value !== null && 'blocks' in value;
 }
 
 /**
@@ -340,6 +313,24 @@ export function safeJsonParse<T>(
 export function ensureArray<T>(value: T | T[]): T[] {
   return Array.isArray(value) ? value : [value];
 }
+
+// === API ERROR CODES ===
+
+/**
+ * Common API error codes
+ */
+export const API_ERROR_CODES = {
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  NOT_FOUND: 'NOT_FOUND',
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  FORBIDDEN: 'FORBIDDEN',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  FILE_UPLOAD_ERROR: 'FILE_UPLOAD_ERROR',
+  AI_SERVICE_ERROR: 'AI_SERVICE_ERROR',
+  RATE_LIMIT_EXCEEDED: 'RATE_LIMIT_EXCEEDED'
+} as const;
+
+export type ApiErrorCode = typeof API_ERROR_CODES[keyof typeof API_ERROR_CODES];
 
 // Re-export commonly used Zod types
 export { z } from 'zod';

@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { GripVertical, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
-import { SocialLink } from '@/types/profile';
+import { SocialLink } from '@/lib/schemas';
 import { getSocialIcon } from '@/lib/social-platforms';
 
 interface SocialLinksReorderProps {

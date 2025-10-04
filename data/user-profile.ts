@@ -1,4 +1,4 @@
-import { LanguageProficiency, UserProfile } from "@/types/profile";
+import { LanguageProficiency, UserProfile } from "@/lib/schemas";
 
 export const userProfile: UserProfile = {
   "name": "Preslav Panayotov",

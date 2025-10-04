@@ -1,25 +1,20 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExperienceEntry } from "@/types";
-import { LanguageProficiency } from "@/types/profile";
+import { LanguageProficiency } from "@/lib/schemas";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { X } from "lucide-react";
+import {
+  LayoutDashboard,
+  Briefcase,
+  Target,
+  User,
+  Loader2
+} from "lucide-react";
 import dynamic from "next/dynamic";
 import * as handlers from "./handlers";
 import { AdminDashboard } from "@/components/admin/admin-dashboard";
@@ -27,15 +22,15 @@ import { AdminDashboard } from "@/components/admin/admin-dashboard";
 // Dynamically import components that use browser-only APIs
 const ExperiencesTab = dynamic(
   () => import("@/components/admin/experiences-tab"),
-  { ssr: false }
+  { ssr: false, loading: () => <div className="flex items-center justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-blue-600" /></div> }
 );
 const TopSkillsTab = dynamic(
   () => import("@/components/admin/top-skills-tab"),
-  { ssr: false }
+  { ssr: false, loading: () => <div className="flex items-center justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-blue-600" /></div> }
 );
 const ProfileDataTab = dynamic(
   () => import("@/components/admin/profile-data-tab"),
-  { ssr: false }
+  { ssr: false, loading: () => <div className="flex items-center justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-blue-600" /></div> }
 );
 const ExperienceDialog = dynamic(
   () => import("@/components/admin/experience-dialog"),
@@ -84,12 +79,12 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState<"visual" | "json">("visual");
   const [activeTab, setActiveTab] = useState("dashboard");
-  
+
   const searchParams = useSearchParams();
-  const [
-    currentExperience,
-    setCurrentExperience
-  ] = useState<ExperienceEntry | null>(null);
+  const router = useRouter();
+
+  // Dialog states
+  const [currentExperience, setCurrentExperience] = useState<ExperienceEntry | null>(null);
   const [newSkill, setNewSkill] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [languageDialogOpen, setLanguageDialogOpen] = useState(false);
@@ -123,9 +118,8 @@ export default function AdminPage() {
     position: number;
     _index?: number;
   } | null>(null);
-  const { toast } = useToast();
 
-  const router = useRouter();
+  const { toast } = useToast();
 
   // Client-side detection effect
   useEffect(() => {
@@ -135,9 +129,9 @@ export default function AdminPage() {
   // URL parameter listening effect for tab switching
   useEffect(() => {
     if (!isClient) return;
-    
+
     const currentTab = searchParams?.get('tab');
-    if (currentTab && ['experiences', 'topSkills', 'profileData'].includes(currentTab)) {
+    if (currentTab && ['dashboard', 'experiences', 'topSkills', 'profileData'].includes(currentTab)) {
       setActiveTab(currentTab);
     } else {
       setActiveTab('dashboard');
@@ -149,51 +143,71 @@ export default function AdminPage() {
     const checkEnv = async () => {
       try {
         setLoading(true);
+        console.log('[Admin Page] Starting data load...');
+
         // Check if user is authenticated
         const isAuthenticated = document.cookie.includes(
           "admin_authenticated=true"
         );
+        console.log('[Admin Page] Authenticated:', isAuthenticated);
+
         if (!isAuthenticated) {
+          console.log('[Admin Page] Not authenticated, redirecting to login');
           router.push("/admin/login");
           return;
         }
 
+        console.log('[Admin Page] Fetching admin data from /api/admin');
         const res = await fetch("/api/admin");
+        console.log('[Admin Page] Response status:', res.status);
 
         if (res.status === 403) {
+          console.error('[Admin Page] Forbidden - not in dev mode');
           setIsDev(false);
           setError("Admin panel is only available in development mode");
           return;
         }
 
         if (!res.ok) {
-          throw new Error("Failed to fetch data");
+          console.error('[Admin Page] Response not OK:', res.statusText);
+          throw new Error(`Failed to fetch data: ${res.statusText}`);
         }
 
         const data = await res.json();
-        setExperiences(data.experiences);
-        setTopSkills(data.topSkills);
-        setProfileData(
-          data.profileData || {
-            name: "",
-            title: "",
-            location: "",
-            email: "",
-            linkedin: "",
-            profileImageUrl: "",
-            summary: "",
-            languages: [],
-            education: [],
-            certifications: []
-          }
-        );
+        console.log('[Admin Page] Data received:', {
+          hasProfileData: !!data.profileData,
+          experiencesCount: data.experiences?.length,
+          topSkillsCount: data.topSkills?.length
+        });
+
+        // Normalize data (API now returns profileData consistently)
+        const profile = data.profileData || {
+          name: "",
+          title: "",
+          location: "",
+          email: "",
+          phone: "",
+          profileImageUrl: "",
+          summary: "",
+          languages: [],
+          education: [],
+          certifications: [],
+          socialLinks: []
+        };
+
+        console.log('[Admin Page] Setting state with profile:', profile.name);
+        setExperiences(data.experiences || []);
+        setTopSkills(data.topSkills || []);
+        setProfileData(profile);
         setIsDev(true);
         setError(null);
+        console.log('[Admin Page] ✓ Data loaded successfully');
       } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+        console.error('[Admin Page] Error loading data:', errorMsg, err);
         setError(
-          "Error loading data. Make sure you are in development mode."
+          `Error loading data: ${errorMsg}. Make sure you are in development mode.`
         );
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -201,14 +215,13 @@ export default function AdminPage() {
 
     checkEnv();
   }, [router]);
-  // Wrapper functions that call the handlers with the necessary state
+
+  // Handler functions (keeping all the existing handlers)
   const handleSave = async (file: string, data: any) => {
     return handlers.handleSave(file, data, setSaving, toast);
   };
 
-  const handleExperiencesChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
+  const handleExperiencesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     handlers.handleExperiencesChange(e, setExperiences);
   };
 
@@ -216,19 +229,12 @@ export default function AdminPage() {
     handlers.handleTopSkillsChange(e, setTopSkills);
   };
 
-  const handleProfileDataChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
+  const handleProfileDataChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     handlers.handleProfileDataChange(e, setProfileData);
   };
 
   const handleProfileFieldChange = (field: string, value: string) => {
-    handlers.handleProfileFieldChange(
-      field,
-      value,
-      profileData,
-      setProfileData
-    );
+    handlers.handleProfileFieldChange(field, value, profileData, setProfileData);
   };
 
   const addExperience = () => {
@@ -261,12 +267,7 @@ export default function AdminPage() {
   };
 
   const addTag = () => {
-    handlers.addTag(
-      currentExperience,
-      newSkill,
-      setCurrentExperience,
-      setNewSkill
-    );
+    handlers.addTag(currentExperience, newSkill, setCurrentExperience, setNewSkill);
   };
 
   const removeTag = (tag: string) => {
@@ -286,26 +287,15 @@ export default function AdminPage() {
   };
 
   const generateAutomaticTopSkills = async () => {
-    handlers.generateAutomaticTopSkills(
-      experiences,
-      setTopSkills,
-      setSaving,
-      toast
-    );
+    handlers.generateAutomaticTopSkills(experiences, setTopSkills, setSaving, toast);
   };
 
-  // Functions for managing languages
   const addLanguage = () => {
     handlers.addLanguage(setCurrentLanguage, setLanguageDialogOpen);
   };
 
   const editLanguage = (lang: any, index: number) => {
-    handlers.editLanguage(
-      lang,
-      index,
-      setCurrentLanguage,
-      setLanguageDialogOpen
-    );
+    handlers.editLanguage(lang, index, setCurrentLanguage, setLanguageDialogOpen);
   };
 
   const saveLanguage = () => {
@@ -327,18 +317,12 @@ export default function AdminPage() {
     handlers.moveLanguage(index, direction, profileData, setProfileData);
   };
 
-  // Functions for managing education
   const addEducation = () => {
     handlers.addEducation(setCurrentEducation, setEducationDialogOpen);
   };
 
   const editEducation = (edu: any, index: number) => {
-    handlers.editEducation(
-      edu,
-      index,
-      setCurrentEducation,
-      setEducationDialogOpen
-    );
+    handlers.editEducation(edu, index, setCurrentEducation, setEducationDialogOpen);
   };
 
   const saveEducation = () => {
@@ -360,21 +344,12 @@ export default function AdminPage() {
     handlers.moveEducation(index, direction, profileData, setProfileData);
   };
 
-  // Functions for managing certifications
   const addCertification = () => {
-    handlers.addCertification(
-      setCurrentCertification,
-      setCertificationDialogOpen
-    );
+    handlers.addCertification(setCurrentCertification, setCertificationDialogOpen);
   };
 
   const editCertification = (cert: any, index: number) => {
-    handlers.editCertification(
-      cert,
-      index,
-      setCurrentCertification,
-      setCertificationDialogOpen
-    );
+    handlers.editCertification(cert, index, setCurrentCertification, setCertificationDialogOpen);
   };
 
   const saveCertification = () => {
@@ -396,22 +371,12 @@ export default function AdminPage() {
     handlers.moveCertification(index, direction, profileData, setProfileData);
   };
 
-  // Functions for managing social links
   const addSocialLink = () => {
-    handlers.addSocialLink(
-      setCurrentSocialLink,
-      setSocialLinkDialogOpen,
-      profileData
-    );
+    handlers.addSocialLink(setCurrentSocialLink, setSocialLinkDialogOpen, profileData);
   };
 
   const editSocialLink = (link: any, index: number) => {
-    handlers.editSocialLink(
-      link,
-      index,
-      setCurrentSocialLink,
-      setSocialLinkDialogOpen
-    );
+    handlers.editSocialLink(link, index, setCurrentSocialLink, setSocialLinkDialogOpen);
   };
 
   const saveSocialLink = () => {
@@ -427,28 +392,32 @@ export default function AdminPage() {
   };
 
   const deleteSocialLink = (index: number) => {
-    handlers.deleteSocialLink(
-      index,
-      profileData,
-      setProfileData,
-      setSaving,
-      toast
-    );
+    handlers.deleteSocialLink(index, profileData, setProfileData, setSaving, toast);
   };
 
   const moveSocialLink = (index: number, direction: "up" | "down") => {
-    handlers.moveSocialLink(
-      index,
-      direction,
-      profileData,
-      setProfileData,
-      setSaving,
-      toast
-    );
+    handlers.moveSocialLink(index, direction, profileData, setProfileData, setSaving, toast);
+  };
+
+  // Handle tab change and update URL
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    if (value === 'dashboard') {
+      router.push('/admin');
+    } else {
+      router.push(`/admin?tab=${value}`);
+    }
   };
 
   if (loading) {
-    return <div className="p-8">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-slate-600">Loading admin panel...</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
@@ -456,9 +425,7 @@ export default function AdminPage() {
       <div className="p-8">
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {error}
-          </AlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       </div>
     );
@@ -480,87 +447,136 @@ export default function AdminPage() {
 
   return (
     <div className="h-full">
-      {/* Dashboard */}
-      {activeTab === 'dashboard' && (
-        <AdminDashboard 
-          experiences={experiences}
-          topSkills={topSkills}
-          profileData={profileData}
-        />
-      )}
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="h-full">
+        {/* Prominent Tab Navigation */}
+        <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-6 pt-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">CV Admin Panel</h1>
+              <p className="text-sm text-slate-600 mt-1">Manage your professional CV content</p>
+            </div>
+            {saving && (
+              <Badge variant="secondary" className="gap-2">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Saving...
+              </Badge>
+            )}
+          </div>
 
-      {/* Experiences Tab */}
-      {activeTab === 'experiences' && (
-        <div className="p-6">
-          <ExperiencesTab
-            experiences={experiences}
-            setExperiences={setExperiences}
-            editMode={editMode}
-            setEditMode={setEditMode}
-            saving={saving}
-            handleSave={handleSave}
-            handleExperiencesChange={handleExperiencesChange}
-            addExperience={addExperience}
-            editExperience={editExperience}
-            deleteExperience={deleteExperience}
-            moveExperience={moveExperience}
-          />
+          <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-b-0 gap-1">
+            <TabsTrigger
+              value="dashboard"
+              className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-t-md px-4 py-3 gap-2"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger
+              value="experiences"
+              className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-t-md px-4 py-3 gap-2"
+            >
+              <Briefcase className="h-4 w-4" />
+              Experiences
+              <Badge variant="secondary" className="ml-1 text-xs">
+                {experiences.length}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger
+              value="topSkills"
+              className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-t-md px-4 py-3 gap-2"
+            >
+              <Target className="h-4 w-4" />
+              Top Skills
+              <Badge variant="secondary" className="ml-1 text-xs">
+                {topSkills.length}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger
+              value="profileData"
+              className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-t-md px-4 py-3 gap-2"
+            >
+              <User className="h-4 w-4" />
+              Profile Data
+            </TabsTrigger>
+          </TabsList>
         </div>
-      )}
 
-      {/* Top Skills Tab */}
-      {activeTab === 'topSkills' && (
-        <div className="p-6">
-          <TopSkillsTab
-            topSkills={topSkills}
-            setTopSkills={setTopSkills}
-            editMode={editMode}
-            setEditMode={setEditMode}
-            saving={saving}
-            handleSave={handleSave}
-            handleTopSkillsChange={handleTopSkillsChange}
-            addTopSkill={addTopSkill}
-            removeTopSkill={removeTopSkill}
-            moveTopSkill={moveTopSkill}
-            generateAutomaticTopSkills={generateAutomaticTopSkills}
-            newSkill={newSkill}
-            setNewSkill={setNewSkill}
-          />
-        </div>
-      )}
+        {/* Tab Content */}
+        <div className="overflow-y-auto" style={{ height: 'calc(100vh - 180px)' }}>
+          <TabsContent value="dashboard" className="m-0 p-6">
+            <AdminDashboard
+              experiences={experiences}
+              topSkills={topSkills}
+              profileData={profileData}
+            />
+          </TabsContent>
 
-      {/* Profile Data Tab */}
-      {activeTab === 'profileData' && (
-        <div className="p-6">
-          <ProfileDataTab
-            profileData={profileData}
-            setProfileData={setProfileData}
-            editMode={editMode}
-            setEditMode={setEditMode}
-            saving={saving}
-            handleSave={handleSave}
-            handleProfileDataChange={handleProfileDataChange}
-            handleProfileFieldChange={handleProfileFieldChange}
-            addLanguage={addLanguage}
-            editLanguage={editLanguage}
-            deleteLanguage={deleteLanguage}
-            moveLanguage={moveLanguage}
-            addEducation={addEducation}
-            editEducation={editEducation}
-            deleteEducation={deleteEducation}
-            moveEducation={moveEducation}
-            addCertification={addCertification}
-            editCertification={editCertification}
-            deleteCertification={deleteCertification}
-            moveCertification={moveCertification}
-            addSocialLink={addSocialLink}
-            editSocialLink={editSocialLink}
-            deleteSocialLink={deleteSocialLink}
-            moveSocialLink={moveSocialLink}
-          />
+          <TabsContent value="experiences" className="m-0 p-6">
+            <ExperiencesTab
+              experiences={experiences}
+              setExperiences={setExperiences}
+              editMode={editMode}
+              setEditMode={setEditMode}
+              saving={saving}
+              handleSave={handleSave}
+              handleExperiencesChange={handleExperiencesChange}
+              addExperience={addExperience}
+              editExperience={editExperience}
+              deleteExperience={deleteExperience}
+              moveExperience={moveExperience}
+            />
+          </TabsContent>
+
+          <TabsContent value="topSkills" className="m-0 p-6">
+            <TopSkillsTab
+              topSkills={topSkills}
+              setTopSkills={setTopSkills}
+              editMode={editMode}
+              setEditMode={setEditMode}
+              saving={saving}
+              handleSave={handleSave}
+              handleTopSkillsChange={handleTopSkillsChange}
+              addTopSkill={addTopSkill}
+              removeTopSkill={removeTopSkill}
+              moveTopSkill={moveTopSkill}
+              generateAutomaticTopSkills={generateAutomaticTopSkills}
+              newSkill={newSkill}
+              setNewSkill={setNewSkill}
+            />
+          </TabsContent>
+
+          <TabsContent value="profileData" className="m-0 p-6">
+            <ProfileDataTab
+              profileData={profileData}
+              setProfileData={setProfileData}
+              editMode={editMode}
+              setEditMode={setEditMode}
+              saving={saving}
+              handleSave={handleSave}
+              handleProfileDataChange={handleProfileDataChange}
+              handleProfileFieldChange={handleProfileFieldChange}
+              addLanguage={addLanguage}
+              editLanguage={editLanguage}
+              deleteLanguage={deleteLanguage}
+              moveLanguage={moveLanguage}
+              addEducation={addEducation}
+              editEducation={editEducation}
+              deleteEducation={deleteEducation}
+              moveEducation={moveEducation}
+              addCertification={addCertification}
+              editCertification={editCertification}
+              deleteCertification={deleteCertification}
+              moveCertification={moveCertification}
+              addSocialLink={addSocialLink}
+              editSocialLink={editSocialLink}
+              deleteSocialLink={deleteSocialLink}
+              moveSocialLink={moveSocialLink}
+            />
+          </TabsContent>
         </div>
-      )}
-      {/* Experience Dialog */}
+      </Tabs>
+
+      {/* Dialogs */}
       <ExperienceDialog
         open={dialogOpen}
         setOpen={setDialogOpen}
@@ -572,24 +588,21 @@ export default function AdminPage() {
         removeTag={removeTag}
         saveExperience={saveExperience}
         saving={saving}
-      />{" "}
-      {/* Language Dialog */}
+      />
       <LanguageDialog
         open={languageDialogOpen}
         setOpen={setLanguageDialogOpen}
         currentLanguage={currentLanguage}
         setCurrentLanguage={setCurrentLanguage}
         saveLanguage={saveLanguage}
-      />{" "}
-      {/* Education Dialog */}
+      />
       <EducationDialog
         open={educationDialogOpen}
         setOpen={setEducationDialogOpen}
         currentEducation={currentEducation}
         setCurrentEducation={setCurrentEducation}
         saveEducation={saveEducation}
-      />{" "}
-      {/* Certification Dialog */}
+      />
       <CertificationDialog
         open={certificationDialogOpen}
         setOpen={setCertificationDialogOpen}
@@ -597,7 +610,6 @@ export default function AdminPage() {
         setCurrentCertification={setCurrentCertification}
         saveCertification={saveCertification}
       />
-      {/* Social Link Dialog */}
       <SocialLinkDialog
         open={socialLinkDialogOpen}
         setOpen={setSocialLinkDialogOpen}
