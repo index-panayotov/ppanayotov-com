@@ -1,251 +1,134 @@
 /**
- * Service Worker Registration and Management
+ * Service Worker Registration Utilities
  *
- * Handles Progressive Web App functionality:
- * - Service worker registration
- * - Update notifications
- * - Cache management
- * - Offline support
+ * Handles service worker registration, updates, and status monitoring
+ * for Progressive Web App functionality.
  */
 
 export interface ServiceWorkerStatus {
-  isSupported: boolean;
   isRegistered: boolean;
-  isUpdateAvailable: boolean;
-  registration?: ServiceWorkerRegistration;
+  isActive: boolean;
+  isWaiting: boolean;
+  updateAvailable: boolean;
+  error?: string;
 }
 
-let swStatus: ServiceWorkerStatus = {
-  isSupported: false,
-  isRegistered: false,
-  isUpdateAvailable: false,
-};
-
 /**
- * Register the service worker
+ * Register service worker
  */
-export async function registerServiceWorker(): Promise<ServiceWorkerStatus> {
-  // Check if service workers are supported
-  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
-    console.log('[SW] Service workers not supported');
-    return swStatus;
+export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
+  if (!('serviceWorker' in navigator)) {
+    console.warn('Service workers not supported');
+    return null;
   }
 
-  swStatus.isSupported = true;
-
   try {
-    // Register the service worker
-    const registration = await navigator.serviceWorker.register('/sw.js', {
-      scope: '/',
-      updateViaCache: 'none', // Always check for updates
-    });
+    const registration = await navigator.serviceWorker.register('/sw.js');
+    console.log('Service worker registered:', registration);
 
-    swStatus.isRegistered = true;
-    swStatus.registration = registration;
-
-    console.log('[SW] Service worker registered successfully');
-
-    // Check for updates periodically (every hour)
-    setInterval(() => {
-      registration.update();
-    }, 60 * 60 * 1000);
-
-    // Handle service worker updates
+    // Handle updates
     registration.addEventListener('updatefound', () => {
       const newWorker = registration.installing;
-
       if (newWorker) {
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // New service worker available
-            swStatus.isUpdateAvailable = true;
-            console.log('[SW] New version available');
-
-            // Notify user about update
-            notifyUpdate();
+            // New version available
+            console.log('New service worker version available');
           }
         });
       }
     });
 
-    // Handle messages from service worker
-    navigator.serviceWorker.addEventListener('message', (event) => {
-      console.log('[SW] Message from service worker:', event.data);
-
-      if (event.data && event.data.type === 'CACHE_UPDATED') {
-        console.log('[SW] Cache has been updated');
-      }
-    });
-
-    // Activate waiting service worker immediately on page load
-    if (registration.waiting) {
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-    }
-
-    return swStatus;
-
+    return registration;
   } catch (error) {
-    console.error('[SW] Service worker registration failed:', error);
-    return swStatus;
-  }
-}
-
-/**
- * Unregister the service worker
- */
-export async function unregisterServiceWorker(): Promise<boolean> {
-  if (!swStatus.registration) {
-    return false;
-  }
-
-  try {
-    const success = await swStatus.registration.unregister();
-    if (success) {
-      console.log('[SW] Service worker unregistered');
-      swStatus.isRegistered = false;
-      swStatus.registration = undefined;
-    }
-    return success;
-  } catch (error) {
-    console.error('[SW] Failed to unregister service worker:', error);
-    return false;
-  }
-}
-
-/**
- * Update the service worker
- */
-export async function updateServiceWorker(): Promise<void> {
-  if (!swStatus.registration) {
-    console.warn('[SW] No service worker registered');
-    return;
-  }
-
-  try {
-    await swStatus.registration.update();
-    console.log('[SW] Service worker update check completed');
-  } catch (error) {
-    console.error('[SW] Service worker update failed:', error);
-  }
-}
-
-/**
- * Skip waiting and activate new service worker immediately
- */
-export function skipWaiting(): void {
-  if (!swStatus.registration || !swStatus.registration.waiting) {
-    return;
-  }
-
-  swStatus.registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-
-  // Reload page to use new service worker
-  window.location.reload();
-}
-
-/**
- * Get cache statistics from service worker
- */
-export async function getCacheStats(): Promise<any> {
-  if (!navigator.serviceWorker.controller) {
+    console.error('Service worker registration failed:', error);
     return null;
   }
-
-  return new Promise((resolve) => {
-    const messageChannel = new MessageChannel();
-
-    messageChannel.port1.onmessage = (event) => {
-      if (event.data && event.data.type === 'CACHE_STATS') {
-        resolve(event.data.data);
-      }
-    };
-
-    navigator.serviceWorker.controller.postMessage(
-      { type: 'GET_CACHE_STATS' },
-      [messageChannel.port2]
-    );
-
-    // Timeout after 5 seconds
-    setTimeout(() => resolve(null), 5000);
-  });
 }
 
 /**
- * Get performance statistics from service worker
- */
-export async function getPerformanceStats(): Promise<any> {
-  if (!navigator.serviceWorker.controller) {
-    return null;
-  }
-
-  return new Promise((resolve) => {
-    const messageChannel = new MessageChannel();
-
-    messageChannel.port1.onmessage = (event) => {
-      if (event.data && event.data.type === 'PERFORMANCE_STATS') {
-        resolve(event.data.data);
-      }
-    };
-
-    navigator.serviceWorker.controller.postMessage(
-      { type: 'GET_PERFORMANCE_STATS' },
-      [messageChannel.port2]
-    );
-
-    // Timeout after 5 seconds
-    setTimeout(() => resolve(null), 5000);
-  });
-}
-
-/**
- * Clear all caches
- */
-export async function clearAllCaches(): Promise<boolean> {
-  try {
-    const cacheNames = await caches.keys();
-    await Promise.all(cacheNames.map(name => caches.delete(name)));
-    console.log('[SW] All caches cleared');
-    return true;
-  } catch (error) {
-    console.error('[SW] Failed to clear caches:', error);
-    return false;
-  }
-}
-
-/**
- * Notify user about service worker update
- */
-function notifyUpdate(): void {
-  // This can be customized to show a toast/banner to the user
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[SW] 🔄 New version available. Refresh to update.');
-  }
-
-  // Dispatch custom event that can be listened to by the UI
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('sw-update-available'));
-  }
-}
-
-/**
- * Check if app is running in standalone mode (installed PWA)
- */
-export function isStandalone(): boolean {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-
-  return (
-    window.matchMedia('(display-mode: standalone)').matches ||
-    (window.navigator as any).standalone === true
-  );
-}
-
-/**
- * Get service worker status
+ * Get current service worker status
  */
 export function getServiceWorkerStatus(): ServiceWorkerStatus {
-  return swStatus;
+  if (!('serviceWorker' in navigator)) {
+    return {
+      isRegistered: false,
+      isActive: false,
+      isWaiting: false,
+      updateAvailable: false,
+      error: 'Service workers not supported'
+    };
+  }
+
+  const registration = navigator.serviceWorker.controller ? true : false;
+  const active = navigator.serviceWorker.controller !== null;
+
+  return {
+    isRegistered: registration,
+    isActive: active,
+    isWaiting: false, // Would need to check registration.waiting
+    updateAvailable: false, // Would need to check for updates
+  };
 }
 
-export default registerServiceWorker;
+/**
+ * Unregister service worker
+ */
+export async function unregisterServiceWorker(): Promise<boolean> {
+  if (!('serviceWorker' in navigator)) {
+    return false;
+  }
+
+  try {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    for (const registration of registrations) {
+      await registration.unregister();
+    }
+    console.log('Service worker unregistered');
+    return true;
+  } catch (error) {
+    console.error('Service worker unregistration failed:', error);
+    return false;
+  }
+}
+
+/**
+ * Skip waiting for service worker update
+ */
+export function skipWaiting(): void {
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+  }
+}
+
+/**
+ * Get cache statistics
+ */
+export function getCacheStats(): { size: number; entries: number } {
+  // This would normally query the Cache API
+  // For now, return mock data
+  return {
+    size: 0,
+    entries: 0,
+  };
+}
+
+/**
+ * Get performance statistics
+ */
+export function getPerformanceStats(): { loadTime: number; domContentLoaded: number; firstPaint: number } {
+  if (!performance.timing) {
+    return {
+      loadTime: 0,
+      domContentLoaded: 0,
+      firstPaint: 0,
+    };
+  }
+
+  const timing = performance.timing;
+  return {
+    loadTime: timing.loadEventEnd - timing.navigationStart,
+    domContentLoaded: timing.domContentLoadedEventEnd - timing.navigationStart,
+    firstPaint: timing.responseStart - timing.navigationStart,
+  };
+}

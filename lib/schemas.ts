@@ -124,9 +124,6 @@ export enum LanguageProficiency {
   Native = "Native",
   Fluent = "Fluent",
   Professional = "Professional",
-  Intermediate = "Intermediate",
-  Elementary = "Elementary",
-  Beginner = "Beginner",
   Limited = "Limited",
   Basic = "Basic"
 }
@@ -294,6 +291,7 @@ export const SystemSettingsSchema = z.object({
   showPrint: z.boolean().default(false),
   gtagCode: OptionalStringSchema,
   gtagEnabled: z.boolean().default(false),
+  selectedTemplate: z.enum(['classic', 'professional', 'modern']).default('classic'),
   pwa: z.object({
     siteName: NonEmptyStringSchema,
     shortName: NonEmptyStringSchema,

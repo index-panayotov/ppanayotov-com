@@ -1,0 +1,79 @@
+import { SystemSettings, UserProfile, ExperienceEntry } from "@/lib/schemas";
+
+export interface AdminData {
+  experiences: ExperienceEntry[];
+  topSkills: string[];
+  profileData: UserProfile;
+  systemSettings: SystemSettings;
+}
+
+export interface AdminDataResponse extends AdminData {
+  isDev: boolean;
+}
+
+export async function loadAdminData(): Promise<AdminDataResponse> {
+  console.log('[Admin Data Loader] Fetching admin data from /api/admin');
+
+  const res = await fetch("/api/admin");
+  console.log('[Admin Data Loader] Response status:', res.status);
+
+  if (res.status === 403) {
+    throw new Error("Admin panel is only available in development mode");
+  }
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch data: ${res.statusText}`);
+  }
+
+  const data = await res.json();
+
+  // Normalize data structure
+  const profileData: UserProfile = data.profileData || {
+    name: "",
+    title: "",
+    location: "",
+    email: "",
+    phone: "",
+    profileImageUrl: "",
+    summary: "",
+    languages: [],
+    education: [],
+    certifications: [],
+    socialLinks: []
+  };
+
+  const adminData: AdminDataResponse = {
+    experiences: data.experiences || [],
+    topSkills: data.topSkills || [],
+    profileData,
+    systemSettings: data.systemSettings || {
+      blogEnable: false,
+      useWysiwyg: true,
+      showContacts: true,
+      showPrint: false,
+      gtagCode: "",
+      gtagEnabled: false,
+      selectedTemplate: "classic",
+      pwa: {}
+    },
+    isDev: true
+  };
+
+  console.log('[Admin Data Loader] ✓ Data loaded successfully');
+  return adminData;
+}
+
+export async function saveAdminData(file: string, data: any): Promise<void> {
+  const res = await fetch('/api/admin', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ file, data }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.error?.message || 'Failed to save data');
+  }
+}

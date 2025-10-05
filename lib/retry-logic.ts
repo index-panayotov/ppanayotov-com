@@ -1,100 +1,87 @@
 /**
- * Retry Logic with Exponential Backoff
+ * Retry Logic Utilities
  *
- * Provides robust retry mechanisms for failed operations:
- * - Exponential backoff to prevent overwhelming services
- * - Configurable retry attempts and delays
- * - Error type filtering
- * - Timeout support
+ * Provides exponential backoff retry functionality for API calls
+ * and other operations that may fail temporarily.
  */
 
 export interface RetryOptions {
-  /**
-   * Maximum number of retry attempts
-   * @default 3
-   */
   maxAttempts?: number;
-
-  /**
-   * Initial delay in milliseconds
-   * @default 1000
-   */
-  initialDelay?: number;
-
-  /**
-   * Maximum delay between retries in milliseconds
-   * @default 30000
-   */
+  baseDelay?: number;
   maxDelay?: number;
+  backoffFactor?: number;
+  retryCondition?: (error: Error) => boolean;
+}
 
-  /**
-   * Backoff multiplier (exponential growth factor)
-   * @default 2
-   */
-  backoffMultiplier?: number;
-
-  /**
-   * Function to determine if error is retryable
-   */
-  shouldRetry?: (error: Error, attempt: number) => boolean;
-
-  /**
-   * Callback on each retry attempt
-   */
-  onRetry?: (error: Error, attempt: number, delay: number) => void;
+export interface RetryState {
+  attempt: number;
+  delay: number;
+  error: Error | null;
 }
 
 /**
- * Retry a function with exponential backoff
+ * Default retry condition - retry on network errors and 5xx status codes
  */
-export async function retryWithBackoff<T>(
+export function defaultRetryCondition(error: any): boolean {
+  // Network errors
+  if (!error.response) return true;
+
+  // Server errors (5xx)
+  const status = error.response?.status || error.status;
+  return status >= 500 && status < 600;
+}
+
+/**
+ * Calculate delay for exponential backoff
+ */
+export function calculateDelay(
+  attempt: number,
+  baseDelay: number = 1000,
+  maxDelay: number = 30000,
+  backoffFactor: number = 2
+): number {
+  const delay = baseDelay * Math.pow(backoffFactor, attempt - 1);
+  return Math.min(delay, maxDelay);
+}
+
+/**
+ * Sleep for specified milliseconds
+ */
+export function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Execute function with retry logic
+ */
+export async function withRetry<T>(
   fn: () => Promise<T>,
   options: RetryOptions = {}
 ): Promise<T> {
   const {
     maxAttempts = 3,
-    initialDelay = 1000,
+    baseDelay = 1000,
     maxDelay = 30000,
-    backoffMultiplier = 2,
-    shouldRetry = () => true,
-    onRetry,
+    backoffFactor = 2,
+    retryCondition = defaultRetryCondition,
   } = options;
 
   let lastError: Error;
-  let attempt = 0;
 
-  while (attempt < maxAttempts) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       return await fn();
     } catch (error) {
       lastError = error as Error;
-      attempt++;
 
-      // Check if we should retry
-      if (attempt >= maxAttempts || !shouldRetry(lastError, attempt)) {
+      // Don't retry on last attempt or if condition doesn't match
+      if (attempt === maxAttempts || !retryCondition(lastError)) {
         throw lastError;
       }
 
-      // Calculate delay with exponential backoff
-      const delay = Math.min(
-        initialDelay * Math.pow(backoffMultiplier, attempt - 1),
-        maxDelay
-      );
+      const delay = calculateDelay(attempt, baseDelay, maxDelay, backoffFactor);
+      console.warn(`Attempt ${attempt} failed, retrying in ${delay}ms:`, lastError.message);
 
-      // Call retry callback
-      if (onRetry) {
-        onRetry(lastError, attempt, delay);
-      }
-
-      // Log retry attempt in development
-      if (process.env.NODE_ENV === 'development') {
-        console.warn(
-          `🔄 Retry attempt ${attempt}/${maxAttempts} after ${delay}ms`,
-          lastError.message
-        );
-      }
-
-      // Wait before retrying
       await sleep(delay);
     }
   }
@@ -103,146 +90,43 @@ export async function retryWithBackoff<T>(
 }
 
 /**
- * Retry fetch requests with smart error handling
+ * Create a retry wrapper function
+ */
+export function createRetryWrapper<T extends (...args: any[]) => Promise<any>>(
+  fn: T,
+  options?: RetryOptions
+): T {
+  return ((...args: Parameters<T>) =>
+    withRetry(() => fn(...args), options)) as T;
+}
+
+/**
+ * Retry hook for React components
+ */
+export function useRetry(options?: RetryOptions) {
+  return {
+    execute: <T>(fn: () => Promise<T>) => withRetry(fn, options),
+    wrap: <T extends (...args: any[]) => Promise<any>>(fn: T) =>
+      createRetryWrapper(fn, options),
+  };
+}
+
+/**
+ * Fetch with retry logic
  */
 export async function retryFetch(
   url: string,
-  init?: RequestInit,
-  options?: RetryOptions
-): Promise<Response> {
-  return retryWithBackoff(
-    async () => {
-      const response = await fetch(url, init);
-
-      // Retry on network errors and 5xx server errors
-      if (!response.ok && response.status >= 500) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      return response;
-    },
-    {
-      ...options,
-      shouldRetry: (error, attempt) => {
-        // Don't retry client errors (4xx)
-        if (error.message.includes('HTTP 4')) {
-          return false;
-        }
-
-        // Call custom shouldRetry if provided
-        if (options?.shouldRetry) {
-          return options.shouldRetry(error, attempt);
-        }
-
-        return true;
-      },
-    }
-  );
-}
-
-/**
- * Sleep utility
- */
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/**
- * Check if error is retryable based on common patterns
- */
-export function isRetryableError(error: Error): boolean {
-  const retryableMessages = [
-    'network',
-    'timeout',
-    'ECONNREFUSED',
-    'ENOTFOUND',
-    'ETIMEDOUT',
-    'ECONNRESET',
-    '429', // Too Many Requests
-    '500', // Internal Server Error
-    '502', // Bad Gateway
-    '503', // Service Unavailable
-    '504', // Gateway Timeout
-  ];
-
-  const errorMessage = error.message.toLowerCase();
-  return retryableMessages.some((msg) => errorMessage.includes(msg.toLowerCase()));
-}
-
-/**
- * Retry with timeout
- */
-export async function retryWithTimeout<T>(
-  fn: () => Promise<T>,
-  timeoutMs: number,
+  options?: RequestInit,
   retryOptions?: RetryOptions
-): Promise<T> {
-  return Promise.race([
-    retryWithBackoff(fn, retryOptions),
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error('Operation timed out')), timeoutMs)
-    ),
-  ]);
-}
+): Promise<Response> {
+  return withRetry(async () => {
+    const response = await fetch(url, options);
 
-/**
- * Circuit breaker pattern implementation
- */
-export class CircuitBreaker {
-  private failures = 0;
-  private lastFailureTime = 0;
-  private state: 'closed' | 'open' | 'half-open' = 'closed';
-
-  constructor(
-    private threshold: number = 5,
-    private timeout: number = 60000,
-    private resetTimeout: number = 30000
-  ) {}
-
-  async execute<T>(fn: () => Promise<T>): Promise<T> {
-    // Check if circuit is open
-    if (this.state === 'open') {
-      if (Date.now() - this.lastFailureTime > this.resetTimeout) {
-        this.state = 'half-open';
-        this.failures = 0;
-      } else {
-        throw new Error('Circuit breaker is open');
-      }
+    // Throw error for non-ok responses so they can be retried
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    try {
-      const result = await fn();
-
-      // Success - reset if in half-open state
-      if (this.state === 'half-open') {
-        this.state = 'closed';
-        this.failures = 0;
-      }
-
-      return result;
-    } catch (error) {
-      this.failures++;
-      this.lastFailureTime = Date.now();
-
-      // Open circuit if threshold reached
-      if (this.failures >= this.threshold) {
-        this.state = 'open';
-        console.error('🔴 Circuit breaker opened due to repeated failures');
-      }
-
-      throw error;
-    }
-  }
-
-  getState(): string {
-    return this.state;
-  }
-
-  reset(): void {
-    this.failures = 0;
-    this.state = 'closed';
-    this.lastFailureTime = 0;
-  }
+    return response;
+  }, retryOptions);
 }
-
-export default retryWithBackoff;
