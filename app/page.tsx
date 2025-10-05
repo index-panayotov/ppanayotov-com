@@ -1,12 +1,9 @@
-import { experiences } from "@/data/cv-data";
-import { topSkills } from "@/data/topSkills";
-import { userProfile } from "@/data/user-profile";
-import { default as dynamicImport } from "next/dynamic";
-
-const ClassicTemplate = dynamicImport(() => import("./templates/classic"));
-const ProfessionalTemplate = dynamicImport(() => import("./templates/professional"));
-const ModernTemplate = dynamicImport(() => import("./templates/modern"));
-import { loadSystemSettings } from "@/lib/data-loader";
+ import { experiences } from "@/data/cv-data";
+ import { topSkills } from "@/data/topSkills";
+ import { userProfile } from "@/data/user-profile";
+ import { loadSystemSettings } from "@/lib/data-loader";
+ import { getTemplateComponent, isValidTemplateId } from "./templates/template-registry";
+ import { Suspense } from "react";
 
 // Force dynamic rendering - don't cache this page
 // This ensures we always read fresh system_settings on each request
@@ -36,11 +33,11 @@ export default async function Home() {
     systemSettings = {
       selectedTemplate: "classic",
       blogEnable: false,
-      useWysiwyg: true,
-      showContacts: true,
+      useWysiwyg: false,
+      showContacts: false,
       showPrint: false,
       gtagCode: "G-NR6KNX7RM6",
-      gtagEnabled: true
+      gtagEnabled: false
     };
   }
 
@@ -52,16 +49,16 @@ export default async function Home() {
     systemSettings
   };
 
-  // Conditionally render the selected template
-  // Using if/else instead of dynamic lookup to avoid webpack bundling issues
-  if (templateId === "professional") {
-    return <ProfessionalTemplate {...templateProps} />;
-  }
+  // Validate template ID and fallback to classic if invalid
+  const validTemplateId = isValidTemplateId(templateId) ? templateId : "classic";
 
-  if (templateId === "modern") {
-    return <ModernTemplate {...templateProps} />;
-  }
+  // Get the lazy-loaded template component
+  const TemplateComponent = getTemplateComponent(validTemplateId);
 
-  // Default to classic template
-  return <ClassicTemplate {...templateProps} />;
+  // Render the selected template with Suspense for lazy loading
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <TemplateComponent {...templateProps} />
+    </Suspense>
+  );
 }

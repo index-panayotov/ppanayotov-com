@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { loadAdminData, saveAdminData, AdminData } from '@/lib/admin-data-loader';
 import { ExperienceEntry } from '@/types';
 import { UserProfile, SystemSettings } from '@/lib/schemas';
+import { getErrorMessage } from '@/lib/utils';
 
 export function useAdminData() {
   const [data, setData] = useState<AdminData | null>(null);
@@ -32,8 +33,7 @@ export function useAdminData() {
         const adminData = await loadAdminData();
         setData(adminData);
       } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-        console.error('[useAdminData] Error loading data:', errorMsg, err);
+        const errorMsg = getErrorMessage(err);
         setError(errorMsg);
       } finally {
         setLoading(false);

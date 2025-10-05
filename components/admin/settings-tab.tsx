@@ -6,6 +6,7 @@ import { AdminCard, AdminCardHeader, AdminCardContent } from "./ui/admin-card";
 import { AdminButton } from "./ui/admin-button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Eye, Palette, Settings as SettingsIcon, Globe, Code, Printer, BarChart3 } from "lucide-react";
+
 import { getAllTemplates } from "@/app/templates/template-registry";
 import { SystemSettings } from "@/lib/schemas";
 import { useToast } from "@/hooks/use-toast";
@@ -59,11 +60,7 @@ export default function SettingsTab({ saving, handleSave, systemSettings, setSys
         ...updates
       };
 
-      console.log('[SettingsTab] Saving settings:', {
-        updates,
-        selectedTemplate: updatedSettings.selectedTemplate,
-        allKeys: Object.keys(updatedSettings)
-      });
+
 
       await handleSave("system_settings.ts", updatedSettings);
 

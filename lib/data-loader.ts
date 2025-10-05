@@ -9,6 +9,74 @@
 
 import fs from 'fs';
 import path from 'path';
+import { getErrorMessage } from './utils';
+
+/**
+ * Configuration for extracting data from different file types
+ */
+const FILE_PARSERS: Record<string, {
+  startMarker: string;
+  endMarker: string;
+  isObject: boolean;
+}> = {
+  'system_settings.ts': {
+    startMarker: 'const systemSettings = ',
+    endMarker: '};',
+    isObject: true
+  },
+  'cv-data.ts': {
+    startMarker: 'export const experiences: ExperienceEntry[] = ',
+    endMarker: '];',
+    isObject: false
+  },
+  'topSkills.ts': {
+    startMarker: 'export const topSkills = ',
+    endMarker: '];',
+    isObject: false
+  },
+  'user-profile.ts': {
+    startMarker: 'export const userProfile: UserProfile = ',
+    endMarker: '};',
+    isObject: true
+  }
+};
+
+/**
+ * Extracts JSON content from TypeScript data files
+ */
+function extractJSONContent(fileContent: string, config: typeof FILE_PARSERS[string]): string | null {
+  const startIndex = fileContent.indexOf(config.startMarker);
+  if (startIndex === -1) return null;
+
+  const jsonStart = startIndex + config.startMarker.length;
+
+  if (config.isObject) {
+    // Handle object parsing with brace counting
+    let braceCount = 0;
+    let jsonEnd = -1;
+    for (let i = jsonStart; i < fileContent.length; i++) {
+      if (fileContent[i] === '{') braceCount++;
+      else if (fileContent[i] === '}') {
+        braceCount--;
+        if (braceCount === 0) {
+          jsonEnd = i;
+          break;
+        }
+      }
+    }
+    if (jsonEnd > jsonStart) {
+      return fileContent.substring(jsonStart, jsonEnd + 1);
+    }
+  } else {
+    // Handle array parsing
+    const jsonEnd = fileContent.lastIndexOf(config.endMarker);
+    if (jsonEnd > jsonStart) {
+      return fileContent.substring(jsonStart, jsonEnd + 1);
+    }
+  }
+
+  return null;
+}
 
 /**
  * Loads a data file directly from filesystem, bypassing all Node.js caching.
@@ -18,96 +86,35 @@ import path from 'path';
  * @returns The exported data object
  */
 export function loadDataFile<T = any>(fileName: string): T {
-  try {
-    const filePath = path.join(process.cwd(), 'data', fileName);
+  const filePath = path.join(process.cwd(), 'data', fileName);
 
-    // Read file content directly
+  try {
     const fileContent = fs.readFileSync(filePath, 'utf-8');
 
-    // Handle different export patterns by extracting JSON content
-    if (fileName === 'system_settings.ts') {
-      // Extract JSON object after "const systemSettings = "
-      const startMarker = 'const systemSettings = ';
-      const startIndex = fileContent.indexOf(startMarker);
-      if (startIndex !== -1) {
-        const jsonStart = startIndex + startMarker.length;
-        const jsonEnd = fileContent.lastIndexOf('};');
-        if (jsonEnd > jsonStart) {
-          const jsonContent = fileContent.substring(jsonStart, jsonEnd + 1);
+    // Use unified parser if configuration exists
+    const config = FILE_PARSERS[fileName];
+    if (config) {
+      const jsonContent = extractJSONContent(fileContent, config);
+      if (jsonContent) {
+        try {
           return JSON.parse(jsonContent);
-        }
-      }
-    } else if (fileName === 'cv-data.ts') {
-      // Extract JSON array after "export const experiences: ExperienceEntry[] = "
-      const startMarker = 'export const experiences: ExperienceEntry[] = ';
-      const startIndex = fileContent.indexOf(startMarker);
-      if (startIndex !== -1) {
-        const jsonStart = startIndex + startMarker.length;
-        const jsonEnd = fileContent.lastIndexOf('];');
-        if (jsonEnd > jsonStart) {
-          const jsonContent = fileContent.substring(jsonStart, jsonEnd + 1);
-          return JSON.parse(jsonContent);
-        }
-      }
-    } else if (fileName === 'topSkills.ts') {
-      // Extract JSON array after "export const topSkills = "
-      const startMarker = 'export const topSkills = ';
-      const startIndex = fileContent.indexOf(startMarker);
-      if (startIndex !== -1) {
-        const jsonStart = startIndex + startMarker.length;
-        const jsonEnd = fileContent.lastIndexOf('];');
-        if (jsonEnd > jsonStart) {
-          const jsonContent = fileContent.substring(jsonStart, jsonEnd + 1);
-          return JSON.parse(jsonContent);
-        }
-      }
-    } else if (fileName === 'user-profile.ts') {
-      // Extract JSON object after "export const userProfile: UserProfile = "
-      const startMarker = 'export const userProfile: UserProfile = ';
-      const startIndex = fileContent.indexOf(startMarker);
-      if (startIndex !== -1) {
-        const jsonStart = startIndex + startMarker.length;
-        // Find the closing }; for the object
-        let braceCount = 0;
-        let jsonEnd = -1;
-        for (let i = jsonStart; i < fileContent.length; i++) {
-          if (fileContent[i] === '{') braceCount++;
-          else if (fileContent[i] === '}') {
-            braceCount--;
-            if (braceCount === 0) {
-              jsonEnd = i;
-              break;
-            }
-          }
-        }
-        if (jsonEnd > jsonStart) {
-          const jsonContent = fileContent.substring(jsonStart, jsonEnd + 1);
-          try {
-            return JSON.parse(jsonContent);
-          } catch (parseError) {
-            console.error(`[DataLoader] JSON parse error for ${fileName}:`, parseError);
-            console.error('JSON content:', jsonContent.substring(0, 200));
-            throw parseError;
-          }
-        }
+         } catch (parseError) {
+           throw new Error(`JSON parse error for ${fileName}: ${getErrorMessage(parseError)}`);
+         }
       }
     }
 
     // Fallback: try to evaluate as JavaScript (for backward compatibility)
     try {
       const module: any = { exports: {} };
-      const exports = module.exports;
       const func = new Function('module', 'exports', 'require', fileContent + '\n;return module.exports.default || exports.default;');
-      const result = func(module, exports, require);
-      return result;
-    } catch (evalError) {
-      console.error(`[DataLoader] Failed to evaluate ${fileName} as JavaScript:`, evalError);
-      throw new Error(`Unable to parse data file ${fileName}`);
-    }
-  } catch (error) {
-    console.error(`[DataLoader] Error loading file ${fileName}:`, error);
-    throw error;
-  }
+      return func(module, exports, require);
+     } catch (evalError) {
+       throw new Error(`Unable to parse data file ${fileName}: ${getErrorMessage(evalError)}`);
+     }
+   } catch (error) {
+     throw new Error(`Error loading file ${fileName}: ${getErrorMessage(error)}`);
+   }
 }
 
 /**

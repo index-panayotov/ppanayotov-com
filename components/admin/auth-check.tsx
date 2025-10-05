@@ -44,7 +44,7 @@ export function AuthCheck({ children, requireAuth = true }: AuthCheckProps) {
 
         setIsAuthenticated(true);
       } catch (err) {
-        console.error('Auth check error:', err);
+
         setError('Authentication check failed');
       }
     };

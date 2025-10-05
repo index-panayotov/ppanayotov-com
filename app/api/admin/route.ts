@@ -90,12 +90,7 @@ export async function GET(request: NextRequest) {
       systemSettings
     };
 
-    console.log('[Admin API] Returning data:', {
-      profileData: !!response.profileData,
-      experiences: response.experiences.length,
-      topSkills: response.topSkills.length,
-      systemSettings: !!response.systemSettings
-    });
+
 
     return createOptimizedResponse(response, { maxAge: 0 }); // No cache for fresh data
   } catch (error) {
@@ -136,7 +131,7 @@ export async function POST(request: NextRequest) {
 
   const { file, data } = validation.data;
 
-  console.log('[Admin API POST] Received save request:', { file, dataKeys: Object.keys(data || {}) });
+
 
   // Security: Whitelist allowed files to prevent path traversal
   const ALLOWED_FILES = ['cv-data.ts', 'topSkills.ts', 'user-profile.ts', 'system_settings.ts'];
@@ -151,7 +146,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const filePath = path.join(process.cwd(), "data", file);
-    console.log('[Admin API POST] Target file path:', filePath);
+
 
     // Format the data as a TypeScript export
     let fileContent = "";
@@ -220,10 +215,7 @@ export default systemSettings;
     }
 
     // Write the file
-    console.log('[Admin API POST] Writing file:', filePath, 'Length:', fileContent.length);
     fs.writeFileSync(filePath, fileContent);
-    console.log('[Admin API POST] ✓ File written successfully:', file);
-    console.log('[Admin API POST] ✓ Next GET will read fresh file content directly');
 
     return createOptimizedResponse(
       { success: true, file, timestamp: Date.now() },

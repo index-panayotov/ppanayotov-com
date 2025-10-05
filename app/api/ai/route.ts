@@ -281,8 +281,7 @@ export async function POST(req: NextRequest) {
         throw new Error("Invalid response format from AI service");
       }
 
-      // Log successful API calls (optional)
-      console.log(`AI API call successful: ${new Date().toISOString()}`);
+
 
       // Return the AI response with compression
       return createOptimizedResponse({ response: aiResponse }, { maxAge: 0 });

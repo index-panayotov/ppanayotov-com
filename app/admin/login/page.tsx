@@ -24,12 +24,7 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    console.log('[Login Page] Attempting login...');
-
     try {
-      // In a real app, this would be a secure API call
-      // For demo, we're doing a simple check against the environment variable
-      console.log('[Login Page] Calling /api/admin/login');
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: {
@@ -38,15 +33,11 @@ export default function LoginPage() {
         body: JSON.stringify({ password }),
       });
 
-      console.log('[Login Page] Response status:', res.status);
       const data = await res.json();
-      console.log('[Login Page] Response data:', data);
 
       if (res.ok && data.success) {
-        console.log('[Login Page] ✓ Login successful, setting cookie');
         // Set a cookie to indicate authentication
         document.cookie = 'admin_authenticated=true; path=/; max-age=3600'; // 1 hour expiry
-        console.log('[Login Page] Cookie set, redirecting to /admin');
 
         toast({
           title: 'Success',
@@ -57,12 +48,12 @@ export default function LoginPage() {
         // Redirect to admin dashboard
         router.push('/admin');
       } else {
-        console.log('[Login Page] ✗ Login failed:', data.error?.message || 'Invalid password');
+
         setError(data.error?.message || 'Invalid password');
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-      console.error('[Login Page] Error during login:', errorMsg, err);
+
       setError(`An error occurred: ${errorMsg}. Please try again.`);
     } finally {
       setLoading(false);

@@ -9,7 +9,6 @@ import {
 } from "@/lib/schemas";
 import { processFormValue } from "@/lib/editorjs-utils";
 import systemSettings from "@/data/system_settings";
-
 import { apiClient } from "@/lib/api-client";
 
 // Type definitions for admin handlers
@@ -59,7 +58,7 @@ export const handleSave = async (
 ) => {
   try {
     setSaving(true);
-    console.log('[Admin Handler] Saving:', { file, dataKeys: data && typeof data === 'object' ? Object.keys(data) : 'not an object' });
+
 
     // Convert language proficiency string values to enum if needed
     if (data && typeof data === 'object' && 'languages' in data && Array.isArray((data as UserProfile).languages)) {
