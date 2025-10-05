@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
-  // Build configuration
+  // Build configuration - ignore errors for deployment flexibility
   eslint: {
     ignoreDuringBuilds: true,
   },
