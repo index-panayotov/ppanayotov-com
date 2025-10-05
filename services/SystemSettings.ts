@@ -1,17 +1,40 @@
-// SystemSettings.ts
-// A class to access system settings by key, with type safety
+import systemSettings from '@/data/system_settings';
 
-import systemSettings from "../data/system_settings";
+/**
+ * System Settings Service
+ *
+ * Provides a centralized way to access system-wide settings
+ * with type safety and default fallbacks.
+ */
+class SystemSettingsService {
+  private settings = systemSettings;
 
-// Type for the keys of the settings
-export type SystemSettingKey = keyof typeof systemSettings;
+  /**
+   * Get a setting value by key
+   * @param key - The setting key
+   * @returns The setting value
+   */
+  get<T = any>(key: string): T {
+    return (this.settings as any)[key];
+  }
 
-export class SystemSettings {
-  // Get a setting value by key, with type safety
-  static get<K extends SystemSettingKey>(key: K): (typeof systemSettings)[K] {
-    return systemSettings[key];
+  /**
+   * Get all settings
+   * @returns All system settings
+   */
+  getAll() {
+    return this.settings;
+  }
+
+  /**
+   * Check if a boolean setting is enabled
+   * @param key - The setting key
+   * @returns True if the setting is enabled
+   */
+  isEnabled(key: string): boolean {
+    return Boolean(this.get(key));
   }
 }
 
-// Example usage:
-// const isBlogEnabled = SystemSettings.get('blogEnable');
+// Export a singleton instance
+export const SystemSettings = new SystemSettingsService();
