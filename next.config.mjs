@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
+  // Development configuration - allow all origins for development flexibility
+  allowedDevOrigins: ['*'],
+
   // Build configuration - ignore errors for deployment flexibility
   eslint: {
     ignoreDuringBuilds: true,
