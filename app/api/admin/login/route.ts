@@ -7,6 +7,7 @@ import {
   createTypedErrorResponse,
   validateRequestBody
 } from '@/types/api';
+import { ApiErrorCode } from '@/types/core';
 
 /**
  * Type-safe admin login handler with Zod validation
@@ -17,9 +18,9 @@ export async function POST(request: NextRequest) {
 
   if (!validation.success) {
     return createTypedErrorResponse(
-      validation.error.code,
+      validation.error.code as ApiErrorCode,
       validation.error.message,
-      validation.error.details?.zodErrors?.map(err => ({
+      (validation.error.details as any)?.zodErrors?.map((err: any) => ({
         field: err.path.join('.'),
         message: err.message,
         code: err.code,

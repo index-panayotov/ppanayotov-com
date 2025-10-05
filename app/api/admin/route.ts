@@ -1,21 +1,18 @@
 import { NextRequest } from "next/server";
 import fs from "fs";
 import path from "path";
-import { experiences } from "@/data/cv-data";
-import { topSkills } from "@/data/topSkills";
-import { userProfile } from "@/data/user-profile";
 import {
-  GetProfileApiResponse,
   GenerateTopSkillsApiResponse,
   AdminDataUpdateApiRequestSchema,
   API_ERROR_CODES,
-  createTypedSuccessResponse,
   createTypedErrorResponse,
   validateSearchParams,
   validateRequestBody
 } from "@/types/api";
+import { ApiErrorCode } from "@/types/core";
 import { z } from "zod";
 import { createOptimizedResponse } from "@/lib/api-compression";
+import { loadSystemSettings, loadCVData, loadTopSkills, loadUserProfile } from "@/lib/data-loader";
 
 // Only allow in development mode
 const isDev = process.env.NODE_ENV === "development";
@@ -41,7 +38,7 @@ export async function GET(request: NextRequest) {
 
   if (!paramValidation.success) {
     return createTypedErrorResponse(
-      paramValidation.error.code,
+      paramValidation.error.code as ApiErrorCode,
       paramValidation.error.message
     );
   }
@@ -49,12 +46,18 @@ export async function GET(request: NextRequest) {
   const { action } = paramValidation.data;
 
   try {
+    // Load all data directly from files to bypass module cache completely
+    const experiences = loadCVData();
+    const topSkills = loadTopSkills();
+    const profileData = loadUserProfile();
+    const systemSettings = loadSystemSettings();
+
     if (action === "generateTopSkills") {
       // Generate top skills based on frequency in experiences
       const allTags: string[] = [];
-      experiences.forEach((exp) => {
+      experiences.forEach((exp: any) => {
         if (exp.tags && Array.isArray(exp.tags)) {
-          exp.tags.forEach((tag) => {
+          exp.tags.forEach((tag: any) => {
             allTags.push(tag);
           });
         }
@@ -81,26 +84,20 @@ export async function GET(request: NextRequest) {
 
     // Default: return all data (using consistent field names)
     const response = {
-      profileData: userProfile, // Normalized field name for consistency
+      profileData, // Normalized field name for consistency
       experiences,
       topSkills,
-      systemSettings: {
-        blogEnable: false,
-        useWysiwyg: true,
-        showContacts: true,
-        showPrint: false,
-        gtagCode: "G-NR6KNX7RM6",
-        gtagEnabled: true
-      }
+      systemSettings
     };
 
     console.log('[Admin API] Returning data:', {
       profileData: !!response.profileData,
       experiences: response.experiences.length,
-      topSkills: response.topSkills.length
+      topSkills: response.topSkills.length,
+      systemSettings: !!response.systemSettings
     });
 
-    return createOptimizedResponse(response, { maxAge: 60 });
+    return createOptimizedResponse(response, { maxAge: 0 }); // No cache for fresh data
   } catch (error) {
     console.error('Error in admin GET handler:', error);
     return createTypedErrorResponse(
@@ -126,9 +123,9 @@ export async function POST(request: NextRequest) {
 
   if (!validation.success) {
     return createTypedErrorResponse(
-      validation.error.code,
+      validation.error.code as ApiErrorCode,
       validation.error.message,
-      validation.error.details?.zodErrors?.map(err => ({
+      (validation.error.details as any)?.zodErrors?.map((err: any) => ({
         field: err.path.join('.'),
         message: err.message,
         code: err.code,
@@ -139,8 +136,22 @@ export async function POST(request: NextRequest) {
 
   const { file, data } = validation.data;
 
+  console.log('[Admin API POST] Received save request:', { file, dataKeys: Object.keys(data || {}) });
+
+  // Security: Whitelist allowed files to prevent path traversal
+  const ALLOWED_FILES = ['cv-data.ts', 'topSkills.ts', 'user-profile.ts', 'system_settings.ts'];
+  if (!ALLOWED_FILES.includes(file)) {
+    console.error('[Admin API POST] File not in whitelist:', file);
+    return createTypedErrorResponse(
+      API_ERROR_CODES.VALIDATION_ERROR,
+      `Invalid file: ${file}. Must be one of: ${ALLOWED_FILES.join(', ')}`,
+      [{ field: 'file', message: 'File not in whitelist', code: 'INVALID_FILE', value: file }]
+    );
+  }
+
   try {
     const filePath = path.join(process.cwd(), "data", file);
+    console.log('[Admin API POST] Target file path:', filePath);
 
     // Format the data as a TypeScript export
     let fileContent = "";
@@ -161,10 +172,58 @@ export async function POST(request: NextRequest) {
       fileContent = `import { LanguageProficiency, UserProfile } from "@/lib/schemas";
 
 export const userProfile: UserProfile = ${JSON.stringify(data, null, 2)};\n`;
+    } else if (file === "system_settings.ts") {
+      // Format system settings as a proper TypeScript module
+      // Use JSON.stringify to safely serialize the data
+      const settings = data as any;
+
+      // Ensure we have a complete settings object with defaults
+      const completeSettings = {
+        blogEnable: settings.blogEnable ?? false,
+        useWysiwyg: settings.useWysiwyg ?? true,
+        showContacts: settings.showContacts ?? true,
+        showPrint: settings.showPrint ?? false,
+        gtagCode: settings.gtagCode ?? "",
+        gtagEnabled: settings.gtagEnabled ?? false,
+        selectedTemplate: settings.selectedTemplate ?? "classic",
+        pwa: {
+          siteName: settings.pwa?.siteName ?? "CV Website",
+          shortName: settings.pwa?.shortName ?? "CV",
+          description: settings.pwa?.description ?? "",
+          startUrl: settings.pwa?.startUrl ?? "/",
+          display: settings.pwa?.display ?? "standalone",
+          backgroundColor: settings.pwa?.backgroundColor ?? "#ffffff",
+          themeColor: settings.pwa?.themeColor ?? "#0f172a",
+          orientation: settings.pwa?.orientation ?? "portrait-primary",
+          categories: settings.pwa?.categories ?? [],
+          icons: settings.pwa?.icons ?? []
+        }
+      };
+
+      fileContent = `// system_settings.ts
+// Exports system-wide settings as a JSON object
+
+const systemSettings = ${JSON.stringify(completeSettings, null, 2)};
+
+export default systemSettings;
+`;
+    }
+
+    // Verify fileContent was generated
+    if (!fileContent) {
+      console.error('[Admin API POST] No file content generated for:', file);
+      return createTypedErrorResponse(
+        API_ERROR_CODES.INTERNAL_ERROR,
+        `Failed to generate content for ${file}`,
+        [{ field: 'file', message: 'No content generated', code: 'NO_CONTENT', value: file }]
+      );
     }
 
     // Write the file
+    console.log('[Admin API POST] Writing file:', filePath, 'Length:', fileContent.length);
     fs.writeFileSync(filePath, fileContent);
+    console.log('[Admin API POST] ✓ File written successfully:', file);
+    console.log('[Admin API POST] ✓ Next GET will read fresh file content directly');
 
     return createOptimizedResponse(
       { success: true, file, timestamp: Date.now() },

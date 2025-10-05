@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
+
 import { AIEnhancedInput } from '@/components/admin/ai-enhanced-input';
 import { AIEnhancedTextarea } from '@/components/admin/ai-enhanced-textarea';
 import { adminClassNames } from './design-system';
@@ -54,6 +54,7 @@ export default function ProfileDataTab({
   setEditMode,
   saving,
   handleSave,
+  systemSettings,
   handleProfileDataChange,
   handleProfileFieldChange,
   addLanguage,
@@ -178,12 +179,13 @@ export default function ProfileDataTab({
               />
                 <div className="space-y-2">
                 <label htmlFor="summary" className="text-sm font-medium">Summary</label>
-                <AIEnhancedTextarea 
-                  id="summary" 
+                <AIEnhancedTextarea
+                  id="summary"
                   fieldName="professional summary"
                   rows={5}
-                  value={profileData.summary || ''} 
+                  value={profileData.summary || ''}
                   onChange={(e) => handleProfileFieldChange('summary', e.target.value)}
+                  systemSettings={systemSettings}
                 />
               </div>
             </CardContent>

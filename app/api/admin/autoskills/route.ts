@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-import { ExperienceEntry } from "@/types";
 import { experiences } from "@/data/cv-data";
 import {
   GenerateSkillsApiRequestSchema,
@@ -9,6 +8,7 @@ import {
   createTypedErrorResponse,
   validateRequestBody
 } from "@/types/api";
+import { ApiErrorCode } from "@/types/core";
 
 // Only allow in development mode
 const isDev = process.env.NODE_ENV === "development";
@@ -35,9 +35,9 @@ export async function POST(request: NextRequest) {
 
     if (!validation.success) {
       return createTypedErrorResponse(
-        validation.error.code,
+        validation.error.code as ApiErrorCode,
         validation.error.message,
-        validation.error.details?.zodErrors?.map(err => ({
+        (validation.error.details as any)?.zodErrors?.map((err: any) => ({
           field: err.path.join('.'),
           message: err.message,
           code: err.code,

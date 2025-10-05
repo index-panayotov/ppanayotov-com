@@ -279,8 +279,8 @@ export interface AdminDataUpdateApiRequest {
 }
 
 export const AdminDataUpdateApiRequestSchema = z.object({
-  file: z.enum(['cv-data.ts', 'topSkills.ts', 'user-profile.ts'], {
-    errorMap: () => ({ message: 'Invalid file name. Must be one of: cv-data.ts, topSkills.ts, user-profile.ts' })
+  file: z.enum(['cv-data.ts', 'topSkills.ts', 'user-profile.ts', 'system_settings.ts'], {
+    errorMap: () => ({ message: 'Invalid file name. Must be one of: cv-data.ts, topSkills.ts, user-profile.ts, system_settings.ts' })
   }),
   data: z.unknown()
 });

@@ -7,10 +7,9 @@ import {
   EducationEntry,
   Certification
 } from "@/lib/schemas";
-import { processFormValue, isEditorJSFormat } from "@/lib/editorjs-utils";
+import { processFormValue } from "@/lib/editorjs-utils";
 import systemSettings from "@/data/system_settings";
-import { ApiResponse } from "@/types/core";
-import { OptimisticList } from "@/lib/optimistic-updates";
+
 import { apiClient } from "@/lib/api-client";
 
 // Type definitions for admin handlers
@@ -41,8 +40,10 @@ export interface EducationEntryWithIndex extends EducationEntry {
   _index?: number;
 }
 
-export interface CertificationWithIndex extends Certification {
+export interface CertificationWithIndex extends Omit<Certification, 'dateIssued'> {
   _index?: number;
+  date?: string; // For backward compatibility
+  dateIssued?: string;
 }
 
 export interface SocialLinkWithIndex extends SocialLink {
@@ -58,6 +59,8 @@ export const handleSave = async (
 ) => {
   try {
     setSaving(true);
+    console.log('[Admin Handler] Saving:', { file, dataKeys: data && typeof data === 'object' ? Object.keys(data) : 'not an object' });
+
     // Convert language proficiency string values to enum if needed
     if (data && typeof data === 'object' && 'languages' in data && Array.isArray((data as UserProfile).languages)) {
       (data as UserProfile).languages = ((data as UserProfile).languages as LanguageEntry[]).map((lang: LanguageEntry) => ({
@@ -70,7 +73,10 @@ export const handleSave = async (
             : lang.proficiency
       }));
     }
+
+    console.log('[Admin Handler] Posting to /api/admin:', { file });
     await apiClient.post("/api/admin", { file, data }, { retries: 1 });
+    console.log('[Admin Handler] ✓ Save successful:', file);
 
     toast({
       title: "Success",
@@ -217,11 +223,10 @@ export const saveExperience = async (
 
   // Build new array for optimistic update
   const isNew = index === undefined;
-  const optimisticList = new OptimisticList(experiences);
   let newExperiences: ExperienceEntry[];
 
   if (isNew) {
-    newExperiences = optimisticList.add(expToSave);
+    newExperiences = [...experiences, expToSave];
   } else {
     newExperiences = [...experiences];
     newExperiences[index] = expToSave;

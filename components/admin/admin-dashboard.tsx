@@ -3,25 +3,18 @@
 import { useMemo, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Briefcase, 
-  Target, 
-  User, 
+import {
+  Briefcase,
+  Target,
+  User,
   Globe,
-  TrendingUp,
   Clock,
   Plus,
   BarChart3,
   Brain
 } from "lucide-react";
-import { adminColors } from './design-system';
 import { useRouter } from "next/navigation";
 import { AdminDashboardProps, DashboardStats, QuickAction, ActivityItem } from "@/types/admin";
-import { AdminPageHeader } from "./ui/admin-page-header";
-import { AdminCard, AdminCardHeader, AdminCardContent } from "./ui/admin-card";
-import { AdminButton } from "./ui/admin-button";
-import { adminClassNames } from "./design-system";
-import { cn } from "@/lib/utils";
 
 export function AdminDashboard({ experiences, topSkills, profileData }: AdminDashboardProps) {
   const router = useRouter();
@@ -57,9 +50,16 @@ export function AdminDashboard({ experiences, topSkills, profileData }: AdminDas
     };
   }, [experiences, topSkills, profileData]);
 
-  // Memoized navigation handlers
+  // Memoized navigation handlers - updated for page-based navigation
   const handleNavigation = useCallback((tab: string) => {
-    router.push(tab === 'dashboard' ? '/admin' : `/admin?tab=${tab}`);
+    const pathMap: Record<string, string> = {
+      dashboard: '/admin/dashboard',
+      experiences: '/admin/experiences',
+      topSkills: '/admin/top-skills',
+      profileData: '/admin/profile-data',
+      settings: '/admin/settings'
+    };
+    router.push(pathMap[tab] || '/admin/dashboard');
   }, [router]);
 
   // Memoized quick actions

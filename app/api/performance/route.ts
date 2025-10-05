@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import {
   createTypedSuccessResponse,
   createTypedErrorResponse,
@@ -183,7 +183,7 @@ function generateMetricsSummary(metrics: PerformanceMetricPayload[]) {
     if (!acc[metric.name]) {
       acc[metric.name] = [];
     }
-    acc[metric.name].push(metric);
+    acc[metric.name]!.push(metric);
     return acc;
   }, {} as Record<string, PerformanceMetricPayload[]>);
 

@@ -22,6 +22,13 @@ export async function GET(req: NextRequest) {
     // Get the specific field value from user profile
     const text = fieldType === "phone" ? userProfile.phone : userProfile.email;
 
+    if (!text) {
+      return new NextResponse(
+        `No ${fieldType} found in user profile`,
+        { status: 404 }
+      );
+    }
+
     // Use system fonts for reliable rendering (avoids Pango warnings)
     const fontFamily = "sans-serif";
 

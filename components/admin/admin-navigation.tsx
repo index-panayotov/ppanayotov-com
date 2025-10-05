@@ -1,0 +1,150 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  LayoutDashboard,
+  Briefcase,
+  Target,
+  User,
+  Settings,
+  LogOut,
+  Loader2
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface NavigationItem {
+  title: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  count?: number;
+}
+
+interface AdminNavigationProps {
+  experiencesCount?: number;
+  topSkillsCount?: number;
+  saving?: boolean;
+}
+
+export function AdminNavigation({
+  experiencesCount = 0,
+  topSkillsCount = 0,
+  saving = false
+}: AdminNavigationProps) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const navigationItems: NavigationItem[] = [
+    {
+      title: "Dashboard",
+      href: "/admin/dashboard",
+      icon: LayoutDashboard
+    },
+    {
+      title: "Experiences",
+      href: "/admin/experiences",
+      icon: Briefcase,
+      count: experiencesCount
+    },
+    {
+      title: "Top Skills",
+      href: "/admin/top-skills",
+      icon: Target,
+      count: topSkillsCount
+    },
+    {
+      title: "Profile Data",
+      href: "/admin/profile-data",
+      icon: User
+    },
+    {
+      title: "Settings",
+      href: "/admin/settings",
+      icon: Settings
+    }
+  ];
+
+  const handleLogout = () => {
+    document.cookie = 'admin_authenticated=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    router.push('/admin/login');
+  };
+
+  if (!isClient) {
+    return (
+      <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-6 pt-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">CV Admin Panel</h1>
+            <p className="text-sm text-slate-600 mt-1">Loading navigation...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-6 pt-6">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">CV Admin Panel</h1>
+          <p className="text-sm text-slate-600 mt-1">Manage your professional CV content</p>
+        </div>
+        {saving && (
+          <Badge variant="secondary" className="gap-2">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            Saving...
+          </Badge>
+        )}
+      </div>
+
+      <nav className="flex items-center space-x-1 pb-4">
+        {navigationItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = pathname === item.href;
+
+          return (
+            <Link key={item.href} href={item.href}>
+              <Button
+                variant="ghost"
+                className={cn(
+                  "h-auto px-4 py-3 gap-2 transition-colors",
+                  isActive
+                    ? "bg-blue-50 text-blue-700 border-b-2 border-blue-600"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                <span className="font-medium">{item.title}</span>
+                {item.count !== undefined && item.count > 0 && (
+                  <Badge variant="secondary" className="ml-1 text-xs">
+                    {item.count}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
+          );
+        })}
+
+        <div className="ml-auto">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            className="h-auto px-4 py-3 gap-2 text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="font-medium">Logout</span>
+          </Button>
+        </div>
+      </nav>
+    </div>
+  );
+}

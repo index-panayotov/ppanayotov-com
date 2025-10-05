@@ -42,8 +42,6 @@ export async function POST(request: NextRequest) {
 
     // Generate filename
     const timestamp = Date.now();
-    const extension = path.extname(file.name) || ".jpg";
-    const filename = `profile-${timestamp}${extension}`;
     const webFilename = `profile-${timestamp}-web.webp`;
 
     // Create uploads directory if it doesn't exist

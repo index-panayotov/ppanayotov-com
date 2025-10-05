@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Dialog,
@@ -9,11 +9,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+
+import { ExperienceDialogProps } from '@/types/admin';
+
 import {
   Form,
   FormControl,
@@ -26,29 +28,26 @@ import {
 import { AIEnhancedInput } from '@/components/admin/ai-enhanced-input';
 import { AIEnhancedTextarea } from '@/components/admin/ai-enhanced-textarea';
 import { X } from 'lucide-react';
-import { ExperienceEntry } from '@/types';
+
 import {
   ExperienceFormSchema,
   ExperienceFormData,
   getDefaultFormValues
 } from '@/lib/admin-form-schemas';
 
-interface ExperienceDialogProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  currentExperience: (ExperienceEntry & { _index?: number }) | null;
-  onSave: (data: ExperienceFormData, index?: number) => Promise<void>;
-  saving?: boolean;
-}
+
 
 const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
   open,
   setOpen,
   currentExperience,
-  onSave,
+  setCurrentExperience,
+  newSkill,
+  setNewSkill,
+  saveExperience,
   saving = false,
+  systemSettings,
 }) => {
-  const [newSkill, setNewSkill] = useState('');
 
   // Initialize form with react-hook-form and Zod validation
   const form = useForm<ExperienceFormData>({
@@ -82,7 +81,18 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
     if (saving) return;
 
     try {
-      await onSave(data, currentExperience?._index);
+      // Update current experience with form data
+      setCurrentExperience({
+        title: data.title,
+        company: data.company,
+        dateRange: data.dateRange,
+        description: data.description,
+        tags: data.tags,
+        ...(data.location && { location: data.location }),
+        ...(currentExperience?._index !== undefined && { _index: currentExperience._index })
+      });
+      // Call save function
+      await saveExperience();
       setNewSkill('');
       setOpen(false);
     } catch (error) {
@@ -91,7 +101,7 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
   };
 
   // Tag management functions
-  const addTag = useCallback(() => {
+  const addFormTag = useCallback(() => {
     if (!newSkill.trim()) return;
 
     const currentTags = form.getValues('tags');
@@ -101,7 +111,7 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
     }
   }, [newSkill, form, setValue]);
 
-  const removeTag = useCallback((tagToRemove: string) => {
+  const removeFormTag = useCallback((tagToRemove: string) => {
     const currentTags = form.getValues('tags');
     setValue('tags', currentTags.filter(tag => tag !== tagToRemove), { shouldValidate: true });
   }, [form, setValue]);
@@ -236,6 +246,7 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
                       fieldName="job description"
                       rows={5}
                       placeholder="Describe your role, responsibilities, and key achievements..."
+                      systemSettings={systemSettings}
                       {...field}
                     />
                   </FormControl>
@@ -264,7 +275,7 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
                               {tag}
                               <X
                                 className="h-3 w-3 cursor-pointer hover:text-destructive"
-                                onClick={() => removeTag(tag)}
+                                onClick={() => removeFormTag(tag)}
                               />
                             </Badge>
                           ))
@@ -283,11 +294,11 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                               e.preventDefault();
-                              addTag();
+                              addFormTag();
                             }
                           }}
                         />
-                        <Button type="button" onClick={addTag} disabled={!newSkill.trim()}>
+                        <Button type="button" onClick={addFormTag} disabled={!newSkill.trim()}>
                           Add
                         </Button>
                       </div>

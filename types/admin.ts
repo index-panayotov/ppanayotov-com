@@ -1,52 +1,20 @@
 import { ReactNode } from "react";
 import { LucideIcon } from "lucide-react";
+import {
+  SystemSettings,
+  UserProfile,
+  Language,
+  EducationEntry as Education,
+  Certification,
+  ExperienceEntry
+} from "@/lib/schemas";
 
 /**
  * Admin panel specific types and interfaces
+ *
+ * Note: Core data types (UserProfile, Language, Education, Certification, LanguageProficiency)
+ * are imported from @/lib/schemas to avoid duplication and ensure consistency.
  */
-
-// User profile data structure
-export interface UserProfile {
-  name: string;
-  title: string;
-  location: string;
-  email: string;
-  phone?: string;
-  linkedin?: string;
-  profileImage?: string;
-  profileImageUrl?: string;
-  profileImageWebUrl?: string;
-  profileImagePdfUrl?: string;
-  summary: string;
-  languages: Language[];
-  education: Education[];
-  certifications: Certification[];
-}
-
-export interface Language {
-  name: string;
-  proficiency: LanguageProficiency;
-}
-
-export type LanguageProficiency = 
-  | "Beginner" 
-  | "Intermediate" 
-  | "Advanced" 
-  | "Fluent" 
-  | "Native";
-
-export interface Education {
-  institution: string;
-  degree: string;
-  field: string;
-  dateRange: string;
-}
-
-export interface Certification {
-  name: string;
-  issuer?: string;
-  date?: string;
-}
 
 // Navigation and sidebar types
 export interface NavigationItem {
@@ -92,15 +60,8 @@ export interface AdminDashboardProps {
   profileData: UserProfile;
 }
 
-// Experience management types
-export interface ExperienceEntry {
-  title: string;
-  company: string;
-  dateRange: string;
-  location?: string;
-  description: string;
-  tags: string[];
-}
+// Experience management types - imported from schemas for consistency
+export type { ExperienceEntry } from "@/lib/schemas";
 
 // Admin component prop types
 export interface AdminTabProps {
@@ -108,6 +69,7 @@ export interface AdminTabProps {
   setEditMode: (mode: "visual" | "json") => void;
   saving: boolean;
   handleSave: (file: string, data: any) => Promise<void>;
+  systemSettings: SystemSettings;
 }
 
 export interface ExperiencesTabProps extends AdminTabProps {
@@ -159,9 +121,9 @@ export interface ExperienceDialogProps {
   setCurrentExperience: (exp: (ExperienceEntry & { _index?: number }) | null) => void;
   newSkill: string;
   setNewSkill: (skill: string) => void;
-  addTag: () => void;
-  removeTag: (tag: string) => void;
-  saveExperience: () => void;
+  saveExperience: () => Promise<void>;
+  saving?: boolean;
+  systemSettings: SystemSettings;
 }
 
 export interface LanguageDialogProps {
