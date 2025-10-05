@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { userProfile } from '@/data/user-profile';
 import { experiences } from '@/data/cv-data';
 import { topSkills } from '@/data/topSkills';
-import { SystemSettings } from '@/services/SystemSettings';
+import { loadSystemSettings } from '@/lib/data-loader';
 import fs from 'fs';
 import path from 'path';
 
@@ -12,6 +12,7 @@ import path from 'path';
  */
 export async function GET() {
   const baseUrl = 'https://www.ppanayotov.com';
+  const systemSettings = loadSystemSettings();
   
   // Get file modification times for lastmod dates
   const getLastModified = (filePath: string): string => {
@@ -83,7 +84,7 @@ export async function GET() {
   ];
 
   // Only include contact section if enabled in system settings
-  if (SystemSettings.get('showContacts')) {
+  if (systemSettings.showContacts) {
     urls.push({
       loc: `${baseUrl}/#contact`,
       lastmod: lastModProfile,

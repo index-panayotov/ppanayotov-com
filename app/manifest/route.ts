@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import systemSettings from '@/data/system_settings';
+import { loadSystemSettings } from '@/lib/data-loader';
 
 /**
  * Dynamic PWA manifest endpoint that serves manifest.json based on system settings
@@ -11,6 +11,9 @@ import systemSettings from '@/data/system_settings';
  */
 export async function GET() {
   try {
+    // Load system settings directly from file to bypass module cache
+    const systemSettings = loadSystemSettings();
+
     const { pwa } = systemSettings;
 
     // Construct Web App Manifest following W3C specification
@@ -24,7 +27,7 @@ export async function GET() {
       theme_color: pwa.themeColor,
       orientation: pwa.orientation,
       categories: pwa.categories,
-      icons: pwa.icons.map(icon => ({
+      icons: pwa.icons.map((icon: { src: string; sizes: string; type: string; purpose?: string }) => ({
         src: icon.src,
         sizes: icon.sizes,
         type: icon.type,
@@ -40,57 +43,14 @@ export async function GET() {
       prefer_related_applications: false,
 
       // Enable advanced PWA features
-      display_override: ['window-controls-overlay', 'standalone', 'minimal-ui'],
-
-      // Professional CV specific shortcuts
-      shortcuts: [
-        {
-          name: 'Experience',
-          short_name: 'Experience',
-          description: 'View professional experience',
-          url: '/#experience',
-          icons: [
-            {
-              src: '/icons/icon-192x192.png',
-              sizes: '192x192',
-              type: 'image/png'
-            }
-          ]
-        },
-        {
-          name: 'Skills',
-          short_name: 'Skills',
-          description: 'View technical skills',
-          url: '/#skills',
-          icons: [
-            {
-              src: '/icons/icon-192x192.png',
-              sizes: '192x192',
-              type: 'image/png'
-            }
-          ]
-        },
-        {
-          name: 'Contact',
-          short_name: 'Contact',
-          description: 'View contact information',
-          url: '/#contact',
-          icons: [
-            {
-              src: '/icons/icon-192x192.png',
-              sizes: '192x192',
-              type: 'image/png'
-            }
-          ]
-        }
-      ]
+      display_override: ['window-controls-overlay', 'standalone', 'minimal-ui']
     };
 
     // Return manifest with proper headers
     return NextResponse.json(manifest, {
       headers: {
         'Content-Type': 'application/manifest+json; charset=utf-8',
-        'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
+        'Cache-Control': 'public, max-age=0, must-revalidate', // No cache in development
       }
     });
 
