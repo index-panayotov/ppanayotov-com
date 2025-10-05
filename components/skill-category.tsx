@@ -60,6 +60,8 @@ export const SkillCategory = memo(function SkillCategory({ title, skills, isExpa
       <button
         onClick={toggleExpanded}
         className="w-full flex items-center justify-between text-left print:hidden"
+        aria-expanded={expanded}
+        aria-controls={`skill-category-${title.replace(/\s+/g, '-').toLowerCase()}-content`}
       >
         <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
         <div className="ml-2 text-slate-500">
@@ -76,9 +78,12 @@ export const SkillCategory = memo(function SkillCategory({ title, skills, isExpa
       </div>
 
       {/* Interactive version */}
-      <div className={`mt-4 print:hidden transition-all duration-300 overflow-hidden ${
-        expanded ? 'max-h-screen opacity-100' : 'max-h-16 opacity-70'
-      }`}>
+      <div
+        id={`skill-category-${title.replace(/\s+/g, '-').toLowerCase()}-content`}
+        className={`mt-4 print:hidden transition-all duration-300 overflow-hidden ${
+          expanded ? 'max-h-screen opacity-100' : 'max-h-16 opacity-70'
+        }`}
+      >
         {skillsContent}
       </div>
     </div>

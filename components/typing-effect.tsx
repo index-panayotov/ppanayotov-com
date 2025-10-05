@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, memo } from "react"
 
 interface TypingEffectProps {
   text: string
@@ -18,7 +18,7 @@ interface TypingEffectProps {
  * @param className - Optional CSS class applied to the outer wrapper (default: "").
  * @returns A React element containing the typed text and a blinking cursor until completion.
  */
-export function TypingEffect({ text, speed = 100, className = "" }: TypingEffectProps) {
+export const TypingEffect = memo(function TypingEffect({ text, speed = 100, className = "" }: TypingEffectProps) {
   const [displayText, setDisplayText] = useState("")
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isComplete, setIsComplete] = useState(false)
@@ -44,11 +44,16 @@ export function TypingEffect({ text, speed = 100, className = "" }: TypingEffect
   }, [currentIndex, text, speed])
 
   return (
-    <span className={className}>
+    <span
+      className={className}
+      aria-live="polite"
+      aria-atomic="true"
+      role="text"
+    >
       {displayText}
       {!isComplete && (
-        <span className="animate-pulse text-slate-400">|</span>
+        <span className="animate-pulse text-slate-400" aria-hidden="true">|</span>
       )}
     </span>
   )
-}
+});
