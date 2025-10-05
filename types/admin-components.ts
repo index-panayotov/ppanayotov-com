@@ -25,6 +25,7 @@ export interface ProfileDataTabProps {
   handleSave: (file: string, data: any) => void;
   handleProfileDataChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   handleProfileFieldChange: (field: string, value: string) => void;
+  systemSettings: any;
   addLanguage: () => void;
   editLanguage: (lang: any, index: number) => void;
   deleteLanguage: (index: number) => void;
