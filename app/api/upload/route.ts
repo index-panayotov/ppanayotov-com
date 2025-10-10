@@ -4,7 +4,6 @@ import path from "path";
 import sharp from "sharp";
 import { logger } from "@/lib/logger";
 import { env } from "@/lib/env";
-import { checkRateLimit } from "@/lib/rate-limit";
 import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
 
 const isDev = env.NODE_ENV === "development";
@@ -50,40 +49,12 @@ function isValidImageFile(buffer: Buffer): boolean {
 
 /**
  * POST - Upload and optimize profile image
- * Rate limit: 10 requests per minute
  */
 export async function POST(request: NextRequest) {
   if (!isDev) {
     return createTypedErrorResponse(
       API_ERROR_CODES.FORBIDDEN,
       "Upload API only available in development mode"
-    );
-  }
-
-  // Apply rate limiting (10 uploads per minute)
-  const { limited, remaining, resetAt } = checkRateLimit(request, 10, 60000);
-
-  if (limited) {
-    const resetInSeconds = Math.ceil((resetAt - Date.now()) / 1000);
-    logger.warn("Upload API rate limit exceeded", {
-      endpoint: "/api/upload",
-      remaining,
-      resetInSeconds,
-    });
-
-    return createTypedErrorResponse(
-      API_ERROR_CODES.RATE_LIMIT_EXCEEDED,
-      "Rate limit exceeded. Please try again later.",
-      { retryAfter: resetInSeconds },
-      {
-        status: 429,
-        headers: {
-          'Retry-After': resetInSeconds.toString(),
-          'X-RateLimit-Limit': '10',
-          'X-RateLimit-Remaining': '0',
-          'X-RateLimit-Reset': resetAt.toString(),
-        },
-      }
     );
   }
 

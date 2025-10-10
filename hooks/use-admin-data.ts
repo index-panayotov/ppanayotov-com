@@ -23,10 +23,16 @@ export function useAdminData() {
         setLoading(true);
         setError(null);
 
-        // Check authentication
-        const isAuthenticated = document.cookie.includes('admin_authenticated=true');
+        // Check authentication. Do NOT redirect from inside a hook - allow
+        // the AuthCheck component to manage navigation and UI. If not
+        // authenticated, set an error so the UI can respond predictably.
+        let isAuthenticated = false;
+        if (typeof document !== 'undefined') {
+          isAuthenticated = document.cookie.includes('admin_authenticated=true');
+        }
         if (!isAuthenticated) {
-          router.push('/admin/login');
+          setError('Not authenticated');
+          setLoading(false);
           return;
         }
 

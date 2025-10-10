@@ -100,7 +100,6 @@ function extractJSONContent(fileContent: string, config: typeof FILE_PARSERS[str
  */
 export function loadDataFile<T = any>(fileName: string): T {
   const filePath = path.join(process.cwd(), 'data', fileName);
-
   try {
     const fileContent = fs.readFileSync(filePath, 'utf-8');
 
@@ -110,20 +109,27 @@ export function loadDataFile<T = any>(fileName: string): T {
       const extractedContent = extractJSONContent(fileContent, config);
       if (extractedContent) {
         try {
+          // Trim any trailing semicolons which may break the Function constructor
+          const safeContent = extractedContent.trim().replace(/;\s*$/, '');
+
           // Use Function constructor to safely evaluate the extracted content
           // This is safe because we control the input files (they're in /data/)
-          const evalFunc = new Function(`return ${extractedContent}`);
+          const evalFunc = new Function(`return ${safeContent}`);
           return evalFunc();
-         } catch (parseError) {
-           throw new Error(`Parse error for ${fileName}: ${getErrorMessage(parseError)}`);
-         }
+        } catch (parseError) {
+          throw new Error(`Parse error for ${fileName}: ${getErrorMessage(parseError)}`);
+        }
       }
+
+      // If we reached here the parser config existed but we couldn't extract content
+      throw new Error(`Failed to extract content from ${fileName} using configured markers`);
     }
 
-
-   } catch (error) {
-     throw new Error(`Error loading file ${fileName}: ${getErrorMessage(error)}`);
-   }
+    // No parser configured for this file
+    throw new Error(`No parser configured for ${fileName}`);
+  } catch (error) {
+    throw new Error(`Error loading file ${fileName}: ${getErrorMessage(error)}`);
+  }
 }
 
 /**

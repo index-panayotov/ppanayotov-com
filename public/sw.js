@@ -161,6 +161,15 @@ async function handleRequest(request) {
   const url = new URL(request.url);
 
   try {
+    // If route is configured as network-only, always try network and
+    // do not cache the response here. Fall back to cache only if
+    // network fails (offline scenario).
+    if (NETWORK_ONLY_ROUTES.some(route => {
+      try { return new RegExp(route).test(url.pathname); } catch(e) { return url.pathname === route; }
+    })) {
+      return await networkOnly(request);
+    }
+
     // Network first for API and admin routes
     if (NETWORK_FIRST_PATTERNS.some(pattern => pattern.test(url.pathname))) {
       return await networkFirst(request);
@@ -227,6 +236,24 @@ async function networkFirst(request) {
       return cached;
     }
 
+    throw error;
+  }
+}
+
+/**
+ * Network Only Strategy
+ * Always try network and never store response in cache. If network fails,
+ * fall back to cache (if available) to support offline scenarios.
+ */
+async function networkOnly(request) {
+  try {
+    const response = await fetch(request);
+    return response;
+  } catch (error) {
+    console.warn('[SW] Network-only failed, attempting cache fallback', error);
+    const cache = await caches.open(RUNTIME_CACHE);
+    const cached = await cache.match(request);
+    if (cached) return cached;
     throw error;
   }
 }

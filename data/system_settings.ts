@@ -7,7 +7,7 @@ const systemSettings = {
   "showContacts": true,
   "gtagCode": "",
   "gtagEnabled": false,
-  "selectedTemplate": "professional",
+  "selectedTemplate": "classic",
   "pwa": {
     "siteName": "CV Website",
     "shortName": "CV",

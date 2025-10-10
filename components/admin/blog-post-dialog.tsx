@@ -10,7 +10,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import {
   Form,
@@ -26,10 +25,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { BlogPost, BlogPostSchema } from '@/lib/schemas';
 import { createBlogPost, updateBlogPost } from '@/app/admin/handlers';
 import { useToast } from '@/hooks/use-toast';
-import { X, Loader2, FileText } from 'lucide-react';
+import { Loader2, FileText } from 'lucide-react';
 import { generateSlug, markdownToEditorJs, editorJsToMarkdown } from '@/lib/markdown-utils';
 import dynamic from 'next/dynamic';
 import { OutputData } from '@editorjs/editorjs';
+import ImageUpload from '@/components/admin/image-upload';
+import { userProfile } from '@/data/user-profile';
 
 // Dynamic import for EditorJS wrapper
 const BlogEditorJSWrapper = dynamic(
@@ -56,11 +57,13 @@ const BlogPostDialog: React.FC<BlogPostDialogProps> = ({
   setBlogPosts,
   setSaving,
 }) => {
-  const [newTag, setNewTag] = useState('');
   const [editorData, setEditorData] = useState<OutputData | null>(null);
   const [loadingContent, setLoadingContent] = useState(false);
   const { toast } = useToast();
   const isEditMode = !!currentPost;
+
+  // Get author name from user profile
+  const authorName = userProfile.name || 'Anonymous';
 
   // Initialize form
   const form = useForm<BlogFormData>({
@@ -71,7 +74,7 @@ const BlogPostDialog: React.FC<BlogPostDialogProps> = ({
       description: '',
       publishedDate: new Date().toISOString().split('T')[0],
       updatedDate: '',
-      author: '',
+      author: authorName,
       tags: [],
       featuredImage: '',
       published: false,
@@ -80,9 +83,9 @@ const BlogPostDialog: React.FC<BlogPostDialogProps> = ({
   });
 
   const { handleSubmit, control, watch, setValue, formState: { errors, isDirty }, reset } = form;
-  const currentTags = watch('tags');
   const currentTitle = watch('title');
   const currentSlug = watch('slug');
+  const currentFeaturedImage = watch('featuredImage');
 
   // Auto-generate slug from title
   useEffect(() => {
@@ -152,7 +155,7 @@ const BlogPostDialog: React.FC<BlogPostDialogProps> = ({
             description: metadata.description,
             publishedDate: metadata.publishedDate,
             updatedDate: metadata.updatedDate || '',
-            author: metadata.author,
+            author: metadata.author || authorName, // Use existing author or fallback to profile name
             tags: metadata.tags || [],
             featuredImage: metadata.featuredImage || '',
             published: metadata.published,
@@ -181,7 +184,7 @@ const BlogPostDialog: React.FC<BlogPostDialogProps> = ({
           description: '',
           publishedDate: new Date().toISOString().split('T')[0],
           updatedDate: '',
-          author: '',
+          author: authorName, // Auto-populate from user profile
           tags: [],
           featuredImage: '',
           published: false,
@@ -191,7 +194,7 @@ const BlogPostDialog: React.FC<BlogPostDialogProps> = ({
     };
 
     loadContent();
-  }, [currentPost, open, reset, toast]);
+  }, [currentPost, open, reset, toast, authorName]);
 
   // Handle form submission
   const onSubmit = async (data: BlogFormData) => {
@@ -235,21 +238,10 @@ const BlogPostDialog: React.FC<BlogPostDialogProps> = ({
     }
   };
 
-  // Tag management
-  const addFormTag = useCallback(() => {
-    if (!newTag.trim()) return;
-
-    const currentTags = form.getValues('tags');
-    if (!currentTags.includes(newTag.trim())) {
-      setValue('tags', [...currentTags, newTag.trim()], { shouldValidate: true });
-      setNewTag('');
-    }
-  }, [newTag, form, setValue]);
-
-  const removeFormTag = useCallback((tagToRemove: string) => {
-    const currentTags = form.getValues('tags');
-    setValue('tags', currentTags.filter(tag => tag !== tagToRemove), { shouldValidate: true });
-  }, [form, setValue]);
+  // Handle image upload
+  const handleImageUpload = (imageUrl: string, webUrl: string, pdfUrl: string) => {
+    setValue('featuredImage', imageUrl || webUrl, { shouldValidate: true });
+  };
 
   // Handle dialog close
   const handleDialogClose = useCallback((newOpen: boolean) => {
@@ -345,22 +337,8 @@ const BlogPostDialog: React.FC<BlogPostDialogProps> = ({
               )}
             />
 
-            {/* Author, Date, and Published Status */}
-            <div className="grid grid-cols-3 gap-4">
-              <FormField
-                control={control}
-                name="author"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Author</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Author name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
+            {/* Date and Published Status */}
+            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={control}
                 name="publishedDate"
@@ -397,76 +375,19 @@ const BlogPostDialog: React.FC<BlogPostDialogProps> = ({
               />
             </div>
 
-            {/* Tags */}
-            <FormField
-              control={control}
-              name="tags"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tags</FormLabel>
-                  <FormControl>
-                    <div className="space-y-2">
-                      {/* Current Tags */}
-                      <div className="flex flex-wrap gap-2 min-h-[2rem] p-2 rounded-md border">
-                        {currentTags?.length > 0 ? (
-                          currentTags.map((tag, i) => (
-                            <Badge key={i} variant="secondary" className="flex items-center gap-1">
-                              {tag}
-                              <X
-                                className="h-3 w-3 cursor-pointer hover:text-destructive"
-                                onClick={() => removeFormTag(tag)}
-                              />
-                            </Badge>
-                          ))
-                        ) : (
-                          <span className="text-sm text-muted-foreground">No tags added yet</span>
-                        )}
-                      </div>
-
-                      {/* Add New Tag */}
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="Add tag (e.g., nextjs, react, tutorial)"
-                          value={newTag}
-                          onChange={(e) => setNewTag(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              addFormTag();
-                            }
-                          }}
-                        />
-                        <Button type="button" onClick={addFormTag} disabled={!newTag.trim()}>
-                          Add
-                        </Button>
-                      </div>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             {/* Featured Image */}
-            <FormField
-              control={control}
-              name="featuredImage"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Featured Image URL (optional)</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="/uploads/blog/my-post/featured.webp"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Upload images using the editor below, then paste the URL here
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-2">
+              <FormLabel>Featured Image (optional)</FormLabel>
+              <ImageUpload
+                currentImageUrl={currentFeaturedImage}
+                currentWebUrl={currentFeaturedImage}
+                currentPdfUrl=""
+                onImageChange={handleImageUpload}
+              />
+              <FormDescription>
+                Upload a featured image for this blog post (will appear in post listings and social media previews)
+              </FormDescription>
+            </div>
 
             {/* Content Editor */}
             <div className="space-y-2">

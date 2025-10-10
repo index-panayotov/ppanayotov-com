@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOpenRouterAnswer } from "@/services/openrouter";
 import { createOptimizedResponse } from "@/lib/api-compression";
-import { checkRateLimit } from "@/lib/rate-limit";
 import { logger } from "@/lib/logger";
 
 // Define the comprehensive system prompt for the CV Writing Assistant
@@ -67,34 +66,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Unauthorized: Authentication required" },
         { status: 401 }
-      );
-    }
-
-    // Apply rate limiting check (5 requests per minute)
-    const { limited, remaining, resetAt } = checkRateLimit(req, 5, 60000);
-
-    if (limited) {
-      const resetInSeconds = Math.ceil((resetAt - Date.now()) / 1000);
-      logger.warn("AI API rate limit exceeded", {
-        endpoint: "/api/ai",
-        remaining,
-        resetInSeconds,
-      });
-
-      return NextResponse.json(
-        {
-          error: "Rate limit exceeded: Please try again later",
-          retryAfter: resetInSeconds,
-        },
-        {
-          status: 429,
-          headers: {
-            'Retry-After': resetInSeconds.toString(),
-            'X-RateLimit-Limit': '5',
-            'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': resetAt.toString(),
-          },
-        }
       );
     }
 

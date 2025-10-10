@@ -12,11 +12,9 @@ import { z } from "zod";
 import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
 import { loadSystemSettings, loadCVData, loadTopSkills, loadUserProfile } from "@/lib/data-loader";
 import { logger } from "@/lib/logger";
-import { env } from "@/lib/env";
-import { checkRateLimit } from "@/lib/rate-limit";
 
 // Only allow in development mode
-const isDev = env.NODE_ENV === "development";
+const isDev = process.env.NODE_ENV === 'development';
 
 // Schema for GET request search parameters
 const GetAdminApiParamsSchema = z.object({
@@ -25,40 +23,12 @@ const GetAdminApiParamsSchema = z.object({
 
 /**
  * Type-safe GET handler for admin data operations
- * Rate limit: 30 requests per minute
  */
 export async function GET(request: NextRequest) {
   if (!isDev) {
     return createTypedErrorResponse(
       API_ERROR_CODES.FORBIDDEN,
       "Admin API only available in development mode"
-    );
-  }
-
-  // Apply rate limiting (30 requests per minute for admin GET)
-  const { limited, remaining, resetAt } = checkRateLimit(request, 30, 60000);
-
-  if (limited) {
-    const resetInSeconds = Math.ceil((resetAt - Date.now()) / 1000);
-    logger.warn("Admin GET API rate limit exceeded", {
-      endpoint: "/api/admin",
-      remaining,
-      resetInSeconds,
-    });
-
-    return createTypedErrorResponse(
-      API_ERROR_CODES.RATE_LIMIT_EXCEEDED,
-      "Rate limit exceeded. Please try again later.",
-      { retryAfter: resetInSeconds },
-      {
-        status: 429,
-        headers: {
-          'Retry-After': resetInSeconds.toString(),
-          'X-RateLimit-Limit': '30',
-          'X-RateLimit-Remaining': '0',
-          'X-RateLimit-Reset': resetAt.toString(),
-        },
-      }
     );
   }
 
@@ -121,7 +91,7 @@ export async function GET(request: NextRequest) {
 
 
 
-    return createTypedSuccessResponse(response, { maxAge: 0 }); // No cache for fresh data
+  return createTypedSuccessResponse(response, { maxAge: 0, headers: { 'Cache-Control': 'no-store' } }); // No cache for fresh data
   } catch (error) {
     logger.error('Admin GET handler failed', error as Error, { action });
     return createTypedErrorResponse(
@@ -133,40 +103,12 @@ export async function GET(request: NextRequest) {
 
 /**
  * Type-safe POST handler for updating data files
- * Rate limit: 20 requests per minute
  */
 export async function POST(request: NextRequest) {
   if (!isDev) {
     return createTypedErrorResponse(
       API_ERROR_CODES.FORBIDDEN,
       "Admin API only available in development mode"
-    );
-  }
-
-  // Apply rate limiting (20 requests per minute for admin POST)
-  const { limited, remaining, resetAt } = checkRateLimit(request, 20, 60000);
-
-  if (limited) {
-    const resetInSeconds = Math.ceil((resetAt - Date.now()) / 1000);
-    logger.warn("Admin POST API rate limit exceeded", {
-      endpoint: "/api/admin",
-      remaining,
-      resetInSeconds,
-    });
-
-    return createTypedErrorResponse(
-      API_ERROR_CODES.RATE_LIMIT_EXCEEDED,
-      "Rate limit exceeded. Please try again later.",
-      { retryAfter: resetInSeconds },
-      {
-        status: 429,
-        headers: {
-          'Retry-After': resetInSeconds.toString(),
-          'X-RateLimit-Limit': '20',
-          'X-RateLimit-Remaining': '0',
-          'X-RateLimit-Reset': resetAt.toString(),
-        },
-      }
     );
   }
 
@@ -276,7 +218,7 @@ export default systemSettings;
 
     return createTypedSuccessResponse(
       { success: true, file, timestamp: Date.now() },
-      { maxAge: 0 }
+      { maxAge: 0, headers: { 'Cache-Control': 'no-store' } }
     );
   } catch (error) {
     logger.error('Failed to save data', error as Error, { file });

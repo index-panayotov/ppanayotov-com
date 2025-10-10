@@ -124,6 +124,7 @@ export async function PUT(request: NextRequest) {
     const blogPosts = loadBlogPosts();
 
     // Find and update the blog post
+    const index = blogPosts.findIndex((p: any) => p.slug === validatedMetadata.slug);
     if (index === -1) {
       return createTypedErrorResponse(API_ERROR_CODES.NOT_FOUND, 'Blog post not found');
     }

@@ -12,7 +12,9 @@ export interface AdminDataResponse extends AdminData {
 }
 
 export async function loadAdminData(): Promise<AdminDataResponse> {
-  const res = await fetch("/api/admin");
+  // Force a fresh request to the admin API to ensure we always read
+  // the latest files from /data (no caching or edge caches).
+  const res = await fetch("/api/admin", { cache: 'no-store' });
 
   if (res.status === 403) {
     throw new Error("Admin panel is only available in development mode");

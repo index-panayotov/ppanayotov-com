@@ -422,17 +422,6 @@ logger.info('Blog post created', { slug: 'my-post', author: 'John' });
 logger.error('Upload failed', error, { fileSize: 5242880 });
 ```
 
-**API Rate Limiting** (`lib/rate-limit.ts`):
-- **Centralized Rate Limiting**: Reusable rate limit checking across all API routes
-- **Per-IP Tracking**: In-memory storage with automatic cleanup of expired records
-- **Standard HTTP Headers**: Returns proper `X-RateLimit-*` and `Retry-After` headers
-- **Configurable Limits**: Customizable request count and time window per endpoint
-- **AI Cost Protection**: Applied to `/api/ai` route (5 requests/minute)
-```typescript
-import { checkRateLimit } from '@/lib/rate-limit';
-const { limited, remaining, resetAt } = checkRateLimit(req, 10, 60000);
-```
-
 **Blog Pagination** (`/app/blog/page.tsx`):
 - **Performance Optimization**: Shows 10 posts per page to prevent performance issues at scale
 - **Smart Pagination Controls**: Ellipsis display for many pages, disabled state handling
@@ -568,7 +557,6 @@ The admin panel has been restructured from a single monolithic page into separat
 - **Blog System** - Full-featured blog with WYSIWYG editor, markdown storage, SEO optimization
 - **Environment Validation** - Type-safe, fail-fast configuration with Zod
 - **Structured Logging** - Multi-level logging with metadata and error tracking
-- **API Rate Limiting** - Per-IP tracking with standard HTTP headers
 - **Blog Pagination** - 10 posts/page with smart controls
 - **RSS Feed** - Standards-compliant RSS 2.0 with caching
 - **Security** - Magic number validation for image uploads
