@@ -120,14 +120,7 @@ export function loadDataFile<T = any>(fileName: string): T {
       }
     }
 
-    // Fallback: try to evaluate as JavaScript (for backward compatibility)
-    try {
-      const module: any = { exports: {} };
-      const func = new Function('module', 'exports', 'require', fileContent + '\n;return module.exports.default || exports.default;');
-      return func(module, exports, require);
-     } catch (evalError) {
-       throw new Error(`Unable to parse data file ${fileName}: ${getErrorMessage(evalError)}`);
-     }
+
    } catch (error) {
      throw new Error(`Error loading file ${fileName}: ${getErrorMessage(error)}`);
    }

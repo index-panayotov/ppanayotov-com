@@ -3,15 +3,13 @@ import { experiences } from "@/data/cv-data";
 import {
   GenerateSkillsApiRequestSchema,
   GenerateSkillsApiResponse,
-  API_ERROR_CODES,
-  createTypedSuccessResponse,
-  createTypedErrorResponse,
   validateRequestBody
 } from "@/types/api";
 import { ApiErrorCode } from "@/types/core";
 import { logger } from "@/lib/logger";
 import { env } from "@/lib/env";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
 
 // Only allow in development mode
 const isDev = env.NODE_ENV === "development";
@@ -45,15 +43,13 @@ export async function POST(request: NextRequest) {
       resetInSeconds,
     });
 
-    return new Response(
-      JSON.stringify({
-        error: "Rate limit exceeded. Please try again later.",
-        retryAfter: resetInSeconds
-      }),
+    return createTypedErrorResponse(
+      API_ERROR_CODES.RATE_LIMIT_EXCEEDED,
+      "Rate limit exceeded. Please try again later.",
+      { retryAfter: resetInSeconds },
       {
         status: 429,
         headers: {
-          'Content-Type': 'application/json',
           'Retry-After': resetInSeconds.toString(),
           'X-RateLimit-Limit': '20',
           'X-RateLimit-Remaining': '0',
@@ -129,8 +125,7 @@ export async function POST(request: NextRequest) {
     });
 
     return createTypedSuccessResponse(
-      response,
-      `Generated ${sortedTags.length} skills from ${experiences.length} experiences`
+      { ...response, message: `Generated ${sortedTags.length} skills from ${experiences.length} experiences` }
     );
   } catch (error) {
     logger.error('Failed to generate top skills', error as Error, {

@@ -310,7 +310,6 @@ export const SystemSettingsSchema = z.object({
   blogEnable: z.boolean().default(false),
   useWysiwyg: z.boolean().default(true),
   showContacts: z.boolean().default(true),
-  showPrint: z.boolean().default(false),
   gtagCode: OptionalStringSchema,
   gtagEnabled: z.boolean().default(false),
   selectedTemplate: z.enum(['classic', 'professional', 'modern']).default('classic'),

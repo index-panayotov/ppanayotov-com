@@ -118,7 +118,7 @@ export function createOptimizedResponse<T>(
 /**
  * Generate ETag for response data
  */
-function generateETag(data: any): string | null {
+export function generateETag(data: any): string | null {
   try {
     const content = JSON.stringify(data);
     // Simple hash function for ETag

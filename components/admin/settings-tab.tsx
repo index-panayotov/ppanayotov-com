@@ -5,7 +5,7 @@ import { AdminPageHeader } from "./ui/admin-page-header";
 import { AdminCard, AdminCardHeader, AdminCardContent } from "./ui/admin-card";
 import { AdminButton } from "./ui/admin-button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Eye, Palette, Settings as SettingsIcon, Globe, Code, Printer, BarChart3 } from "lucide-react";
+import { Check, Eye, Palette, Settings as SettingsIcon, Globe, Code, BarChart3 } from "lucide-react";
 
 import { getAllTemplates } from "@/app/templates/template-registry";
 import { SystemSettings } from "@/lib/schemas";
@@ -27,7 +27,7 @@ interface SettingsTabProps {
  *
  * Includes:
  * - Template selection
- * - Feature toggles (blog, contacts, print, WYSIWYG)
+ * - Feature toggles (blog, contacts, WYSIWYG)
  * - Analytics configuration
  * - PWA settings
  */
@@ -36,7 +36,6 @@ export default function SettingsTab({ saving, handleSave, systemSettings, setSys
   const [blogEnable, setBlogEnable] = useState(systemSettings.blogEnable);
   const [useWysiwyg, setUseWysiwyg] = useState(systemSettings.useWysiwyg);
   const [showContacts, setShowContacts] = useState(systemSettings.showContacts);
-  const [showPrint, setShowPrint] = useState(systemSettings.showPrint);
   const [gtagEnabled, setGtagEnabled] = useState(systemSettings.gtagEnabled);
   const [gtagCode, setGtagCode] = useState(systemSettings.gtagCode);
 
@@ -49,7 +48,6 @@ export default function SettingsTab({ saving, handleSave, systemSettings, setSys
     setBlogEnable(systemSettings.blogEnable);
     setUseWysiwyg(systemSettings.useWysiwyg);
     setShowContacts(systemSettings.showContacts);
-    setShowPrint(systemSettings.showPrint);
     setGtagEnabled(systemSettings.gtagEnabled);
     setGtagCode(systemSettings.gtagCode);
   }, [systemSettings]);
@@ -100,9 +98,6 @@ export default function SettingsTab({ saving, handleSave, systemSettings, setSys
         break;
       case 'showContacts':
         setShowContacts(value);
-        break;
-      case 'showPrint':
-        setShowPrint(value);
         break;
       case 'gtagEnabled':
         setGtagEnabled(value);
@@ -262,23 +257,6 @@ export default function SettingsTab({ saving, handleSave, systemSettings, setSys
               />
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-              <div className="flex-1">
-                <Label htmlFor="print" className="font-medium text-slate-900 cursor-pointer">
-                  <div className="flex items-center gap-2">
-                    <Printer className="h-4 w-4" />
-                    Print/PDF Features
-                  </div>
-                </Label>
-                <p className="text-sm text-slate-600">Enable print and PDF export (work in progress)</p>
-              </div>
-              <Switch
-                id="print"
-                checked={showPrint}
-                onCheckedChange={(checked) => handleToggle('showPrint', checked)}
-                disabled={saving}
-              />
-            </div>
           </div>
         </AdminCardContent>
       </AdminCard>

@@ -12,6 +12,7 @@ import { ScrollProgress } from "@/components/scroll-progress";
 import { BackToTop } from "@/components/back-to-top";
 import { TypingEffect } from "@/components/typing-effect";
 import { LazySection } from "@/components/lazy-section";
+import EditorJsRenderer from "@/components/ui/editor-js-renderer";
 import { OptimizedExperienceList } from "@/components/performance/optimized-experience-list";
 import { getProfileImageUrl } from "@/lib/image-utils";
 
@@ -72,27 +73,6 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
       <ScrollProgress />
       <BackToTop />
 
-      {/* Hidden metadata for ATS */}
-      {systemSettings.showPrint && (
-        <div className="hidden print:block">
-          <div
-            aria-hidden="true"
-            className="text-[0.1px] text-white overflow-hidden h-[0.1px]"
-          >
-            <h1>
-              {profileData.name} - {profileData.title}
-            </h1>
-            <p>
-              Contact: {profileData.email}
-            </p>
-            <p>
-              Skills:{" "}
-              {Array.from(new Set(experiences.flatMap(exp => exp.tags))).join(", ")}
-            </p>
-          </div>
-        </div>
-      )}
-
       <header className="px-4 py-6 md:sticky md:top-0 md:z-50 md:bg-white/80 md:backdrop-blur-md md:shadow-sm md:border-b md:border-slate-200/50" role="banner">
         <div className="container mx-auto">
           <nav className="flex items-center justify-between" role="navigation" aria-label="Main navigation">
@@ -146,7 +126,10 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
                   <TypingEffect text={profileData.title} speed={80} />
                 </h2>
                 <p className="text-blue-50 mb-2">{profileData.location}</p>
-                <p className="text-blue-50/90 text-lg mb-6 max-w-2xl">{profileData.summary}</p>
+                <EditorJsRenderer
+                  content={profileData.summary}
+                  className="text-blue-50/90 text-lg mb-6 max-w-2xl"
+                />
 
                 {/* Social Media Links */}
                 {profileData.socialLinks?.filter(link => link.visibleInHero).length > 0 && (
@@ -207,7 +190,10 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
           <LazySection rootMargin="100px" minHeight="300px">
             <section id="summary" className="cv-section" aria-labelledby="summary-heading">
               <SectionHeading id="summary-heading" title="Summary" subtitle="Professional overview and core competencies" />
-              <p className="text-slate-700 leading-relaxed">{profileData.summary}</p>
+              <EditorJsRenderer
+                content={profileData.summary}
+                className="text-slate-700 leading-relaxed"
+              />
               <div className="mt-6">
                 <h3 className="text-lg font-semibold text-slate-800 mb-3">Top Skills</h3>
                 <div className="flex flex-wrap gap-2">

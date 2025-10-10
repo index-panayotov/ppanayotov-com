@@ -4,14 +4,12 @@ import path from "path";
 import {
   GenerateTopSkillsApiResponse,
   AdminDataUpdateApiRequestSchema,
-  API_ERROR_CODES,
-  createTypedErrorResponse,
   validateSearchParams,
   validateRequestBody
 } from "@/types/api";
 import { ApiErrorCode } from "@/types/core";
 import { z } from "zod";
-import { createOptimizedResponse } from "@/lib/api-compression";
+import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
 import { loadSystemSettings, loadCVData, loadTopSkills, loadUserProfile } from "@/lib/data-loader";
 import { logger } from "@/lib/logger";
 import { env } from "@/lib/env";
@@ -48,15 +46,13 @@ export async function GET(request: NextRequest) {
       resetInSeconds,
     });
 
-    return new Response(
-      JSON.stringify({
-        error: "Rate limit exceeded. Please try again later.",
-        retryAfter: resetInSeconds
-      }),
+    return createTypedErrorResponse(
+      API_ERROR_CODES.RATE_LIMIT_EXCEEDED,
+      "Rate limit exceeded. Please try again later.",
+      { retryAfter: resetInSeconds },
       {
         status: 429,
         headers: {
-          'Content-Type': 'application/json',
           'Retry-After': resetInSeconds.toString(),
           'X-RateLimit-Limit': '30',
           'X-RateLimit-Remaining': '0',
@@ -112,7 +108,7 @@ export async function GET(request: NextRequest) {
         topSkills: sortedTags
       };
 
-      return createOptimizedResponse(response, { maxAge: 60 });
+      return createTypedSuccessResponse(response, { maxAge: 60 });
     }
 
     // Default: return all data (using consistent field names)
@@ -125,7 +121,7 @@ export async function GET(request: NextRequest) {
 
 
 
-    return createOptimizedResponse(response, { maxAge: 0 }); // No cache for fresh data
+    return createTypedSuccessResponse(response, { maxAge: 0 }); // No cache for fresh data
   } catch (error) {
     logger.error('Admin GET handler failed', error as Error, { action });
     return createTypedErrorResponse(
@@ -158,15 +154,13 @@ export async function POST(request: NextRequest) {
       resetInSeconds,
     });
 
-    return new Response(
-      JSON.stringify({
-        error: "Rate limit exceeded. Please try again later.",
-        retryAfter: resetInSeconds
-      }),
+    return createTypedErrorResponse(
+      API_ERROR_CODES.RATE_LIMIT_EXCEEDED,
+      "Rate limit exceeded. Please try again later.",
+      { retryAfter: resetInSeconds },
       {
         status: 429,
         headers: {
-          'Content-Type': 'application/json',
           'Retry-After': resetInSeconds.toString(),
           'X-RateLimit-Limit': '20',
           'X-RateLimit-Remaining': '0',
@@ -240,7 +234,6 @@ export const userProfile: UserProfile = ${JSON.stringify(data, null, 2)};\n`;
         blogEnable: settings.blogEnable ?? false,
         useWysiwyg: settings.useWysiwyg ?? true,
         showContacts: settings.showContacts ?? true,
-        showPrint: settings.showPrint ?? false,
         gtagCode: settings.gtagCode ?? "",
         gtagEnabled: settings.gtagEnabled ?? false,
         selectedTemplate: settings.selectedTemplate ?? "classic",
@@ -281,7 +274,7 @@ export default systemSettings;
     fs.writeFileSync(filePath, fileContent);
     logger.info('Data file updated successfully', { file, timestamp: Date.now() });
 
-    return createOptimizedResponse(
+    return createTypedSuccessResponse(
       { success: true, file, timestamp: Date.now() },
       { maxAge: 0 }
     );

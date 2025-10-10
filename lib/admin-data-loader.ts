@@ -22,7 +22,10 @@ export async function loadAdminData(): Promise<AdminDataResponse> {
     throw new Error(`Failed to fetch data: ${res.statusText}`);
   }
 
-  const data = await res.json();
+  const response = await res.json();
+
+  // Unwrap the typed API response
+  const data = response.data || response;
 
   // Normalize data structure
   const profileData: UserProfile = data.profileData || {
@@ -47,7 +50,6 @@ export async function loadAdminData(): Promise<AdminDataResponse> {
       blogEnable: false,
       useWysiwyg: true,
       showContacts: true,
-      showPrint: false,
       gtagCode: "",
       gtagEnabled: false,
       selectedTemplate: "classic",
@@ -61,12 +63,15 @@ export async function loadAdminData(): Promise<AdminDataResponse> {
 }
 
 export async function saveAdminData(file: string, data: any): Promise<void> {
+  // Normalize file name: add .ts extension if not present
+  const fileName = file.endsWith('.ts') ? file : `${file}.ts`;
+
   const res = await fetch('/api/admin', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ file, data }),
+    body: JSON.stringify({ file: fileName, data }),
   });
 
   if (!res.ok) {

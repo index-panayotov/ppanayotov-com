@@ -31,7 +31,6 @@ export default function SettingsPage() {
           blogEnable: false,
           useWysiwyg: true,
           showContacts: true,
-          showPrint: false,
           gtagEnabled: false,
           gtagCode: "",
           selectedTemplate: "classic" as const

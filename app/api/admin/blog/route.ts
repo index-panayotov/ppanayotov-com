@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { BlogPostSchema } from '@/lib/schemas';
@@ -6,6 +6,7 @@ import { loadBlogPosts, loadUserProfile } from '@/lib/data-loader';
 import { calculateReadingTime } from '@/lib/markdown-utils';
 import { logger } from '@/lib/logger';
 import { env } from '@/lib/env';
+import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
 
 const isDev = env.NODE_ENV === 'development';
 
@@ -15,13 +16,10 @@ const isDev = env.NODE_ENV === 'development';
 export async function GET() {
   try {
     const blogPosts = loadBlogPosts();
-    return NextResponse.json({ success: true, data: blogPosts });
+    return createTypedSuccessResponse(blogPosts);
   } catch (error) {
     console.error('Error loading blog posts:', error);
-    return NextResponse.json(
-      { error: 'Failed to load blog posts' },
-      { status: 500 }
-    );
+    return createTypedErrorResponse(API_ERROR_CODES.INTERNAL_SERVER_ERROR, 'Failed to load blog posts');
   }
 }
 
@@ -30,10 +28,7 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   if (!isDev) {
-    return NextResponse.json(
-      { error: 'Blog API only available in development mode' },
-      { status: 403 }
-    );
+    return createTypedErrorResponse(API_ERROR_CODES.FORBIDDEN, 'Blog API only available in development mode');
   }
 
   try {
@@ -67,10 +62,7 @@ export async function POST(request: NextRequest) {
 
     // Check if slug already exists
     if (blogPosts.find((p: any) => p.slug === validatedMetadata.slug)) {
-      return NextResponse.json(
-        { error: 'A blog post with this slug already exists' },
-        { status: 400 }
-      );
+      return createTypedErrorResponse(API_ERROR_CODES.BAD_REQUEST, 'A blog post with this slug already exists');
     }
 
     // Add new blog post to array
@@ -100,17 +92,10 @@ export const blogPosts: BlogPost[] = ${JSON.stringify(blogPosts, null, 2)};
     const mdPath = path.join(process.cwd(), 'data', 'blog', `${validatedMetadata.slug}.md`);
     fs.writeFileSync(mdPath, content, 'utf-8');
 
-    return NextResponse.json({
-      success: true,
-      message: 'Blog post created successfully',
-      data: validatedMetadata
-    });
+    return createTypedSuccessResponse({ message: 'Blog post created successfully', data: validatedMetadata });
   } catch (error) {
     console.error('Error creating blog post:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to create blog post' },
-      { status: 500 }
-    );
+    return createTypedErrorResponse(API_ERROR_CODES.INTERNAL_SERVER_ERROR, error instanceof Error ? error.message : 'Failed to create blog post');
   }
 }
 
@@ -119,10 +104,7 @@ export const blogPosts: BlogPost[] = ${JSON.stringify(blogPosts, null, 2)};
  */
 export async function PUT(request: NextRequest) {
   if (!isDev) {
-    return NextResponse.json(
-      { error: 'Blog API only available in development mode' },
-      { status: 403 }
-    );
+    return createTypedErrorResponse(API_ERROR_CODES.FORBIDDEN, 'Blog API only available in development mode');
   }
 
   try {
@@ -142,12 +124,8 @@ export async function PUT(request: NextRequest) {
     const blogPosts = loadBlogPosts();
 
     // Find and update the blog post
-    const index = blogPosts.findIndex((p: any) => p.slug === validatedMetadata.slug);
     if (index === -1) {
-      return NextResponse.json(
-        { error: 'Blog post not found' },
-        { status: 404 }
-      );
+      return createTypedErrorResponse(API_ERROR_CODES.NOT_FOUND, 'Blog post not found');
     }
 
     blogPosts[index] = validatedMetadata;
@@ -176,17 +154,10 @@ export const blogPosts: BlogPost[] = ${JSON.stringify(blogPosts, null, 2)};
     const mdPath = path.join(process.cwd(), 'data', 'blog', `${validatedMetadata.slug}.md`);
     fs.writeFileSync(mdPath, content, 'utf-8');
 
-    return NextResponse.json({
-      success: true,
-      message: 'Blog post updated successfully',
-      data: validatedMetadata
-    });
+    return createTypedSuccessResponse({ message: 'Blog post updated successfully', data: validatedMetadata });
   } catch (error) {
     console.error('Error updating blog post:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to update blog post' },
-      { status: 500 }
-    );
+    return createTypedErrorResponse(API_ERROR_CODES.INTERNAL_SERVER_ERROR, error instanceof Error ? error.message : 'Failed to update blog post');
   }
 }
 
@@ -195,10 +166,7 @@ export const blogPosts: BlogPost[] = ${JSON.stringify(blogPosts, null, 2)};
  */
 export async function DELETE(request: NextRequest) {
   if (!isDev) {
-    return NextResponse.json(
-      { error: 'Blog API only available in development mode' },
-      { status: 403 }
-    );
+    return createTypedErrorResponse(API_ERROR_CODES.FORBIDDEN, 'Blog API only available in development mode');
   }
 
   try {
@@ -206,10 +174,7 @@ export async function DELETE(request: NextRequest) {
     const slug = searchParams.get('slug');
 
     if (!slug) {
-      return NextResponse.json(
-        { error: 'Slug parameter is required' },
-        { status: 400 }
-      );
+      return createTypedErrorResponse(API_ERROR_CODES.BAD_REQUEST, 'Slug parameter is required');
     }
 
     // Load existing blog posts
@@ -219,10 +184,7 @@ export async function DELETE(request: NextRequest) {
     // Find blog post
     const index = blogPosts.findIndex((p: any) => p.slug === slug);
     if (index === -1) {
-      return NextResponse.json(
-        { error: 'Blog post not found' },
-        { status: 404 }
-      );
+      return createTypedErrorResponse(API_ERROR_CODES.NOT_FOUND, 'Blog post not found');
     }
 
     // Remove from array
@@ -260,15 +222,9 @@ export const blogPosts: BlogPost[] = ${JSON.stringify(blogPosts, null, 2)};
       fs.rmSync(uploadsPath, { recursive: true, force: true });
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Blog post deleted successfully'
-    });
+    return createTypedSuccessResponse({ message: 'Blog post deleted successfully' });
   } catch (error) {
     console.error('Error deleting blog post:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete blog post' },
-      { status: 500 }
-    );
+    return createTypedErrorResponse(API_ERROR_CODES.INTERNAL_SERVER_ERROR, 'Failed to delete blog post');
   }
 }

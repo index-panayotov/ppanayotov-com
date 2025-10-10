@@ -1,5 +1,6 @@
 "use client";
 import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
+import EditorJsRenderer from "@/components/ui/editor-js-renderer";
 import { TemplateProps } from "./types";
 
 import { getSocialIcon } from "@/lib/social-platforms";
@@ -77,7 +78,10 @@ export default function ProfessionalTemplate({ experiences, topSkills, profileDa
           <h2 id="summary-heading" className="text-2xl font-bold text-slate-800 border-b-2 border-slate-800 pb-2 mb-4">
             Professional Summary
           </h2>
-          <p className="text-slate-700 leading-relaxed text-lg">{profileData.summary}</p>
+          <EditorJsRenderer
+            content={profileData.summary}
+            className="text-slate-700 leading-relaxed text-lg"
+          />
         </section>
 
         {/* Top Skills - Prominent */}
@@ -112,7 +116,10 @@ export default function ProfessionalTemplate({ experiences, topSkills, profileDa
                     {exp.location && <p className="text-sm">{exp.location}</p>}
                   </div>
                 </div>
-                <p className="text-slate-700 mb-3 leading-relaxed">{exp.description}</p>
+                <EditorJsRenderer
+                  content={exp.description}
+                  className="text-slate-700 mb-3 leading-relaxed"
+                />
                 {exp.tags && exp.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {exp.tags.map((tag, tagIndex) => (

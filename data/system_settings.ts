@@ -2,13 +2,12 @@
 // Exports system-wide settings as a JSON object
 
 const systemSettings = {
-  "blogEnable": true,
+  "blogEnable": false,
   "useWysiwyg": true,
   "showContacts": true,
-  "showPrint": false,
-  "gtagCode": "G-NR6KNX7RM6",
-  "gtagEnabled": true,
-  "selectedTemplate": "classic",
+  "gtagCode": "",
+  "gtagEnabled": false,
+  "selectedTemplate": "professional",
   "pwa": {
     "siteName": "CV Website",
     "shortName": "CV",

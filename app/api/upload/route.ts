@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
 import { logger } from "@/lib/logger";
 import { env } from "@/lib/env";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
 
 const isDev = env.NODE_ENV === "development";
 
@@ -53,9 +54,9 @@ function isValidImageFile(buffer: Buffer): boolean {
  */
 export async function POST(request: NextRequest) {
   if (!isDev) {
-    return NextResponse.json(
-      { error: "Upload API only available in development mode" },
-      { status: 403 }
+    return createTypedErrorResponse(
+      API_ERROR_CODES.FORBIDDEN,
+      "Upload API only available in development mode"
     );
   }
 
@@ -70,8 +71,10 @@ export async function POST(request: NextRequest) {
       resetInSeconds,
     });
 
-    return NextResponse.json(
-      { error: "Rate limit exceeded. Please try again later.", retryAfter: resetInSeconds },
+    return createTypedErrorResponse(
+      API_ERROR_CODES.RATE_LIMIT_EXCEEDED,
+      "Rate limit exceeded. Please try again later.",
+      { retryAfter: resetInSeconds },
       {
         status: 429,
         headers: {
@@ -89,23 +92,17 @@ export async function POST(request: NextRequest) {
     const file = formData.get("file") as File;
 
     if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+      return createTypedErrorResponse(API_ERROR_CODES.BAD_REQUEST, "No file provided");
     }
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      return NextResponse.json(
-        { error: "File must be an image" },
-        { status: 400 }
-      );
+      return createTypedErrorResponse(API_ERROR_CODES.BAD_REQUEST, "File must be an image");
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: "File size must be less than 5MB" },
-        { status: 400 }
-      );
+      return createTypedErrorResponse(API_ERROR_CODES.PAYLOAD_TOO_LARGE, "File size must be less than 5MB");
     }
 
     const bytes = await file.arrayBuffer();
@@ -118,10 +115,7 @@ export async function POST(request: NextRequest) {
         mimeType: file.type,
         size: file.size
       });
-      return NextResponse.json(
-        { error: 'Invalid image file. File does not match expected image format.' },
-        { status: 400 }
-      );
+      return createTypedErrorResponse(API_ERROR_CODES.BAD_REQUEST, 'Invalid image file. File does not match expected image format.');
     }
 
     // Generate filename
@@ -168,8 +162,7 @@ export async function POST(request: NextRequest) {
       originalName: file.name
     });
 
-    return NextResponse.json({
-      success: true,
+    return createTypedSuccessResponse({
       webUrl,
       pdfUrl,
       message: "Image uploaded and optimized successfully"
@@ -179,18 +172,15 @@ export async function POST(request: NextRequest) {
       fileName: file?.name,
       fileSize: file?.size
     });
-    return NextResponse.json(
-      { error: "Failed to upload image" },
-      { status: 500 }
-    );
+    return createTypedErrorResponse(API_ERROR_CODES.INTERNAL_SERVER_ERROR, "Failed to upload image");
   }
 }
 
 export async function DELETE(request: NextRequest) {
   if (!isDev) {
-    return NextResponse.json(
-      { error: "Delete API only available in development mode" },
-      { status: 403 }
+    return createTypedErrorResponse(
+      API_ERROR_CODES.FORBIDDEN,
+      "Delete API only available in development mode"
     );
   }
 
@@ -215,15 +205,11 @@ export async function DELETE(request: NextRequest) {
 
     logger.info('Profile images deleted successfully', { webUrl, pdfUrl });
 
-    return NextResponse.json({
-      success: true,
+    return createTypedSuccessResponse({
       message: "Images deleted successfully"
     });
   } catch (error) {
     logger.error('Failed to delete images', error as Error, { webUrl, pdfUrl });
-    return NextResponse.json(
-      { error: "Failed to delete images" },
-      { status: 500 }
-    );
+    return createTypedErrorResponse(API_ERROR_CODES.INTERNAL_SERVER_ERROR, "Failed to delete images");
   }
 }
