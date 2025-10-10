@@ -9,15 +9,20 @@ import {
   validateRequestBody
 } from "@/types/api";
 import { ApiErrorCode } from "@/types/core";
+import { logger } from "@/lib/logger";
+import { env } from "@/lib/env";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // Only allow in development mode
-const isDev = process.env.NODE_ENV === "development";
+const isDev = env.NODE_ENV === "development";
 
 /**
  * Type-safe POST handler to analyze experience data and return the top skills.
  *
  * Accepts a validated JSON payload containing experience texts and optional maxSkills parameter.
  * If no experiences provided, uses default imported data. Only available in development mode.
+ *
+ * Rate limit: 20 requests per minute
  *
  * @returns A typed JSON response with skills array including frequency and confidence metrics.
  */
@@ -26,6 +31,35 @@ export async function POST(request: NextRequest) {
     return createTypedErrorResponse(
       API_ERROR_CODES.FORBIDDEN,
       "Admin API only available in development mode"
+    );
+  }
+
+  // Apply rate limiting (20 requests per minute for autoskills)
+  const { limited, remaining, resetAt } = checkRateLimit(request, 20, 60000);
+
+  if (limited) {
+    const resetInSeconds = Math.ceil((resetAt - Date.now()) / 1000);
+    logger.warn("Autoskills API rate limit exceeded", {
+      endpoint: "/api/admin/autoskills",
+      remaining,
+      resetInSeconds,
+    });
+
+    return new Response(
+      JSON.stringify({
+        error: "Rate limit exceeded. Please try again later.",
+        retryAfter: resetInSeconds
+      }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'Retry-After': resetInSeconds.toString(),
+          'X-RateLimit-Limit': '20',
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': resetAt.toString(),
+        },
+      }
     );
   }
 
@@ -89,12 +123,19 @@ export async function POST(request: NextRequest) {
       totalExperiences: experiences.length
     };
 
+    logger.info('Top skills generated successfully', {
+      skillCount: sortedTags.length,
+      experienceCount: experiences.length
+    });
+
     return createTypedSuccessResponse(
       response,
       `Generated ${sortedTags.length} skills from ${experiences.length} experiences`
     );
   } catch (error) {
-    console.error("Error generating top skills:", error);
+    logger.error('Failed to generate top skills', error as Error, {
+      experienceCount: experiences.length
+    });
     return createTypedErrorResponse(
       API_ERROR_CODES.INTERNAL_ERROR,
       "Failed to generate top skills"

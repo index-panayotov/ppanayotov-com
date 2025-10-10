@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Fix complex EditorJS type issues
 "use client";
 
 import React, { useState } from "react";
@@ -12,6 +11,7 @@ import editorJsConfig from "@/data/editorjs-config";
 import { LazyEditorJS } from "@/components/admin/lazy-editorjs";
 import { apiClient } from "@/lib/api-client";
 import { SystemSettings } from "@/lib/schemas";
+import { logger } from "@/lib/logger";
 
 
 interface AIEnhancedTextareaProps
@@ -75,7 +75,9 @@ Respond with ONLY the improved text without any explanations or additional text.
         description: "AI has enhanced your content."
       });
     } catch (error) {
-      console.error("AI Enhancement error:", error);
+      logger.error('AI Enhancement error', error as Error, {
+        component: 'AIEnhancedTextarea'
+      });
 
       toast({
         title: "Enhancement failed",

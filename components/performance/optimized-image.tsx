@@ -11,6 +11,7 @@
 
 import Image from 'next/image';
 import { useState, useCallback } from 'react';
+import { logger } from '@/lib/logger';
 
 interface OptimizedImageProps {
   src: string;
@@ -55,16 +56,18 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
     setLoadTime(endTime);
     onLoadingComplete?.();
 
-    // Track image loading performance in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`🖼️ Image loaded: ${src} in ${endTime.toFixed(2)}ms`);
-    }
+    // Track image loading performance
+    logger.debug('Image loaded', {
+      src,
+      loadTime: `${endTime.toFixed(2)}ms`,
+      component: 'OptimizedImage'
+    });
   }, [src, onLoadingComplete]);
 
   const handleError = useCallback(() => {
     setIsLoading(false);
     setHasError(true);
-    console.warn(`⚠️ Failed to load image: ${src}`);
+    logger.warn('Failed to load image', { src, component: 'OptimizedImage' });
   }, [src]);
 
   // Error fallback UI
@@ -89,13 +92,13 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
     priority,
     sizes,
     placeholder,
-    blurDataURL,
     quality,
     onLoad: handleLoad,
     onError: handleError,
     className: `transition-opacity duration-300 ${
       isLoading ? 'opacity-0' : 'opacity-100'
     } ${className}`,
+    ...(blurDataURL && { blurDataURL }),
     ...(fill
       ? {
           fill: true,

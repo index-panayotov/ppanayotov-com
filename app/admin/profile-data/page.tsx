@@ -57,6 +57,7 @@ export default function ProfileDataPage() {
         <AdminNavigation
           experiencesCount={data.experiences.length}
           topSkillsCount={data.topSkills.length}
+          blogPostsCount={0}
           saving={saving}
         />
 

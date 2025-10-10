@@ -13,9 +13,12 @@ import { ApiErrorCode } from "@/types/core";
 import { z } from "zod";
 import { createOptimizedResponse } from "@/lib/api-compression";
 import { loadSystemSettings, loadCVData, loadTopSkills, loadUserProfile } from "@/lib/data-loader";
+import { logger } from "@/lib/logger";
+import { env } from "@/lib/env";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // Only allow in development mode
-const isDev = process.env.NODE_ENV === "development";
+const isDev = env.NODE_ENV === "development";
 
 // Schema for GET request search parameters
 const GetAdminApiParamsSchema = z.object({
@@ -24,12 +27,42 @@ const GetAdminApiParamsSchema = z.object({
 
 /**
  * Type-safe GET handler for admin data operations
+ * Rate limit: 30 requests per minute
  */
 export async function GET(request: NextRequest) {
   if (!isDev) {
     return createTypedErrorResponse(
       API_ERROR_CODES.FORBIDDEN,
       "Admin API only available in development mode"
+    );
+  }
+
+  // Apply rate limiting (30 requests per minute for admin GET)
+  const { limited, remaining, resetAt } = checkRateLimit(request, 30, 60000);
+
+  if (limited) {
+    const resetInSeconds = Math.ceil((resetAt - Date.now()) / 1000);
+    logger.warn("Admin GET API rate limit exceeded", {
+      endpoint: "/api/admin",
+      remaining,
+      resetInSeconds,
+    });
+
+    return new Response(
+      JSON.stringify({
+        error: "Rate limit exceeded. Please try again later.",
+        retryAfter: resetInSeconds
+      }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'Retry-After': resetInSeconds.toString(),
+          'X-RateLimit-Limit': '30',
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': resetAt.toString(),
+        },
+      }
     );
   }
 
@@ -94,7 +127,7 @@ export async function GET(request: NextRequest) {
 
     return createOptimizedResponse(response, { maxAge: 0 }); // No cache for fresh data
   } catch (error) {
-    console.error('Error in admin GET handler:', error);
+    logger.error('Admin GET handler failed', error as Error, { action });
     return createTypedErrorResponse(
       API_ERROR_CODES.INTERNAL_ERROR,
       'Failed to retrieve admin data'
@@ -104,12 +137,42 @@ export async function GET(request: NextRequest) {
 
 /**
  * Type-safe POST handler for updating data files
+ * Rate limit: 20 requests per minute
  */
 export async function POST(request: NextRequest) {
   if (!isDev) {
     return createTypedErrorResponse(
       API_ERROR_CODES.FORBIDDEN,
       "Admin API only available in development mode"
+    );
+  }
+
+  // Apply rate limiting (20 requests per minute for admin POST)
+  const { limited, remaining, resetAt } = checkRateLimit(request, 20, 60000);
+
+  if (limited) {
+    const resetInSeconds = Math.ceil((resetAt - Date.now()) / 1000);
+    logger.warn("Admin POST API rate limit exceeded", {
+      endpoint: "/api/admin",
+      remaining,
+      resetInSeconds,
+    });
+
+    return new Response(
+      JSON.stringify({
+        error: "Rate limit exceeded. Please try again later.",
+        retryAfter: resetInSeconds
+      }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'Retry-After': resetInSeconds.toString(),
+          'X-RateLimit-Limit': '20',
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': resetAt.toString(),
+        },
+      }
     );
   }
 
@@ -136,7 +199,7 @@ export async function POST(request: NextRequest) {
   // Security: Whitelist allowed files to prevent path traversal
   const ALLOWED_FILES = ['cv-data.ts', 'topSkills.ts', 'user-profile.ts', 'system_settings.ts'];
   if (!ALLOWED_FILES.includes(file)) {
-    console.error('[Admin API POST] File not in whitelist:', file);
+    logger.warn('Admin API POST - File not in whitelist', { file, allowedFiles: ALLOWED_FILES });
     return createTypedErrorResponse(
       API_ERROR_CODES.VALIDATION_ERROR,
       `Invalid file: ${file}. Must be one of: ${ALLOWED_FILES.join(', ')}`,
@@ -206,7 +269,7 @@ export default systemSettings;
 
     // Verify fileContent was generated
     if (!fileContent) {
-      console.error('[Admin API POST] No file content generated for:', file);
+      logger.error('No file content generated', new Error('File content generation failed'), { file });
       return createTypedErrorResponse(
         API_ERROR_CODES.INTERNAL_ERROR,
         `Failed to generate content for ${file}`,
@@ -216,13 +279,14 @@ export default systemSettings;
 
     // Write the file
     fs.writeFileSync(filePath, fileContent);
+    logger.info('Data file updated successfully', { file, timestamp: Date.now() });
 
     return createOptimizedResponse(
       { success: true, file, timestamp: Date.now() },
       { maxAge: 0 }
     );
   } catch (error) {
-    console.error("Error saving data:", error);
+    logger.error('Failed to save data', error as Error, { file });
     return createTypedErrorResponse(
       API_ERROR_CODES.INTERNAL_ERROR,
       `Failed to save data to ${file}`,

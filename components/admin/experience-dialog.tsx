@@ -28,6 +28,7 @@ import {
 import { AIEnhancedInput } from '@/components/admin/ai-enhanced-input';
 import { AIEnhancedTextarea } from '@/components/admin/ai-enhanced-textarea';
 import { X } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 import {
   ExperienceFormSchema,
@@ -96,7 +97,9 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
       setNewSkill('');
       setOpen(false);
     } catch (error) {
-      console.error('Failed to save experience:', error);
+      logger.error('Failed to save experience', error as Error, {
+        component: 'ExperienceDialog'
+      });
     }
   };
 

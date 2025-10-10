@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { logger } from "@/lib/logger";
 
 interface SettingsTabProps {
   saving: boolean;
@@ -73,7 +74,9 @@ export default function SettingsTab({ saving, handleSave, systemSettings, setSys
         variant: "default"
       });
     } catch (error) {
-      console.error("Error saving settings:", error);
+      logger.error('Error saving settings', error as Error, {
+        component: 'SettingsTab'
+      });
       toast({
         title: "Error",
         description: "Failed to save settings. Please try again.",

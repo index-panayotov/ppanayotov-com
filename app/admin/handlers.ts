@@ -5,11 +5,13 @@ import {
   UserProfile,
   Language as LanguageEntry,
   EducationEntry,
-  Certification
+  Certification,
+  BlogPost
 } from "@/lib/schemas";
 import { processFormValue } from "@/lib/editorjs-utils";
 import systemSettings from "@/data/system_settings";
 import { apiClient } from "@/lib/api-client";
+import { logger } from "@/lib/logger";
 
 // Type definitions for admin handlers
 export interface ToastFunction {
@@ -73,9 +75,9 @@ export const handleSave = async (
       }));
     }
 
-    console.log('[Admin Handler] Posting to /api/admin:', { file });
+    logger.info('[Admin Handler] Posting to /api/admin:', { file });
     await apiClient.post("/api/admin", { file, data }, { retries: 1 });
-    console.log('[Admin Handler] ✓ Save successful:', file);
+    logger.info('[Admin Handler] ✓ Save successful:', { file });
 
     toast({
       title: "Success",
@@ -1065,14 +1067,189 @@ export const moveSocialLink = async (
       description: `"${newSocialLinks[newIndex].platform}" moved ${direction} and saved to file`,
       className: "bg-green-50 border-green-200 text-green-800"
     });
-    
+
   } catch (error) {
     // Revert local state on error
     setProfileData(profileData);
-    
+
     toast({
       title: "Reorder Failed",
       description: "Failed to save the new order. Please try again.",
+      variant: "destructive"
+    });
+  } finally {
+    setSaving(false);
+  }
+};
+
+// Blog post management functions
+export interface BlogPostWithIndex extends BlogPost {
+  _index?: number;
+}
+
+/**
+ * Load all blog posts from API
+ */
+export const loadBlogPosts = async (
+  setBlogPosts: (posts: BlogPost[]) => void,
+  toast: ToastFunction
+) => {
+  try {
+    const res = await apiClient.get("/api/admin/blog");
+    const data = await res.json() as { success?: boolean; data?: BlogPost[]; error?: string };
+
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to load blog posts");
+    }
+
+    if (data.data && Array.isArray(data.data)) {
+      setBlogPosts(data.data);
+    }
+  } catch (err: unknown) {
+    toast({
+      title: "Error",
+      description: err instanceof Error ? err.message : "Failed to load blog posts",
+      variant: "destructive"
+    });
+  }
+};
+
+/**
+ * Create new blog post
+ */
+export const createBlogPost = async (
+  metadata: BlogPost,
+  content: string,
+  blogPosts: BlogPost[],
+  setBlogPosts: (posts: BlogPost[]) => void,
+  setDialogOpen: (open: boolean) => void,
+  setSaving: (value: boolean) => void,
+  toast: ToastFunction
+) => {
+  try {
+    setSaving(true);
+
+    const res = await apiClient.post("/api/admin/blog", {
+      metadata,
+      content
+    });
+
+    const data = await res.json() as { success?: boolean; data?: BlogPost; error?: string };
+
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to create blog post");
+    }
+
+    // Update local state
+    if (data.data) {
+      setBlogPosts([...blogPosts, data.data]);
+    }
+
+    toast({
+      title: "Blog Post Created & Saved",
+      description: `"${metadata.title}" has been created and saved`,
+      className: "bg-green-50 border-green-200 text-green-800"
+    });
+
+    setDialogOpen(false);
+  } catch (err: unknown) {
+    toast({
+      title: "Error",
+      description: err instanceof Error ? err.message : "Failed to create blog post",
+      variant: "destructive"
+    });
+  } finally {
+    setSaving(false);
+  }
+};
+
+/**
+ * Update existing blog post
+ */
+export const updateBlogPost = async (
+  metadata: BlogPost,
+  content: string,
+  blogPosts: BlogPost[],
+  setBlogPosts: (posts: BlogPost[]) => void,
+  setDialogOpen: (open: boolean) => void,
+  setSaving: (value: boolean) => void,
+  toast: ToastFunction
+) => {
+  try {
+    setSaving(true);
+
+    const res = await apiClient.put("/api/admin/blog", {
+      metadata,
+      content
+    });
+
+    const data = await res.json() as { success?: boolean; data?: BlogPost; error?: string };
+
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to update blog post");
+    }
+
+    // Update local state
+    if (data.data) {
+      const index = blogPosts.findIndex(p => p.slug === data.data!.slug);
+      if (index !== -1) {
+        const newBlogPosts = [...blogPosts];
+        newBlogPosts[index] = data.data;
+        setBlogPosts(newBlogPosts);
+      }
+    }
+
+    toast({
+      title: "Blog Post Updated & Saved",
+      description: `"${metadata.title}" has been updated and saved`,
+      className: "bg-blue-50 border-blue-200 text-blue-800"
+    });
+
+    setDialogOpen(false);
+  } catch (err: unknown) {
+    toast({
+      title: "Error",
+      description: err instanceof Error ? err.message : "Failed to update blog post",
+      variant: "destructive"
+    });
+  } finally {
+    setSaving(false);
+  }
+};
+
+/**
+ * Delete blog post
+ */
+export const deleteBlogPost = async (
+  slug: string,
+  title: string,
+  blogPosts: BlogPost[],
+  setBlogPosts: (posts: BlogPost[]) => void,
+  setSaving: (value: boolean) => void,
+  toast: ToastFunction
+) => {
+  try {
+    setSaving(true);
+
+    const res = await apiClient.delete(`/api/admin/blog?slug=${encodeURIComponent(slug)}`);
+    const data = await res.json() as { success?: boolean; error?: string };
+
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to delete blog post");
+    }
+
+    // Update local state
+    setBlogPosts(blogPosts.filter(p => p.slug !== slug));
+
+    toast({
+      title: "Blog Post Deleted",
+      description: `"${title}" has been deleted`,
+      variant: "destructive"
+    });
+  } catch (err: unknown) {
+    toast({
+      title: "Error",
+      description: err instanceof Error ? err.message : "Failed to delete blog post",
       variant: "destructive"
     });
   } finally {

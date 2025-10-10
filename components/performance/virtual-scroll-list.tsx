@@ -10,6 +10,7 @@
  */
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { logger } from '@/lib/logger';
 
 interface VirtualScrollListProps<T> {
   items: T[];
@@ -98,7 +99,7 @@ export function VirtualScrollList<T>({
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
       const visibleCount = visibleRange.endIndex - visibleRange.startIndex + 1;
-      console.log(`📊 VirtualScrollList: Rendering ${visibleCount}/${items.length} items`);
+      logger.debug(`📊 VirtualScrollList: Rendering ${visibleCount}/${items.length} items`);
     }
   }, [visibleRange, items.length]);
 

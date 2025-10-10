@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Fix complex EditorJS type issues in template
 "use client";
 import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
 import { TemplateProps } from "./types";

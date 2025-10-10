@@ -5,6 +5,79 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2025-10-10
+
+### 🎨 Major Template System Release
+
+This release introduces a complete template system, allowing users to switch between 3 professionally designed CV layouts to match their industry and personal brand.
+
+### Added
+
+#### Template System
+- **3 Professional Templates**: Classic, Professional, and Modern designs
+  - **Classic**: Animated design with typing effects, gradient backgrounds, smooth scrolling
+  - **Professional**: ATS-optimized, print-friendly, clean minimal layout
+  - **Modern**: Bold design with glassmorphism, CSS Grid masonry, interactive elements
+- **Template Registry**: Centralized metadata management with lazy-loading
+- **Template Switching**: Change templates via `selectedTemplate` in system_settings.ts
+- **Template Metadata**: Rich descriptions, features, best-for recommendations per template
+
+#### Admin Panel Improvements
+- **Modular Admin Pages**: Split monolithic admin into focused pages
+  - `/admin/dashboard` - Overview and stats
+  - `/admin/profile-data` - Personal information
+  - `/admin/experiences` - Work experience management
+  - `/admin/top-skills` - Skills with AI extraction
+  - `/admin/settings` - System configuration
+  - `/admin/blog` - Blog management (when enabled)
+- **Unified Data Management**: Centralized data extraction in `app/admin/handlers.ts`
+- **Improved Loading States**: Consistent error handling across all admin pages
+
+#### PWA Configuration
+- **Dynamic PWA Settings**: Moved from hardcoded to `system_settings.ts`
+- **Configurable Properties**: Site name, description, colors, orientation, display mode
+- **Flexible Manifest Generation**: PWA manifest updates based on settings
+
+### Changed
+
+- **System Settings Structure**: Added `selectedTemplate` field and `pwa` configuration object
+- **Admin Architecture**: Refactored from single page to modular structure
+- **File Organization**: Added `/app/templates/` directory with type-safe template components
+- **Data Layer**: Enhanced documentation for system_settings.ts configuration
+
+### Removed
+
+- **Testing Framework**: Removed test scripts and dependencies to focus on core features
+  - No more `npm test` or `npm run test:coverage` commands
+  - Streamlined development workflow
+
+### Technical Improvements
+
+- **Type Safety**: Full TypeScript interfaces for templates (TemplateProps, TemplateMetadata)
+- **Performance**: Lazy-loaded template components for faster initial page loads
+- **Maintainability**: Separated concerns with template registry pattern
+- **Documentation**: Comprehensive template development guide in CLAUDE.md
+
+### Migration Guide: 2.0 → 3.0
+
+#### Required Actions
+1. **Update system_settings.ts**: Add `selectedTemplate` field (default: "modern")
+2. **Review Templates**: Choose appropriate template for your industry
+3. **Test Template Switching**: Verify all 3 templates render correctly with your data
+4. **Remove Test Scripts**: Update any CI/CD pipelines that relied on npm test
+
+#### Breaking Changes
+- Testing commands removed (npm test, npm run test:coverage)
+- Admin panel split into multiple routes (update bookmarks if needed)
+- System settings structure expanded (backward compatible with defaults)
+
+#### New Features to Explore
+- Try all 3 templates to find your perfect match
+- Customize PWA settings in system_settings.ts
+- Navigate new modular admin interface
+
+---
+
 ## [2.0.0] - 2025-10-03
 
 ### 🚀 Major Performance Overhaul

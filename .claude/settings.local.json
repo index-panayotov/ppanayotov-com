@@ -8,11 +8,16 @@
       "Bash(npm install:*)",
       "Bash(grep:*)",
       "Bash(rm:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(tee:*)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []
   },
-  "spinnerTipsEnabled": false,
-  "outputStyle": "default"
+  "outputStyle": "default",
+  "spinnerTipsEnabled": false
 }

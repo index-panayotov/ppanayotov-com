@@ -5,6 +5,8 @@
  * for Progressive Web App functionality.
  */
 
+import { logger } from './logger';
+
 export interface ServiceWorkerStatus {
   isRegistered: boolean;
   isActive: boolean;
@@ -18,13 +20,13 @@ export interface ServiceWorkerStatus {
  */
 export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
   if (!('serviceWorker' in navigator)) {
-    console.warn('Service workers not supported');
+    logger.warn('Service workers not supported');
     return null;
   }
 
   try {
     const registration = await navigator.serviceWorker.register('/sw.js');
-    console.log('Service worker registered:', registration);
+    logger.info('Service worker registered', { scope: registration.scope });
 
     // Handle updates
     registration.addEventListener('updatefound', () => {
@@ -33,7 +35,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
             // New version available
-            console.log('New service worker version available');
+            logger.info('New service worker version available');
           }
         });
       }
@@ -41,7 +43,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
 
     return registration;
   } catch (error) {
-    console.error('Service worker registration failed:', error);
+    logger.error('Service worker registration failed', error instanceof Error ? error : new Error(String(error)));
     return null;
   }
 }
@@ -84,10 +86,10 @@ export async function unregisterServiceWorker(): Promise<boolean> {
     for (const registration of registrations) {
       await registration.unregister();
     }
-    console.log('Service worker unregistered');
+    logger.info('Service worker unregistered');
     return true;
   } catch (error) {
-    console.error('Service worker unregistration failed:', error);
+    logger.error('Service worker unregistration failed', error instanceof Error ? error : new Error(String(error)));
     return false;
   }
 }

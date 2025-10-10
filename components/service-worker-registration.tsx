@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { registerServiceWorker, getServiceWorkerStatus } from '@/lib/sw-registration';
+import { logger } from '@/lib/logger';
 
 /**
  * Service Worker Registration Component
@@ -19,19 +20,19 @@ export function ServiceWorkerRegistration() {
       process.env.NEXT_PUBLIC_SW_ENABLED === 'true';
 
     if (!shouldRegister) {
-      console.log('[SW] Service worker disabled in development');
+      logger.info('[SW] Service worker disabled in development');
       return;
     }
 
     // Register service worker
     registerServiceWorker()
       .then((status) => {
-        if (status.isRegistered) {
-          console.log('[SW] ✓ PWA enabled with offline support');
+        if (status) {
+          logger.info('[SW] ✓ PWA enabled with offline support');
         }
       })
       .catch((error) => {
-        console.error('[SW] Registration error:', error);
+        logger.error('[SW] Registration error', error instanceof Error ? error : new Error(String(error)));
       });
 
     // Listen for update notifications

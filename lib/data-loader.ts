@@ -38,17 +38,24 @@ const FILE_PARSERS: Record<string, {
     startMarker: 'export const userProfile: UserProfile = ',
     endMarker: '};',
     isObject: true
+  },
+  'blog-posts.ts': {
+    startMarker: 'export const blogPosts: BlogPost[] = ',
+    endMarker: '];',
+    isObject: false
   }
 };
 
 /**
- * Extracts JSON content from TypeScript data files
+ * Extracts content from TypeScript data files
+ * Returns the raw JavaScript/TypeScript content that can be evaluated
  */
 function extractJSONContent(fileContent: string, config: typeof FILE_PARSERS[string]): string | null {
   const startIndex = fileContent.indexOf(config.startMarker);
   if (startIndex === -1) return null;
 
   const jsonStart = startIndex + config.startMarker.length;
+  let extractedContent = '';
 
   if (config.isObject) {
     // Handle object parsing with brace counting
@@ -65,17 +72,23 @@ function extractJSONContent(fileContent: string, config: typeof FILE_PARSERS[str
       }
     }
     if (jsonEnd > jsonStart) {
-      return fileContent.substring(jsonStart, jsonEnd + 1);
+      extractedContent = fileContent.substring(jsonStart, jsonEnd + 1);
     }
   } else {
     // Handle array parsing
     const jsonEnd = fileContent.lastIndexOf(config.endMarker);
     if (jsonEnd > jsonStart) {
-      return fileContent.substring(jsonStart, jsonEnd + 1);
+      extractedContent = fileContent.substring(jsonStart, jsonEnd + 1);
     }
   }
 
-  return null;
+  if (!extractedContent) return null;
+
+  // Clean up TypeScript-specific syntax
+  extractedContent = extractedContent
+    .replace(/as const/g, ''); // Remove 'as const' type assertions
+
+  return extractedContent;
 }
 
 /**
@@ -94,12 +107,15 @@ export function loadDataFile<T = any>(fileName: string): T {
     // Use unified parser if configuration exists
     const config = FILE_PARSERS[fileName];
     if (config) {
-      const jsonContent = extractJSONContent(fileContent, config);
-      if (jsonContent) {
+      const extractedContent = extractJSONContent(fileContent, config);
+      if (extractedContent) {
         try {
-          return JSON.parse(jsonContent);
+          // Use Function constructor to safely evaluate the extracted content
+          // This is safe because we control the input files (they're in /data/)
+          const evalFunc = new Function(`return ${extractedContent}`);
+          return evalFunc();
          } catch (parseError) {
-           throw new Error(`JSON parse error for ${fileName}: ${getErrorMessage(parseError)}`);
+           throw new Error(`Parse error for ${fileName}: ${getErrorMessage(parseError)}`);
          }
       }
     }
@@ -143,4 +159,36 @@ export function loadTopSkills() {
  */
 export function loadUserProfile() {
   return loadDataFile('user-profile.ts');
+}
+
+/**
+ * Helper to load blog posts metadata
+ */
+export function loadBlogPosts() {
+  return loadDataFile('blog-posts.ts');
+}
+
+/**
+ * Helper to load a single blog post content
+ *
+ * @param slug - Blog post slug (filename without .md extension)
+ * @returns Object with metadata and markdown content
+ */
+export function loadBlogPost(slug: string): { metadata: any, content: string } {
+  const blogPosts = loadBlogPosts();
+  const metadata = blogPosts.find((post: any) => post.slug === slug);
+
+  if (!metadata) {
+    throw new Error(`Blog post not found: ${slug}`);
+  }
+
+  const mdPath = path.join(process.cwd(), 'data', 'blog', `${slug}.md`);
+
+  if (!fs.existsSync(mdPath)) {
+    throw new Error(`Blog post markdown file not found: ${slug}.md`);
+  }
+
+  const content = fs.readFileSync(mdPath, 'utf-8');
+
+  return { metadata, content };
 }

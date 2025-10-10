@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Fix complex EditorJS type issues in template
 "use client";
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
@@ -19,6 +18,7 @@ import { getProfileImageUrl } from "@/lib/image-utils";
 
 import { getSocialIcon } from "@/lib/social-platforms";
 import { initPerformanceMonitoring } from "@/lib/performance-monitoring";
+import { logger } from "@/lib/logger";
 import { TemplateProps } from "./types";
 
 /**
@@ -37,7 +37,7 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
   useEffect(() => {
     initPerformanceMonitoring();
     if (process.env.NODE_ENV === 'production') {
-      console.log('📊 Performance monitoring active');
+      logger.info('📊 Performance monitoring active');
     }
   }, []);
 
@@ -108,6 +108,9 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
               <Link href="#skills" className="cv-nav-link">Skills</Link>
               <Link href="#education" className="cv-nav-link">Education</Link>
               <Link href="#certifications" className="cv-nav-link">Certifications</Link>
+              {systemSettings.blogEnable && (
+                <Link href="/blog" className="cv-nav-link">Blog</Link>
+              )}
           {systemSettings.showContacts && (
                 <Link href="#contact" className="cv-nav-link">Contact</Link>
               )}

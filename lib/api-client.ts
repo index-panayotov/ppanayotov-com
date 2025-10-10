@@ -10,6 +10,7 @@
  */
 
 import { retryFetch } from './retry-logic';
+import { logger } from './logger';
 
 interface CacheEntry<T> {
   data: T;
@@ -172,7 +173,7 @@ class APIClient {
       const cached = this.getFromCache<T>(cacheKey);
       if (cached !== null) {
         if (process.env.NODE_ENV === 'development') {
-          console.log(`📦 Cache hit: ${url}`);
+          logger.debug(`📦 Cache hit: ${url}`);
         }
         return cached;
       }
@@ -183,7 +184,7 @@ class APIClient {
       const pending = this.pendingRequests.get(cacheKey);
       if (pending) {
         if (process.env.NODE_ENV === 'development') {
-          console.log(`🔄 Deduped request: ${url}`);
+          logger.debug(`🔄 Deduped request: ${url}`);
         }
         return pending;
       }

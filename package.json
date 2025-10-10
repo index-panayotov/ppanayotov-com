@@ -1,6 +1,6 @@
 {
   "name": "ppanayotov-com-cv-builder",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -11,7 +11,14 @@
     "build:analyze": "npm run analyze"
   },
   "dependencies": {
+    "@editorjs/code": "^2.9.3",
+    "@editorjs/delimiter": "^1.4.2",
     "@editorjs/editorjs": "^2.30.8",
+    "@editorjs/header": "^2.8.8",
+    "@editorjs/image": "^2.10.3",
+    "@editorjs/list": "^2.0.8",
+    "@editorjs/quote": "^2.7.6",
+    "@editorjs/table": "^2.4.5",
     "@hookform/resolvers": "^3.10.0",
     "@next/third-parties": "^15.3.3",
     "@radix-ui/react-accordion": "1.2.2",
@@ -41,7 +48,6 @@
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "1.1.6",
     "autoprefixer": "^10.4.20",
-    "canvas": "^3.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "isomorphic-dompurify": "^2.25.0",
@@ -51,13 +57,20 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.54.1",
-    "react-icons": "latest",
+    "react-icons": "^5.5.0",
+    "react-markdown": "^10.1.0",
+    "rehype-raw": "^7.0.0",
+    "rehype-sanitize": "^6.0.0",
+    "remark-gfm": "^4.0.1",
     "sharp": "^0.34.2",
     "sonner": "^1.7.1",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "web-vitals": "^4.2.4",
     "zod": "^3.25.76"
+  },
+  "optionalDependencies": {
+    "canvas": "^3.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",

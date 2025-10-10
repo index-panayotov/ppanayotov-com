@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import { RiRobot2Fill } from "react-icons/ri";
 import { toast } from "@/components/ui/use-toast";
 import { apiClient } from "@/lib/api-client";
+import { logger } from "@/lib/logger";
 
 interface AIEnhancedInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -67,7 +68,9 @@ Keep the same meaning but enhance the wording. Respond with ONLY the improved te
         description: "AI has enhanced your content."
       });
     } catch (error) {
-      console.error("AI Enhancement error:", error);
+      logger.error('AI Enhancement error', error as Error, {
+        component: 'AIEnhancedInput'
+      });
 
       toast({
         title: "Enhancement failed",

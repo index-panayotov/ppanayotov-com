@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { validateImageFile, isExternalImageUrl } from '@/lib/image-utils';
 import type { ImageUploadProps } from '@/types/admin-components';
 import { apiClient } from '@/lib/api-client';
+import { logger } from '@/lib/logger';
 
 export default function ImageUpload({
   currentImageUrl, 
@@ -57,7 +58,9 @@ export default function ImageUpload({
       });
       
     } catch (error) {
-      console.error('Upload error:', error);
+      logger.error('Upload error', error as Error, {
+        component: 'ImageUpload'
+      });
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to upload image",
@@ -127,125 +130,8 @@ export default function ImageUpload({
           method: 'DELETE',
         });
       } catch (error) {
-        console.error('Failed to delete uploaded files:', error);
-      }    }
-    onImageChange('', '', '');
-    setExternalUrl('');
-    toast({
-      title: "Success",
-      description: "Image removed successfully",
-    });
-  };
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <ImageIcon className="w-5 h-5" />
-          Profile Image
-        </CardTitle>
-        <CardDescription>
-          Upload a new image or use an external URL. Images will be automatically optimized for web and PDF.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="upload" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="upload">Upload File</TabsTrigger>
-            <TabsTrigger value="url">External URL</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="upload" className="space-y-4">
-            <div
-              className={`
-                relative border-2 border-dashed rounded-lg p-6 text-center transition-colors
-                ${dragOver ? 'border-primary bg-primary/5' : 'border-slate-300'}
-                ${uploading ? 'opacity-50' : 'cursor-pointer hover:border-primary hover:bg-primary/5'}
-              `}
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onClick={() => !uploading && fileInputRef.current?.click()}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect}
-                className="hidden"
-                disabled={uploading}
-              />
-              
-              <Upload className={`w-8 h-8 mx-auto mb-2 ${adminClassNames.text.muted}`} />
-              <p className={`text-sm ${adminClassNames.text.body} mb-1`}>
-                {uploading ? 'Uploading...' : 'Drop an image here or click to browse'}
-              </p>
-              <p className={`text-xs ${adminClassNames.text.muted}`}>
-                Supports JPG, PNG, WebP (max 5MB)
-              </p>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="url" className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="external-url">Image URL</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="external-url"
-                  type="url"
-                  placeholder="https://example.com/image.jpg"
-                  value={externalUrl}
-                  onChange={(e) => setExternalUrl(e.target.value)}
-                />
-                <Button 
-                  onClick={handleExternalUrlSubmit}
-                  disabled={!externalUrl}
-                >
-                  <Link className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        {/* Current Image Preview */}
-        {currentImageUrl && (
-          <div className="mt-6 space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium">Current Image</h4>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRemoveImage}
-                className="text-slate-600 hover:text-slate-700"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <img
-                src={currentImageUrl}
-                alt="Profile Preview"
-                className="w-20 h-20 rounded-full object-cover border-2 border-slate-200"
-              />              <div className="text-sm space-y-1">
-                <p className="font-medium">
-                  {isExternalImageUrl(currentImageUrl) ? 'External URL' : 'Local Upload'}
-                </p>
-                <p className={`${adminClassNames.text.muted} break-all`}>
-                  {currentImageUrl}
-                </p>
-                {currentWebUrl && currentPdfUrl && (
-                  <div className={`text-xs ${adminClassNames.text.muted}`}>
-                    <p>Web: {currentWebUrl}</p>
-                    <p>PDF: {currentPdfUrl}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
+        logger.error('Failed to delete uploaded files', error as Error, {
+          component: 'ImageUpload',
+          action: 'deleteFiles'
+        });
+      }

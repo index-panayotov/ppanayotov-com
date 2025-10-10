@@ -12,6 +12,7 @@
 import React, { memo, useMemo, useCallback, useState } from 'react';
 import type { ExperienceEntry } from '@/types';
 import { OptimizedImage } from './optimized-image';
+import { logger } from '@/lib/logger';
 
 interface ExperienceListProps {
   experiences: ExperienceEntry[];
@@ -206,7 +207,7 @@ export const OptimizedExperienceList = memo<ExperienceListProps>(({
 
   // Development performance indicators
   if (process.env.NODE_ENV === 'development') {
-    console.log('🔄 OptimizedExperienceList render:', performanceInfo);
+    logger.debug('🔄 OptimizedExperienceList render:', performanceInfo);
   }
 
   // Empty state
@@ -280,8 +281,12 @@ export function withPerformanceMonitoring<T extends object>(
     const handleRenderComplete = useCallback(() => {
       const renderTime = performance.now() - renderStart;
 
-      if (process.env.NODE_ENV === 'development' && renderTime > 16) { // 60fps = 16ms budget
-        console.warn(`⚠️ ${componentName} render took ${renderTime.toFixed(2)}ms (>16ms budget)`);
+      if (renderTime > 16) { // 60fps = 16ms budget
+        logger.warn('Component render exceeded 16ms budget', {
+          component: componentName,
+          renderTime: `${renderTime.toFixed(2)}ms`,
+          budget: '16ms'
+        });
       }
     }, [renderStart]);
 

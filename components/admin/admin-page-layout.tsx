@@ -12,6 +12,10 @@ interface AdminPageLayoutProps {
   error?: string | null;
   loadingMessage?: string;
   title?: string;
+  experiencesCount?: number;
+  topSkillsCount?: number;
+  blogPostsCount?: number;
+  saving?: boolean;
 }
 
 /**
@@ -23,7 +27,11 @@ export function AdminPageLayout({
   loading = false,
   error = null,
   loadingMessage = "Loading...",
-  title
+  title,
+  experiencesCount = 0,
+  topSkillsCount = 0,
+  blogPostsCount = 0,
+  saving = false
 }: AdminPageLayoutProps) {
   if (loading) {
     return (
@@ -41,7 +49,12 @@ export function AdminPageLayout({
   return (
     <AuthCheck>
       <div className="min-h-screen bg-slate-50">
-        <AdminNavigation />
+        <AdminNavigation
+          experiencesCount={experiencesCount}
+          topSkillsCount={topSkillsCount}
+          blogPostsCount={blogPostsCount}
+          saving={saving}
+        />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {title && (

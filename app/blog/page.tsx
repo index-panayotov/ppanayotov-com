@@ -1,0 +1,231 @@
+import { Metadata } from 'next';
+import Link from 'next/link';
+import { loadBlogPosts } from '@/lib/data-loader';
+import { BlogPost } from '@/lib/schemas';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Calendar, User, Clock, Tag, ChevronLeft, ChevronRight, Rss } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Blog | Preslav Panayotov',
+  description: 'Explore articles on software development, technology insights, and professional experiences.',
+  openGraph: {
+    title: 'Blog | Preslav Panayotov',
+    description: 'Explore articles on software development, technology insights, and professional experiences.',
+    type: 'website',
+  },
+};
+
+interface BlogPageProps {
+  searchParams: Promise<{
+    page?: string;
+  }>;
+}
+
+const POSTS_PER_PAGE = 10;
+
+export default async function BlogPage({ searchParams }: BlogPageProps) {
+  const params = await searchParams;
+  const currentPage = parseInt(params.page || '1', 10);
+
+  const allPosts = loadBlogPosts() as BlogPost[];
+
+  // Filter only published posts and sort by date (newest first)
+  const publishedPosts = allPosts
+    .filter(post => post.published)
+    .sort((a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime());
+
+  // Calculate pagination
+  const totalPosts = publishedPosts.length;
+  const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+  const endIndex = startIndex + POSTS_PER_PAGE;
+  const paginatedPosts = publishedPosts.slice(startIndex, endIndex);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-slate-700 to-slate-800 text-white py-16">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">Blog</h1>
+              <p className="text-lg text-slate-200 max-w-2xl">
+                Insights on software development, technology trends, and lessons learned from building scalable applications.
+              </p>
+            </div>
+            {/* RSS Feed Link */}
+            <Link
+              href="/feed.xml"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors text-sm"
+              title="Subscribe to RSS feed"
+            >
+              <Rss className="h-5 w-5" />
+              <span className="hidden sm:inline">RSS Feed</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Blog Posts */}
+      <div className="container mx-auto px-4 py-12 max-w-5xl">
+        {publishedPosts.length === 0 ? (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center py-12">
+                <p className="text-slate-500 text-lg mb-4">No blog posts published yet</p>
+                <p className="text-slate-400">Check back soon for new content!</p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
+            {/* Post count and pagination info */}
+            <div className="mb-6 text-sm text-slate-600">
+              Showing {startIndex + 1}-{Math.min(endIndex, totalPosts)} of {totalPosts} {totalPosts === 1 ? 'post' : 'posts'}
+            </div>
+
+            <div className="grid gap-6">
+              {paginatedPosts.map((post) => (
+              <Link key={post.slug} href={`/blog/${post.slug}`} className="block group">
+                <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <CardTitle className="text-2xl group-hover:text-blue-600 transition-colors">
+                          {post.title}
+                        </CardTitle>
+                        <CardDescription className="mt-2 text-base line-clamp-2">
+                          {post.description}
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-4 text-sm text-slate-600 mb-4">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        <time dateTime={post.publishedDate}>
+                          {new Date(post.publishedDate).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })}
+                        </time>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        <span>{post.author}</span>
+                      </div>
+                      {post.readingTime && (
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4" />
+                          <span>{post.readingTime} min read</span>
+                        </div>
+                      )}
+                    </div>
+                    {post.tags && post.tags.length > 0 && (
+                      <div className="flex items-center gap-2">
+                        <Tag className="h-4 w-4 text-slate-400" />
+                        <div className="flex flex-wrap gap-2">
+                          {post.tags.slice(0, 5).map((tag) => (
+                            <Badge key={tag} variant="secondary" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                          {post.tags.length > 5 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{post.tags.length - 5} more
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-12 flex items-center justify-center gap-2">
+              {/* Previous Button */}
+              <Link
+                href={currentPage > 1 ? `/blog?page=${currentPage - 1}` : '/blog'}
+                className={currentPage === 1 ? 'pointer-events-none' : ''}
+              >
+                <Button
+                  variant="outline"
+                  disabled={currentPage === 1}
+                  className="gap-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+              </Link>
+
+              {/* Page Numbers */}
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                  // Show first page, last page, current page, and pages adjacent to current
+                  const showPage =
+                    page === 1 ||
+                    page === totalPages ||
+                    (page >= currentPage - 1 && page <= currentPage + 1);
+
+                  // Show ellipsis
+                  const showEllipsisBefore = page === currentPage - 2 && currentPage > 3;
+                  const showEllipsisAfter = page === currentPage + 2 && currentPage < totalPages - 2;
+
+                  if (!showPage && !showEllipsisBefore && !showEllipsisAfter) {
+                    return null;
+                  }
+
+                  if (showEllipsisBefore || showEllipsisAfter) {
+                    return (
+                      <span key={page} className="px-2 text-slate-400">
+                        ...
+                      </span>
+                    );
+                  }
+
+                  return (
+                    <Link key={page} href={`/blog?page=${page}`}>
+                      <Button
+                        variant={page === currentPage ? 'default' : 'outline'}
+                        size="sm"
+                        className="min-w-[2.5rem]"
+                      >
+                        {page}
+                      </Button>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* Next Button */}
+              <Link
+                href={`/blog?page=${currentPage + 1}`}
+                className={currentPage === totalPages ? 'pointer-events-none' : ''}
+              >
+                <Button
+                  variant="outline"
+                  disabled={currentPage === totalPages}
+                  className="gap-2"
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          )}
+        </>
+        )}
+      </div>
+    </div>
+  );
+}

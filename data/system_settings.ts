@@ -4,9 +4,9 @@
 const systemSettings = {
   "blogEnable": true,
   "useWysiwyg": true,
-  "showContacts": false,
+  "showContacts": true,
   "showPrint": false,
-  "gtagCode": "",
+  "gtagCode": "G-NR6KNX7RM6",
   "gtagEnabled": true,
   "selectedTemplate": "modern",
   "pwa": {

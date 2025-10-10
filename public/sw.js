@@ -38,6 +38,7 @@ const ESSENTIAL_CACHE = [
 const API_ROUTES = [
   '/api/performance',
   '/api/text-image',
+  '/api/feed.xml',
 ];
 
 // Routes that should always be fetched from network
@@ -66,6 +67,7 @@ const NETWORK_FIRST_PATTERNS = [
 
 const STALE_WHILE_REVALIDATE_PATTERNS = [
   /\/$/,  // Homepage
+  /\/blog/,  // Blog pages
   /\/api\/performance/,
   /\/api\/text-image/
 ];
@@ -345,6 +347,17 @@ self.addEventListener('message', (event) => {
       });
     });
   }
+
+  // Handle cache invalidation requests
+  if (event.data && event.data.type === 'INVALIDATE_CACHE') {
+    const { patterns } = event.data;
+    invalidateCache(patterns).then(() => {
+      event.ports[0].postMessage({
+        type: 'CACHE_INVALIDATED',
+        data: { patterns }
+      });
+    });
+  }
 });
 
 /**
@@ -389,6 +402,30 @@ function isExpired(response, maxAge = CACHE_DURATION.STATIC) {
 
   const age = Date.now() - parseInt(timestamp);
   return age > (maxAge * 1000); // Convert to milliseconds
+}
+
+/**
+ * Invalidate cache entries matching given patterns
+ */
+async function invalidateCache(patterns) {
+  const cacheNames = await caches.keys();
+
+  for (const cacheName of cacheNames) {
+    const cache = await caches.open(cacheName);
+    const keys = await cache.keys();
+
+    const keysToDelete = keys.filter(request => {
+      const url = new URL(request.url);
+      return patterns.some(pattern => {
+        if (typeof pattern === 'string') {
+          return url.pathname.includes(pattern);
+        }
+        return pattern.test(url.pathname);
+      });
+    });
+
+    await Promise.all(keysToDelete.map(key => cache.delete(key)));
+  }
 }
 
 /**

@@ -28,23 +28,67 @@ jobs:
         env:
           NODE_ENV: production
 
+      - name: Install bundle analyzer
+        run: npm install -g @next/bundle-analyzer
+
       - name: Analyze bundle size
         run: |
-          echo "📦 Analyzing bundle size..."
+          echo "📦 Analyzing bundle size with detailed breakdown..."
+
+          # Total bundle size
+          echo "## Bundle Size Summary"
           du -sh .next/static
+
+          # Largest JavaScript files
+          echo "## Largest JavaScript Files"
           find .next/static -name "*.js" -exec du -h {} \; | sort -rh | head -20
+
+          # Bundle composition by type
+          echo "## Bundle Composition"
+          find .next/static -type f -exec basename {} \; | sed 's/.*\.//' | sort | uniq -c | sort -nr
+
+          # Check for potential issues
+          echo "## Potential Optimization Opportunities"
+          LARGE_FILES=$(find .next/static -name "*.js" -size +500k -exec basename {} \;)
+          if [ -n "$LARGE_FILES" ]; then
+            echo "⚠️  Large JavaScript files detected (>500KB):"
+            echo "$LARGE_FILES"
+          fi
 
       - name: Check bundle size limits
         run: |
           TOTAL_SIZE=$(du -sk .next/static | cut -f1)
           MAX_SIZE=5120  # 5MB in KB
+          WARNING_SIZE=4096  # 4MB in KB
 
           echo "Total bundle size: ${TOTAL_SIZE}KB"
+          echo "Warning threshold: ${WARNING_SIZE}KB"
           echo "Maximum allowed: ${MAX_SIZE}KB"
 
           if [ "$TOTAL_SIZE" -gt "$MAX_SIZE" ]; then
             echo "❌ Bundle size exceeds limit!"
+            echo "Consider code splitting, tree shaking, or lazy loading"
             exit 1
+          elif [ "$TOTAL_SIZE" -gt "$WARNING_SIZE" ]; then
+            echo "⚠️  Bundle size approaching limit"
+            echo "Consider optimization opportunities listed above"
           else
             echo "✅ Bundle size within limits"
           fi
+
+      - name: Generate bundle analysis report
+        run: |
+          echo "## Bundle Analysis Report" > bundle-report.md
+          echo "- **Total Size**: $(du -sh .next/static | cut -f1)KB" >> bundle-report.md
+          echo "- **JavaScript Files**: $(find .next/static -name "*.js" | wc -l)" >> bundle-report.md
+          echo "- **CSS Files**: $(find .next/static -name "*.css" | wc -l)" >> bundle-report.md
+          echo "- **Static Assets**: $(find .next/static -type f | wc -l)" >> bundle-report.md
+          echo "" >> bundle-report.md
+          echo "### Largest Files:" >> bundle-report.md
+          find .next/static -name "*.js" -exec du -h {} \; | sort -rh | head -10 >> bundle-report.md
+
+      - name: Upload bundle report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-analysis-report
+          path: bundle-report.md

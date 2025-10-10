@@ -244,6 +244,28 @@ export const ExperienceEntrySchema = z.object({
 // TopSkill is just a string (simplified from complex object)
 export const TopSkillSchema = z.string().min(1, 'Skill name is required');
 
+// === BLOG POST SCHEMAS ===
+
+/**
+ * Blog post metadata schema
+ */
+export const BlogPostSchema = z.object({
+  slug: NonEmptyStringSchema.regex(
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+    'Slug must be lowercase with hyphens only (e.g., my-first-post)'
+  ),
+  title: NonEmptyStringSchema.max(200, 'Title must be less than 200 characters'),
+  description: NonEmptyStringSchema.min(50, 'Description should be at least 50 characters for SEO')
+    .max(160, 'Description should be less than 160 characters for SEO'),
+  publishedDate: z.string().min(1, 'Published date is required'),
+  updatedDate: OptionalStringSchema,
+  author: NonEmptyStringSchema,
+  tags: z.array(z.string()).default([]),
+  featuredImage: OptionalStringSchema,
+  published: z.boolean().default(false),
+  readingTime: z.number().int().min(1).optional()
+});
+
 export const UserProfileSchema = z.object({
   // Required personal information (only name and title are truly required)
   name: NonEmptyStringSchema,
@@ -328,6 +350,7 @@ export type Certification = z.infer<typeof CertificationSchema>;
 export type Language = z.infer<typeof LanguageSchema>;
 export type ExperienceEntry = z.infer<typeof ExperienceEntrySchema>;
 export type TopSkill = string; // Simplified: just a string, not an object
+export type BlogPost = z.infer<typeof BlogPostSchema>;
 export type UserProfile = z.infer<typeof UserProfileSchema>;
 export type SystemSettings = z.infer<typeof SystemSettingsSchema>;
 export type EditorJSBlock = z.infer<typeof EditorJSBlockSchema>;

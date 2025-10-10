@@ -1,61 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOpenRouterAnswer } from "@/services/openrouter";
 import { createOptimizedResponse } from "@/lib/api-compression";
-
-// In-memory storage for rate limiting
-// Note: This will reset when the serverless function cold starts
-type RequestRecord = {
-  timestamps: number[]; // Array of timestamps for each request
-  lastCleanup: number; // Last time we cleaned up old timestamps
-};
-
-const ipRequestMap = new Map<string, RequestRecord>();
-const REQUESTS_PER_MINUTE = 10;
-const WINDOW_MS = 60 * 1000; // 1 minute
-const CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // Clean up every 5 minutes
-
-/**
- * Checks if the client IP has exceeded the rate limit.
- * @param clientIp The client's IP address
- * @returns Whether the client has been rate limited
- */
-async function isRateLimited(clientIp: string): Promise<boolean> {
-  const now = Date.now();
-
-  // Skip rate limiting for development
-  if (process.env.NODE_ENV === "development") {
-    return false;
-  }
-
-  // Create or get the record for this IP
-  if (!ipRequestMap.has(clientIp)) {
-    ipRequestMap.set(clientIp, { timestamps: [], lastCleanup: now });
-  }
-
-  const record = ipRequestMap.get(clientIp)!;
-
-  // Clean up old timestamps if needed
-  if (now - record.lastCleanup > CLEANUP_INTERVAL_MS) {
-    record.timestamps = record.timestamps.filter(
-      (timestamp) => now - timestamp < WINDOW_MS
-    );
-    record.lastCleanup = now;
-  }
-
-  // Filter to only include timestamps within the current window
-  const recentTimestamps = record.timestamps.filter(
-    (timestamp) => now - timestamp < WINDOW_MS
-  );
-
-  // Check if rate limit is exceeded
-  if (recentTimestamps.length >= REQUESTS_PER_MINUTE) {
-    return true;
-  }
-
-  // Record this request
-  record.timestamps.push(now);
-  return false;
-}
+import { checkRateLimit } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 
 // Define the comprehensive system prompt for the CV Writing Assistant
 const CV_WRITING_ASSISTANT_PROMPT = `
@@ -123,17 +70,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Implement basic rate limiting
-    const clientIp =
-      req.headers.get("x-forwarded-for")?.split(",")[0] ||
-      req.headers.get("x-real-ip") ||
-      "unknown-ip";
+    // Apply rate limiting check (5 requests per minute)
+    const { limited, remaining, resetAt } = checkRateLimit(req, 5, 60000);
 
-    // Apply rate limiting check
-    if (await isRateLimited(clientIp)) {
+    if (limited) {
+      const resetInSeconds = Math.ceil((resetAt - Date.now()) / 1000);
+      logger.warn("AI API rate limit exceeded", {
+        endpoint: "/api/ai",
+        remaining,
+        resetInSeconds,
+      });
+
       return NextResponse.json(
-        { error: "Rate limit exceeded: Please try again later" },
-        { status: 429 }
+        {
+          error: "Rate limit exceeded: Please try again later",
+          retryAfter: resetInSeconds,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': resetInSeconds.toString(),
+            'X-RateLimit-Limit': '5',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': resetAt.toString(),
+          },
+        }
       );
     }
 
@@ -291,7 +252,10 @@ export async function POST(req: NextRequest) {
       throw error;
     }
   } catch (error: any) {
-    console.error("AI endpoint error:", error);
+    logger.error("AI endpoint error", error, {
+      endpoint: "/api/ai",
+      errorType: error.name,
+    });
 
     // Provide more specific error messages based on error types
     if (error.message?.includes("OPENROUTER_KEY")) {

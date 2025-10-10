@@ -12,7 +12,8 @@ import {
   User,
   Settings,
   LogOut,
-  Loader2
+  Loader2,
+  FileText
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -26,12 +27,14 @@ interface NavigationItem {
 interface AdminNavigationProps {
   experiencesCount?: number;
   topSkillsCount?: number;
+  blogPostsCount?: number;
   saving?: boolean;
 }
 
 export function AdminNavigation({
   experiencesCount = 0,
   topSkillsCount = 0,
+  blogPostsCount = 0,
   saving = false
 }: AdminNavigationProps) {
   const pathname = usePathname();
@@ -59,6 +62,12 @@ export function AdminNavigation({
       href: "/admin/top-skills",
       icon: Target,
       count: topSkillsCount
+    },
+    {
+      title: "Blog",
+      href: "/admin/blog",
+      icon: FileText,
+      count: blogPostsCount
     },
     {
       title: "Profile Data",

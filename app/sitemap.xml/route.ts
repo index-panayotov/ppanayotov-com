@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { userProfile } from '@/data/user-profile';
 import { experiences } from '@/data/cv-data';
 import { topSkills } from '@/data/topSkills';
-import { loadSystemSettings } from '@/lib/data-loader';
+import { loadSystemSettings, loadBlogPosts } from '@/lib/data-loader';
+import { BlogPost } from '@/lib/schemas';
 import fs from 'fs';
 import path from 'path';
 
@@ -92,6 +93,39 @@ export async function GET() {
       priority: '0.7',
       description: `Contact ${userProfile.name} - ${userProfile.location}`
     });
+  }
+
+  // Include blog URLs if blog is enabled
+  if (systemSettings.blogEnable) {
+    const lastModBlog = getLastModified('data/blog-posts.ts');
+
+    // Main blog page
+    urls.push({
+      loc: `${baseUrl}/blog`,
+      lastmod: lastModBlog,
+      changefreq: 'weekly',
+      priority: '0.8',
+      description: `Blog articles on software development and technology`
+    });
+
+    // Individual blog posts (only published)
+    try {
+      const blogPosts = loadBlogPosts() as BlogPost[];
+      const publishedPosts = blogPosts.filter(post => post.published);
+
+      publishedPosts.forEach(post => {
+        const postLastMod = post.updatedDate || post.publishedDate;
+        urls.push({
+          loc: `${baseUrl}/blog/${post.slug}`,
+          lastmod: new Date(postLastMod).toISOString(),
+          changefreq: 'monthly',
+          priority: '0.7',
+          description: post.description
+        });
+      });
+    } catch (error) {
+      console.error('Error loading blog posts for sitemap:', error);
+    }
   }
 
   // Generate XML sitemap

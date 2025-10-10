@@ -6,6 +6,7 @@ import { AuthCheck } from "@/components/admin/auth-check";
 import { useAdminData } from "@/hooks/use-admin-data";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExperienceEntry } from "@/lib/schemas";
+import { logger } from "@/lib/logger";
 
 // Extended type for admin editing with index
 type ExperienceEntryWithIndex = ExperienceEntry & { _index?: number };
@@ -67,7 +68,10 @@ export default function ExperiencesPage() {
       setDialogOpen(false);
       setCurrentExperience(null);
     } catch (err) {
-      console.error('Failed to save experience:', err);
+      logger.error('Failed to save experience', err as Error, {
+        component: 'ExperiencesPage',
+        action: 'saveExperience'
+      });
     }
   };
 
@@ -110,6 +114,7 @@ export default function ExperiencesPage() {
         <AdminNavigation
           experiencesCount={data.experiences.length}
           topSkillsCount={data.topSkills.length}
+          blogPostsCount={0}
           saving={saving}
         />
 

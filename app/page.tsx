@@ -1,9 +1,7 @@
- import { experiences } from "@/data/cv-data";
- import { topSkills } from "@/data/topSkills";
- import { userProfile } from "@/data/user-profile";
- import { loadSystemSettings } from "@/lib/data-loader";
- import { getTemplateComponent, isValidTemplateId } from "./templates/template-registry";
- import { Suspense } from "react";
+import { loadCVData, loadTopSkills, loadUserProfile, loadSystemSettings } from "@/lib/data-loader";
+import { getTemplateComponent, isValidTemplateId } from "./templates/template-registry";
+import { Suspense } from "react";
+import { logger } from "@/lib/logger";
 
 // Force dynamic rendering - don't cache this page
 // This ensures we always read fresh system_settings on each request
@@ -26,9 +24,9 @@ export default async function Home() {
   try {
     systemSettings = loadSystemSettings();
     templateId = systemSettings.selectedTemplate;
-    console.log(`[Homepage] Loaded template from file: ${templateId}`);
+    logger.info(`[Homepage] Loaded template from file: ${templateId}`);
   } catch (error) {
-    console.error("Error reading system settings, using default template:", error);
+    logger.error("Error reading system settings, using default template", error instanceof Error ? error : new Error(String(error)));
     // Load default system settings if file read fails
     systemSettings = {
       selectedTemplate: "classic",
@@ -40,6 +38,11 @@ export default async function Home() {
       gtagEnabled: false
     };
   }
+
+  // Load data files with lazy loading
+  const experiences = loadCVData();
+  const topSkills = loadTopSkills();
+  const userProfile = loadUserProfile();
 
   // Shared props for all templates
   const templateProps = {

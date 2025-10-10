@@ -6,6 +6,7 @@
  */
 
 import { NextResponse } from 'next/server';
+import { logger } from './logger';
 
 /**
  * Check if client accepts compression
@@ -57,12 +58,13 @@ export function estimateResponseSize(data: any): number {
  * Log large responses for optimization
  */
 export function checkResponseSize(data: any, threshold: number = 100000): void {
-  if (process.env.NODE_ENV === 'development') {
-    const size = estimateResponseSize(data);
-    if (size > threshold) {
-      console.warn(`⚠️  Large API response detected: ${(size / 1024).toFixed(2)}KB`);
-      console.warn('Consider pagination or field selection to reduce payload');
-    }
+  const size = estimateResponseSize(data);
+  if (size > threshold) {
+    logger.warn('Large API response detected', {
+      size: `${(size / 1024).toFixed(2)}KB`,
+      threshold: `${(threshold / 1024).toFixed(2)}KB`,
+      suggestion: 'Consider pagination or field selection to reduce payload'
+    });
   }
 }
 

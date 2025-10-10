@@ -1,4 +1,5 @@
 import { onCLS, onFID, onFCP, onLCP, onTTFB, type Metric } from 'web-vitals';
+import { logger } from './logger';
 
 /**
  * Performance Monitoring Library for Core Web Vitals and Performance Metrics
@@ -193,7 +194,7 @@ function handleMetric(metric: Metric) {
     const rating = getPerformanceRating(formattedMetric);
     const emoji = rating === 'good' ? '✅' : rating === 'needs-improvement' ? '⚠️' : '🔴';
 
-    console.log(`${emoji} ${formattedMetric.name}: ${formattedMetric.value}${formattedMetric.name === 'CLS' ? '' : 'ms'} (${rating})`);
+    logger.debug(`${emoji} ${formattedMetric.name}: ${formattedMetric.value}${formattedMetric.name === 'CLS' ? '' : 'ms'} (${rating})`);
   }
 
   // Check performance budgets
@@ -215,7 +216,7 @@ export function initPerformanceMonitoring() {
     onLCP(handleMetric, { reportAllChanges: true });
     onTTFB(handleMetric);
 
-    console.log('🚀 Performance monitoring initialized');
+    logger.info('🚀 Performance monitoring initialized');
 
     // Performance observer for additional metrics
     if (typeof PerformanceObserver !== 'undefined') {
@@ -312,7 +313,7 @@ export const PerformanceDebug = {
 
       const measure = performance.getEntriesByName(name)[0];
       if (measure && process.env.NODE_ENV === 'development') {
-        console.log(`⏱️ ${name}: ${measure.duration.toFixed(2)}ms`);
+        logger.debug(`⏱️ ${name}: ${measure.duration.toFixed(2)}ms`);
       }
     }
   },

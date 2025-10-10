@@ -119,6 +119,15 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           >
             Certifications
           </Link>
+          {SystemSettings.get("blogEnable") && (
+            <Link
+              href="/blog"
+              className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
+              onClick={onClose}
+            >
+              Blog
+            </Link>
+          )}
           <Link
             href="#contact"
             className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"

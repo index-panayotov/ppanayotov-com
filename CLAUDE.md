@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint (for code quality checks)
 
-**Important:** No test framework is configured. The build process ignores TypeScript and ESLint errors (configured in next.config.mjs).
+**Important:** The build process ignores TypeScript and ESLint errors (configured in next.config.mjs) for deployment flexibility.
 
 ## Architecture Overview
 
@@ -45,9 +45,11 @@ This is a **database-less Next.js personal CV website** with a secure admin pane
   }
   ```
 - `data/user-profile.ts` - Personal information, contact details, social links
-- `data/system_settings.ts` - Global feature toggles (blog, WYSIWYG, analytics, contacts, print)
+- `data/system_settings.ts` - Global feature toggles (blog, WYSIWYG, analytics, contacts, print, selectedTemplate, PWA config)
 - `data/topSkills.ts` - Featured skills for homepage display
 - `data/editorjs-config.ts` - Rich text editor configuration
+- `data/blog-posts.ts` - Blog post metadata (when blogEnable: true)
+- `data/blog/*.md` - Blog content files (markdown format)
 
 ### API Architecture
 
@@ -55,6 +57,7 @@ This is a **database-less Next.js personal CV website** with a secure admin pane
 - `login/route.ts` - Password authentication
 - `route.ts` - Data CRUD operations for CV content
 - `autoskills/route.ts` - AI-powered skill extraction and management
+- `blog/route.ts` - Blog post CRUD operations (create, read, update, delete)
 
 **AI Integration (`/app/api/ai/`):**
 - `route.ts` - OpenRouter API integration for content enhancement
@@ -63,8 +66,9 @@ This is a **database-less Next.js personal CV website** with a secure admin pane
 
 **File Management:**
 - `/app/api/upload/route.ts` - Image upload with Sharp optimization
+- `/app/api/upload/blog/route.ts` - Blog-specific file uploads (images, attachments)
 - `/app/api/text-image/route.ts` - Contact protection via text-to-image generation
-- `/app/sitemap.xml/route.ts` - Dynamic SEO sitemap generation from data files
+- `/app/sitemap.xml/route.ts` - Dynamic SEO sitemap generation from data files (includes blog URLs)
 - Automatic image optimization for web (400x400 WebP)
 
 ### Component Architecture
@@ -75,7 +79,11 @@ This is a **database-less Next.js personal CV website** with a secure admin pane
 - `experiences-tab.tsx` - Work experience CRUD interface
 - `top-skills-tab.tsx` - Skills management with AI extraction
 - `image-upload.tsx` - Drag-and-drop image handling with optimization
-- `editorjs-wrapper.tsx` - Rich text editor integration
+- `editorjs-wrapper.tsx` - Rich text editor integration for CV descriptions
+- `blog-editorjs-wrapper.tsx` - EditorJS wrapper for blog with image upload support
+- `blog-post-dialog.tsx` - Blog post create/edit dialog with WYSIWYG editor
+- `blog-delete-dialog.tsx` - Blog post deletion confirmation
+- `admin-navigation.tsx` - Admin panel navigation with Blog link
 
 **UI Components (`/components/ui/`):**
 - Based on Radix UI primitives with Tailwind styling
@@ -125,6 +133,10 @@ OPENROUTER_MODEL=openai/gpt-4.1-nano
 
 **File Organization:**
 - `/app/` - Next.js App Router structure (pages, layouts, API routes)
+  - `/admin/` - Admin panel pages (dashboard, profile-data, experiences, settings, top-skills, blog)
+  - `/api/` - Backend API routes
+  - `/blog/` - Blog pages (listing, individual posts)
+  - `/templates/` - CV template components (classic, professional, modern)
 - `/components/` - Reusable UI and admin-specific components
 - `/data/` - Static data files (the "database")
 - `/lib/` - Utility functions and helpers
@@ -260,17 +272,30 @@ const urls = [
 
 ## Current Project Status & Configuration
 
-### System Settings Update Needed
-**Current Setting Should Be Updated:**
+### System Settings Configuration
+**Current Configuration:**
 ```typescript
-// In data/system_settings.ts - should be updated to:
+// In data/system_settings.ts
 const systemSettings = {
-  blogEnable: false,
-  useWysiwyg: true,
-  showContacts: true,
-  showPrint: false, // ← Should be false (currently true)
-  gtagCode: "G-NR6KNX7RM6",
-  gtagEnabled: true
+  blogEnable: true,           // Blog system enabled
+  useWysiwyg: true,           // EditorJS WYSIWYG editor enabled
+  showContacts: true,         // Contact information displayed
+  showPrint: false,           // Print functionality disabled
+  gtagCode: "G-NR6KNX7RM6",  // Google Tag Manager code
+  gtagEnabled: true,          // Analytics enabled
+  selectedTemplate: "modern", // Active CV template (classic/professional/modern)
+  pwa: {
+    siteName: "CV Website",
+    shortName: "CV",
+    description: "",
+    startUrl: "/",
+    display: "standalone",
+    backgroundColor: "#ffffff",
+    themeColor: "#0f172a",
+    orientation: "portrait-primary",
+    categories: [],
+    icons: []
+  }
 };
 ```
 
@@ -285,15 +310,269 @@ const systemSettings = {
 - Print QR code generation
 - Print-specific layouts and styling
 
+### Blog Feature System (2025)
+
+**Complete Blog Implementation:**
+- **File-Based Blog**: Blog posts stored as markdown files in `/data/blog/` with metadata in `/data/blog-posts.ts`
+- **WYSIWYG Editor**: EditorJS integration in admin panel for rich content editing
+- **Image Uploads**: Dedicated upload API for blog images (up to 5MB) with automatic WebP optimization
+- **Markdown Storage**: Content stored as `.md` files, converted to/from EditorJS format
+- **SEO Optimized**: Full metadata, Open Graph tags, Twitter Cards, JSON-LD structured data
+- **Draft/Publish Workflow**: Toggle published status to control visibility
+- **Auto Features**: Slug generation from titles, reading time calculation, tag management
+
+**Blog Architecture:**
+- **Data Files**:
+  - `/data/blog-posts.ts` - Array of blog post metadata (title, description, tags, dates, etc.)
+  - `/data/blog/{slug}.md` - Individual markdown content files per post
+  - `/public/uploads/blog/{slug}/` - Blog-specific image uploads organized by post
+
+- **Admin Interface** (`/admin/blog`):
+  - Blog post listing with published/draft badges
+  - Create new blog posts with EditorJS WYSIWYG editor
+  - Edit existing posts (loads markdown → EditorJS → markdown on save)
+  - Delete posts with cleanup of markdown files and uploaded images
+  - Image upload directly in editor (drag & drop support)
+
+- **Public Pages**:
+  - `/blog` - Blog listing page (shows only published posts, sorted by date)
+  - `/blog/[slug]` - Individual post pages with full SEO metadata
+  - Responsive design matching site aesthetics
+  - Markdown rendered with syntax highlighting, tables, images support
+
+- **API Routes**:
+  - `/api/admin/blog` - CRUD operations (GET, POST, PUT, DELETE)
+  - `/api/upload/blog` - File uploads with slug-based organization
+
+- **Utilities**:
+  - `lib/markdown-utils.ts` - Bidirectional EditorJS ↔ Markdown conversion
+  - `lib/data-loader.ts` - `loadBlogPosts()` and `loadBlogPost(slug)` helpers
+  - `components/blog/markdown-renderer.tsx` - Styled markdown rendering
+
+**Blog Configuration:**
+```typescript
+// In data/system_settings.ts
+const systemSettings = {
+  blogEnable: true, // Set to true to enable blog features
+  // ... other settings
+};
+```
+
+**Navigation Integration:**
+- **Classic Template**: Blog link appears in desktop nav when `blogEnable: true`
+- **Mobile Menu**: Blog link appears in mobile navigation when enabled
+- **Modern/Professional Templates**: No navigation (single-page designs)
+
+**Blog Post Schema:**
+```typescript
+{
+  slug: string,              // URL-safe slug (auto-generated from title)
+  title: string,             // Post title
+  description: string,       // SEO description (50-160 chars recommended)
+  publishedDate: string,     // Publication date (YYYY-MM-DD)
+  updatedDate?: string,      // Last updated date
+  author: string,            // Author name
+  tags: string[],            // Post tags/categories
+  featuredImage?: string,    // Featured image URL
+  published: boolean,        // Visibility status
+  readingTime?: number       // Auto-calculated reading time (minutes)
+}
+```
+
+**EditorJS Tools Configured:**
+- Header (H1-H6)
+- Paragraph
+- List (ordered/unordered)
+- Code blocks with syntax highlighting
+- Quotes with attribution
+- Images (with upload support)
+- Tables
+- Horizontal delimiters
+
+**SEO Features:**
+- Dynamic metadata generation per post
+- Open Graph tags for social sharing
+- Twitter Card support
+- JSON-LD structured data (schema.org BlogPosting)
+- Canonical URLs
+- Auto-included in sitemap.xml when `blogEnable: true`
+
+### Infrastructure & Quality Improvements (2025)
+
+**Environment Variable Validation** (`lib/env.ts`):
+- **Type-Safe Configuration**: Zod-based validation of all environment variables at startup
+- **Fail-Fast Strategy**: Application won't start with invalid/missing configuration
+- **Clear Error Messages**: Detailed validation errors with specific requirements
+- **TypeScript Autocomplete**: Fully typed environment variable access throughout codebase
+- **Security Validation**: Enforces minimum password length, validates API key format
+```typescript
+import { env } from '@/lib/env';
+// env.ADMIN_PASSWORD - typed and validated
+// env.OPENROUTER_KEY - validated sk-or- prefix
+```
+
+**Structured Logging System** (`lib/logger.ts`):
+- **Multi-Level Logging**: Debug (dev only), info, warn, error with metadata support
+- **Production-Ready**: Hooks for external monitoring services (Sentry, LogRocket)
+- **Contextual Data**: Attach metadata objects to all log entries
+- **Error Tracking**: Dedicated error logging with stack trace preservation
+```typescript
+import { logger } from '@/lib/logger';
+logger.info('Blog post created', { slug: 'my-post', author: 'John' });
+logger.error('Upload failed', error, { fileSize: 5242880 });
+```
+
+**API Rate Limiting** (`lib/rate-limit.ts`):
+- **Centralized Rate Limiting**: Reusable rate limit checking across all API routes
+- **Per-IP Tracking**: In-memory storage with automatic cleanup of expired records
+- **Standard HTTP Headers**: Returns proper `X-RateLimit-*` and `Retry-After` headers
+- **Configurable Limits**: Customizable request count and time window per endpoint
+- **AI Cost Protection**: Applied to `/api/ai` route (5 requests/minute)
+```typescript
+import { checkRateLimit } from '@/lib/rate-limit';
+const { limited, remaining, resetAt } = checkRateLimit(req, 10, 60000);
+```
+
+**Blog Pagination** (`/app/blog/page.tsx`):
+- **Performance Optimization**: Shows 10 posts per page to prevent performance issues at scale
+- **Smart Pagination Controls**: Ellipsis display for many pages, disabled state handling
+- **Post Count Display**: "Showing 1-10 of 25 posts" for user clarity
+- **SEO-Friendly URLs**: URL parameter-based (`?page=2`) for proper indexing
+- **Responsive Design**: Mobile-optimized Previous/Next buttons with page numbers
+
+**RSS Feed** (`/app/feed.xml/route.ts`):
+- **Standards-Compliant**: RSS 2.0 format with proper XML structure
+- **Security**: XML escaping for all user-generated content
+- **Rich Metadata**: Featured images, categories, reading time, publication dates
+- **Performance**: 1-hour cache headers for optimal delivery
+- **Discovery**: RSS link in blog header with Lucide icon
+- **Auto-Generated**: Pulls from blog-posts.ts data automatically
+
+**Blog Author Auto-Population**:
+- **Smart Defaults**: Automatically populates blog author from user-profile.ts
+- **No Hardcoded Values**: Eliminates "Your Name" placeholder
+- **Fallback Strategy**: Uses "Anonymous" if profile not found
+- **Logged Operations**: All auto-population events logged for debugging
+
+**Enhanced Documentation**:
+- **Comprehensive .env.example**: 67-line documented configuration file with security warnings
+- **Getting Started Guide**: 5-step setup instructions
+- **Vercel Deployment Instructions**: Production deployment guidance
+- **Security Best Practices**: Password requirements, API key format, environment validation
+
+### Template System (2025)
+
+**Multi-Template CV Architecture:**
+The application now supports 3 distinct CV templates, allowing users to choose the presentation style that best fits their industry and personal brand.
+
+**Available Templates:**
+
+1. **Classic Template** (`classic`)
+   - **Style**: Animated, modern design with typing effects and smooth scrolling
+   - **Features**:
+     - Animated typing effect for hero section
+     - Gradient hero backgrounds
+     - Smooth scroll animations (fadeInUp, slideInLeft)
+     - Professional slate-based color scheme
+   - **Best For**: Tech industry, creative roles, modern companies
+   - **File**: `app/templates/classic.tsx`
+
+2. **Professional Template** (`professional`)
+   - **Style**: Clean, minimal design optimized for ATS and traditional industries
+   - **Features**:
+     - ATS-scanner friendly layout
+     - Print-optimized design
+     - Clear typography hierarchy
+     - Universal compatibility
+   - **Best For**: All industries, corporate roles, traditional companies, job applications
+   - **File**: `app/templates/professional.tsx`
+
+3. **Modern Template** (`modern`)
+   - **Style**: Bold, trendy design with vibrant colors and interactive elements
+   - **Features**:
+     - Glassmorphism effects
+     - CSS Grid masonry layout
+     - Dark mode support
+     - Interactive hover states
+   - **Best For**: Design roles, startups, creative industries, portfolio showcase
+   - **File**: `app/templates/modern.tsx`
+
+**Template Architecture:**
+
+```typescript
+// Template Props - consistent data structure for all templates
+interface TemplateProps {
+  experiences: ExperienceEntry[];
+  topSkills: string[];
+  profileData: UserProfile;
+  systemSettings: SystemSettings;
+}
+
+// Template Metadata
+interface TemplateMetadata {
+  id: TemplateId;              // 'classic' | 'professional' | 'modern'
+  name: string;                 // Display name
+  description: string;          // Template description
+  preview: string;              // Preview image path
+  features: string[];           // Key features list
+  bestFor: string[];            // Target industries/roles
+}
+```
+
+**Template Registry** (`app/templates/template-registry.ts`):
+- Centralized template metadata and component management
+- Lazy-loading for optimal performance
+- Helper functions: `getTemplateComponent()`, `getTemplateMetadata()`, `getAllTemplates()`, `isValidTemplateId()`
+
+**Template Selection:**
+- Set via `selectedTemplate` in `data/system_settings.ts`
+- Valid values: `"classic"`, `"professional"`, `"modern"`
+- Changes take effect immediately on homepage
+
+**Creating New Templates:**
+1. Create new component in `app/templates/{template-name}.tsx`
+2. Implement `TemplateProps` interface
+3. Add metadata to `TEMPLATE_METADATA` in `template-registry.ts`
+4. Add lazy import to `TEMPLATE_COMPONENTS`
+5. Update `TemplateId` type in `types.ts`
+
+### Admin Panel Restructuring (2025)
+
+**Modular Admin Pages:**
+The admin panel has been restructured from a single monolithic page into separate, focused pages:
+
+- **`/admin/dashboard`** - Overview and quick stats
+- **`/admin/profile-data`** - Personal information management
+- **`/admin/experiences`** - Work experience CRUD
+- **`/admin/top-skills`** - Skills management with AI extraction
+- **`/admin/settings`** - System settings configuration
+- **`/admin/blog`** - Blog post management (if `blogEnable: true`)
+
+**Unified Data Management:**
+- Centralized data extraction logic in `app/admin/handlers.ts`
+- Consistent error handling and loading states across all admin pages
+- Improved component organization and separation of concerns
+- Better performance with focused page loads
+
 ### Current Features Status
 ✅ **Active Features:**
+- **Template System** - 3 professional CV templates (Classic, Professional, Modern) with easy switching
+- **Modular Admin Panel** - Separate pages for dashboard, profile, experiences, skills, settings, blog
 - Professional web-only CV presentation
 - AI-enhanced content editing in admin
 - Bot-protected contact information
 - Image upload with web optimization
 - Modern responsive design with animations
 - Google Tag Manager integration
-- **Dynamic SEO sitemap** (NEW) - Auto-generated from data files
+- **Dynamic SEO sitemap** - Auto-generated from data files (includes blog URLs)
+- **Blog System** - Full-featured blog with WYSIWYG editor, markdown storage, SEO optimization
+- **Environment Validation** - Type-safe, fail-fast configuration with Zod
+- **Structured Logging** - Multi-level logging with metadata and error tracking
+- **API Rate Limiting** - Per-IP tracking with standard HTTP headers
+- **Blog Pagination** - 10 posts/page with smart controls
+- **RSS Feed** - Standards-compliant RSS 2.0 with caching
+- **Security** - Magic number validation for image uploads
+- **PWA Support** - Configurable Progressive Web App settings
 
 🚫 **Disabled Features:**
 - Print/PDF functionality (completely removed)
