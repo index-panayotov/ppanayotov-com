@@ -64,28 +64,21 @@ export interface AdminDashboardProps {
 export type { ExperienceEntry } from "@/lib/schemas";
 
 // Admin component prop types
-export interface AdminTabProps {
-  editMode: "visual" | "json";
-  setEditMode: (mode: "visual" | "json") => void;
+
+export interface ExperiencesTabProps {
+  experiences: ExperienceEntry[];
   saving: boolean;
   handleSave: (file: string, data: any) => Promise<void>;
-  systemSettings: SystemSettings;
-}
-
-export interface ExperiencesTabProps extends AdminTabProps {
-  experiences: ExperienceEntry[];
-  setExperiences: (experiences: ExperienceEntry[]) => void;
-  handleExperiencesChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   addExperience: () => void;
   editExperience: (exp: ExperienceEntry, index: number) => void;
   deleteExperience: (index: number) => void;
   moveExperience: (index: number, direction: "up" | "down") => void;
 }
 
-export interface TopSkillsTabProps extends AdminTabProps {
+export interface TopSkillsTabProps {
   topSkills: string[];
-  setTopSkills: (skills: string[]) => void;
-  handleTopSkillsChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  saving: boolean;
+  handleSave: (file: string, data: any) => Promise<void>;
   addTopSkill: () => void;
   removeTopSkill: (skill: string) => void;
   moveTopSkill: (index: number, direction: "up" | "down") => void;
@@ -94,10 +87,11 @@ export interface TopSkillsTabProps extends AdminTabProps {
   setNewSkill: (skill: string) => void;
 }
 
-export interface ProfileDataTabProps extends AdminTabProps {
+export interface ProfileDataTabProps {
   profileData: UserProfile;
   setProfileData: (data: UserProfile) => void;
-  handleProfileDataChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  saving: boolean;
+  handleSave: (file: string, data: any) => Promise<void>;
   handleProfileFieldChange: (field: string, value: string) => void;
   addLanguage: () => void;
   editLanguage: (lang: Language, index: number) => void;

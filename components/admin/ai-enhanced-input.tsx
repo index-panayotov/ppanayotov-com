@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { RiRobot2Fill } from "react-icons/ri";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { apiClient } from "@/lib/api-client";
 import { logger } from "@/lib/logger";
 

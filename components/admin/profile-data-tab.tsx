@@ -2,7 +2,6 @@
 
 
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 
 import { AIEnhancedInput } from '@/components/admin/ai-enhanced-input';
 import { AIEnhancedTextarea } from '@/components/admin/ai-enhanced-textarea';
@@ -20,17 +19,14 @@ import { ProfileDataTabProps } from '@/types/admin-components';
 import ImageUpload from '@/components/admin/image-upload';
 
 /**
- * Renders a user profile editing interface with both visual and JSON editing modes.
+ * Renders a user profile editing interface with visual editing forms.
  *
- * Provides structured forms for editing basic profile information, languages, education, and certifications, as well as a JSON editor for advanced editing. Supports adding, editing, deleting, and reordering list items, and allows profile image uploads. All data changes and persistence actions are delegated to handler functions provided via props.
+ * Provides structured forms for editing basic profile information, languages, education, and certifications. Supports adding, editing, deleting, and reordering list items, and allows profile image uploads. All data changes and persistence actions are delegated to handler functions provided via props.
  *
  * @param profileData - The current user profile data to display and edit.
  * @param setProfileData - Updates the profile data state.
- * @param editMode - The current editing mode, either "visual" or "json".
- * @param setEditMode - Changes the editing mode.
  * @param saving - Indicates whether a save operation is in progress.
  * @param handleSave - Invoked to persist the profile data.
- * @param handleProfileDataChange - Handles changes in the JSON editor.
  * @param handleProfileFieldChange - Handles changes to individual profile fields in the visual editor.
  * @param addLanguage - Adds a new language entry.
  * @param editLanguage - Edits an existing language entry.
@@ -50,12 +46,9 @@ import ImageUpload from '@/components/admin/image-upload';
 export default function ProfileDataTab({
   profileData,
   setProfileData,
-  editMode,
-  setEditMode,
   saving,
   handleSave,
   systemSettings,
-  handleProfileDataChange,
   handleProfileFieldChange,
   addLanguage,
   editLanguage,
@@ -84,13 +77,7 @@ export default function ProfileDataTab({
           </p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={() => setEditMode(editMode === 'visual' ? 'json' : 'visual')}
-          >
-            Switch to {editMode === 'visual' ? 'JSON' : 'Visual'} Editor
-          </Button>
-          <Button 
+          <Button
             onClick={() => handleSave('user-profile.ts', profileData)}
             disabled={saving}
           >
@@ -99,14 +86,7 @@ export default function ProfileDataTab({
         </div>
       </div>
 
-      {editMode === 'json' ? (
-        <Textarea 
-          className="font-mono h-[70vh]"
-          value={JSON.stringify(profileData, null, 2)}
-          onChange={handleProfileDataChange}
-        />
-      ) : (
-        <div className="space-y-4">
+      <div className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
@@ -278,7 +258,7 @@ export default function ProfileDataTab({
           <Card>
             <CardHeader>
               <CardTitle>Languages, Education, and Certifications</CardTitle>
-              <CardDescription>For detailed editing of these sections, use the JSON editor</CardDescription>
+              <CardDescription>Use the form controls below to manage your languages, education, and certifications</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -441,7 +421,6 @@ export default function ProfileDataTab({
             </CardContent>
           </Card>
         </div>
-      )}
     </div>
   );
 }

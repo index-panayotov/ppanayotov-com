@@ -29,7 +29,7 @@ export default function ExperiencesPage() {
   const [currentExperience, setCurrentExperience] = useState<ExperienceEntryWithIndex | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newSkill, setNewSkill] = useState("");
-  const [editMode, setEditMode] = useState<"visual" | "json">("visual");
+
 
   // Handler functions (simplified - would include all the logic from handlers.ts)
   const addExperience = () => {
@@ -121,17 +121,12 @@ export default function ExperiencesPage() {
         <div className="p-6">
           <ExperiencesTab
             experiences={data.experiences}
-            setExperiences={(experiences) => updateExperiences(experiences as ExperienceEntry[])}
-            editMode={editMode}
-            setEditMode={setEditMode}
             saving={saving}
             handleSave={handleSave}
-            handleExperiencesChange={() => {}} // Would implement
             addExperience={addExperience}
             editExperience={editExperience}
             deleteExperience={deleteExperience}
             moveExperience={() => {}} // Would implement
-            systemSettings={data.systemSettings}
           />
         </div>
 

@@ -1,7 +1,7 @@
 import { LanguageProficiency, UserProfile } from "@/lib/schemas";
 
 export const userProfile: UserProfile = {
-  "name": "Preslav Panayotov lll",
+  "name": "Preslav Panayotov",
   "title": "Software Delivery Manager",
   "phone": "+359 883 41 44 99",
   "location": "Sofia, Sofia City, Bulgaria",

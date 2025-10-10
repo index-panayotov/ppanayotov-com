@@ -2,12 +2,8 @@ import { ExperienceEntry } from "@/types"; // Assuming ExperienceEntry is in @/t
 
 export interface TopSkillsTabProps {
   topSkills: string[];
-  setTopSkills: (skills: string[]) => void;
-  editMode: "visual" | "json";
-  setEditMode: (mode: "visual" | "json") => void;
   saving: boolean;
   handleSave: (file: string, data: any) => void;
-  handleTopSkillsChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   addTopSkill: () => void;
   removeTopSkill: (skill: string) => void;
   moveTopSkill: (index: number, direction: "up" | "down") => void;
@@ -19,11 +15,8 @@ export interface TopSkillsTabProps {
 export interface ProfileDataTabProps {
   profileData: any;
   setProfileData: (data: any) => void;
-  editMode: "visual" | "json";
-  setEditMode: (mode: "visual" | "json") => void;
   saving: boolean;
   handleSave: (file: string, data: any) => void;
-  handleProfileDataChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   handleProfileFieldChange: (field: string, value: string) => void;
   systemSettings: any;
   addLanguage: () => void;
@@ -46,12 +39,8 @@ export interface ProfileDataTabProps {
 
 export interface ExperiencesTabProps {
   experiences: ExperienceEntry[];
-  setExperiences: (experiences: ExperienceEntry[]) => void;
-  editMode: "visual" | "json";
-  setEditMode: (mode: "visual" | "json") => void;
   saving: boolean;
   handleSave: (file: string, data: any) => void;
-  handleExperiencesChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   addExperience: () => void;
   editExperience: (exp: ExperienceEntry, index: number) => void;
   deleteExperience: (index: number) => void;

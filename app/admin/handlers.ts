@@ -96,45 +96,7 @@ export const handleSave = async (
   }
 };
 
-// Functions for handling textarea JSON changes
-export const handleExperiencesChange = (
-  e: React.ChangeEvent<HTMLTextAreaElement>,
-  setExperiences: (experiences: ExperienceEntry[]) => void
-) => {
-  try {
-    const parsed = JSON.parse(e.target.value);
-    setExperiences(parsed);
-  } catch (err) {
-    // Don't update state if JSON is invalid
-    console.error("Invalid JSON:", err);
-  }
-};
 
-export const handleTopSkillsChange = (
-  e: React.ChangeEvent<HTMLTextAreaElement>,
-  setTopSkills: (topSkills: string[]) => void
-) => {
-  try {
-    const parsed = JSON.parse(e.target.value);
-    setTopSkills(parsed);
-  } catch (err) {
-    // Don't update state if JSON is invalid
-    console.error("Invalid JSON:", err);
-  }
-};
-
-export const handleProfileDataChange = (
-  e: React.ChangeEvent<HTMLTextAreaElement>,
-  setProfileData: (profileData: UserProfile) => void
-) => {
-  try {
-    const parsed = JSON.parse(e.target.value) as UserProfile;
-    setProfileData(parsed);
-  } catch (err) {
-    // Don't update state if JSON is invalid
-    console.error("Invalid JSON:", err);
-  }
-};
 
 export const handleProfileFieldChange = (
   field: keyof UserProfile,

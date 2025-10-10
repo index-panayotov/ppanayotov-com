@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+
 import { AdminNavigation } from "@/components/admin/admin-navigation";
 import { AuthCheck } from "@/components/admin/auth-check";
 import { useAdminData } from "@/hooks/use-admin-data";
@@ -16,7 +16,6 @@ const ProfileDataTab = dynamic(
 
 export default function ProfileDataPage() {
   const { data, loading, error, saving, handleSave, updateProfileData } = useAdminData();
-  const [editMode, setEditMode] = useState<"visual" | "json">("visual");
 
   // Simplified handlers - would implement full logic
   const handleProfileFieldChange = (field: string, value: string) => {
@@ -65,11 +64,8 @@ export default function ProfileDataPage() {
           <ProfileDataTab
             profileData={data.profileData}
             setProfileData={updateProfileData}
-            editMode={editMode}
-            setEditMode={setEditMode}
             saving={saving}
             handleSave={handleSave}
-            handleProfileDataChange={() => {}} // Would implement
             handleProfileFieldChange={handleProfileFieldChange}
             systemSettings={data.systemSettings}
             addLanguage={() => {}} // Would implement

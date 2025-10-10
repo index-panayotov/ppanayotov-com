@@ -8,7 +8,7 @@ const systemSettings = {
   "showPrint": false,
   "gtagCode": "G-NR6KNX7RM6",
   "gtagEnabled": true,
-  "selectedTemplate": "modern",
+  "selectedTemplate": "classic",
   "pwa": {
     "siteName": "CV Website",
     "shortName": "CV",

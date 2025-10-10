@@ -16,7 +16,6 @@ const TopSkillsTab = dynamic(
 
 export default function TopSkillsPage() {
   const { data, loading, error, saving, handleSave, updateTopSkills } = useAdminData();
-  const [editMode, setEditMode] = useState<"visual" | "json">("visual");
   const [newSkill, setNewSkill] = useState("");
 
   // Handler functions (simplified)
@@ -82,12 +81,8 @@ export default function TopSkillsPage() {
         <div className="p-6">
           <TopSkillsTab
             topSkills={data.topSkills}
-            setTopSkills={updateTopSkills}
-            editMode={editMode}
-            setEditMode={setEditMode}
             saving={saving}
             handleSave={handleSave}
-            handleTopSkillsChange={() => {}} // Would implement
             addTopSkill={addTopSkill}
             removeTopSkill={removeTopSkill}
             moveTopSkill={() => {}} // Would implement

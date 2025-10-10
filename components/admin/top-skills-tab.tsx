@@ -1,28 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { AIEnhancedInput } from "./ai-enhanced-input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { X, ArrowUp, ArrowDown } from "lucide-react";
 import { TopSkillsTabProps } from "@/types/admin-components";
 
 /**
- * Displays and manages a list of top professional skills with both visual and JSON editing modes.
+ * Displays and manages a list of top professional skills with visual editing interface.
  *
- * Provides an interface for adding, removing, reordering, and saving top skills, as well as automatically generating skill suggestions. Users can switch between a visual editor and direct JSON editing.
+ * Provides an interface for adding, removing, reordering, and saving top skills, as well as automatically generating skill suggestions.
  */
 export default function TopSkillsTab({
   topSkills,
-  setTopSkills,
-  editMode,
-  setEditMode,
   saving,
   handleSave,
-  handleTopSkillsChange,
   addTopSkill,
   removeTopSkill,
   moveTopSkill,
@@ -48,29 +40,15 @@ export default function TopSkillsTab({
             Auto-Generate
           </Button>
           <Button
-            variant="outline"
-            onClick={() => setEditMode(editMode === "visual" ? "json" : "visual")}
+            onClick={() => handleSave("topSkills.ts", topSkills)}
+            disabled={saving}
           >
-            {editMode === "visual" ? "JSON Mode" : "Visual Mode"}
+            {saving ? "Saving..." : "Save Changes"}
           </Button>
-          {editMode === "json" && (
-            <Button
-              onClick={() => handleSave("topSkills.ts", topSkills)}
-              disabled={saving}
-            >
-              {saving ? "Saving..." : "Save Changes"}
-            </Button>
-          )}
         </div>
       </div>
 
-      {editMode === "json"
-        ? <Textarea
-            className="font-mono h-[70vh]"
-            value={JSON.stringify(topSkills, null, 2)}
-            onChange={handleTopSkillsChange}
-          />
-        : <div className="space-y-4">
+      <div className="space-y-4">
             <div className="flex gap-2">
               {" "}<AIEnhancedInput
                 placeholder="Add new skill"
@@ -123,7 +101,7 @@ export default function TopSkillsTab({
                 </div>
               </CardContent>
             </Card>
-          </div>}
+           </div>
     </div>
   );
 }

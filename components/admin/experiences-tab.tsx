@@ -1,24 +1,19 @@
 "use client";
 
-import { Textarea } from "@/components/ui/textarea";
+
 import { Badge } from "@/components/ui/badge";
 import { Plus, ArrowUp, ArrowDown, Edit, Trash2, Briefcase } from "lucide-react";
 import { ExperiencesTabProps } from "@/types/admin";
-import { AdminPageHeader } from "./ui/admin-page-header";
 import { AdminCard, AdminCardHeader, AdminCardContent } from "./ui/admin-card";
-import { AdminButton, AdminButtonGroup } from "./ui/admin-button";
+import { AdminButton } from "./ui/admin-button";
 import { AdminIconButton } from "./ui/admin-button";
 import { AdminEmptyState } from "./ui/admin-empty-state";
 import { adminClassNames } from "./design-system";
 
 export default function ExperiencesTab({
   experiences,
-  setExperiences,
-  editMode,
-  setEditMode,
   saving,
   handleSave,
-  handleExperiencesChange,
   addExperience,
   editExperience,
   deleteExperience,
@@ -35,31 +30,17 @@ export default function ExperiencesTab({
         </div>
         <div className="flex gap-2">
           <AdminButton
-            variant="secondary"
-            onClick={() => setEditMode(editMode === "visual" ? "json" : "visual")}
+            variant="primary"
+            onClick={() => handleSave("cv-data.ts", experiences)}
+            disabled={saving}
+            loading={saving}
           >
-            {editMode === "visual" ? "JSON Mode" : "Visual Mode"}
+            Save Changes
           </AdminButton>
-          {editMode === "json" && (
-            <AdminButton
-              variant="primary"
-              onClick={() => handleSave("cv-data.ts", experiences)}
-              disabled={saving}
-              loading={saving}
-            >
-              Save Changes
-            </AdminButton>
-          )}
         </div>
       </div>
 
-      {editMode === "json"
-        ? <Textarea
-            className="font-mono h-[70vh]"
-            value={JSON.stringify(experiences, null, 2)}
-            onChange={handleExperiencesChange}
-          />
-        : <div className="space-y-4">
+      <div className="space-y-4">
             {/* Add Experience Button */}
             <div className="flex justify-center">
               <AdminButton
@@ -149,7 +130,7 @@ export default function ExperiencesTab({
                 )
               )}
             </div>
-          </div>}
+           </div>
     </div>
   );
 }
