@@ -68,7 +68,9 @@ export function editorBlocksToText(blocks: EditorBlock[] | string): string {
       }
     }).join('\n\n').trim();
   } catch (error) {
-    console.error('Error converting EditorJS blocks to text:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error converting EditorJS blocks to text:', error);
+    }
     return typeof blocks === 'string' ? blocks : '';
   }
 }

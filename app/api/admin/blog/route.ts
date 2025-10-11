@@ -5,10 +5,8 @@ import { BlogPostSchema } from '@/lib/schemas';
 import { loadBlogPosts, loadUserProfile } from '@/lib/data-loader';
 import { calculateReadingTime } from '@/lib/markdown-utils';
 import { logger } from '@/lib/logger';
-import { env } from '@/lib/env';
 import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
-
-const isDev = env.NODE_ENV === 'development';
+import { withDevOnly, generateBlogPostsFileContent, getBlogAuthor } from '@/lib/api-utils';
 
 /**
  * GET - List all blog posts
@@ -18,7 +16,7 @@ export async function GET() {
     const blogPosts = loadBlogPosts();
     return createTypedSuccessResponse(blogPosts);
   } catch (error) {
-    console.error('Error loading blog posts:', error);
+    logger.error('Error loading blog posts', error as Error);
     return createTypedErrorResponse(API_ERROR_CODES.INTERNAL_SERVER_ERROR, 'Failed to load blog posts');
   }
 }
@@ -26,28 +24,14 @@ export async function GET() {
 /**
  * POST - Create new blog post
  */
-export async function POST(request: NextRequest) {
-  if (!isDev) {
-    return createTypedErrorResponse(API_ERROR_CODES.FORBIDDEN, 'Blog API only available in development mode');
-  }
-
+export const POST = withDevOnly(async (request: NextRequest) => {
   try {
     const body = await request.json();
     const { metadata, content } = body;
 
-    // Auto-populate author from user profile if not provided
-    if (!metadata.author || metadata.author.trim() === '') {
-      try {
-        const userProfile = loadUserProfile();
-        metadata.author = userProfile.name || 'Anonymous';
-        logger.info('Auto-populated blog author from user profile', {
-          author: metadata.author,
-        });
-      } catch (error) {
-        logger.warn('Failed to load user profile for author, using Anonymous', {}, error as Error);
-        metadata.author = 'Anonymous';
-      }
-    }
+    // Auto-populate author from user profile
+    const userProfile = loadUserProfile();
+    metadata.author = getBlogAuthor(userProfile);
 
     // Validate metadata
     const validatedMetadata = BlogPostSchema.parse(metadata);
@@ -69,23 +53,7 @@ export async function POST(request: NextRequest) {
     blogPosts.push(validatedMetadata);
 
     // Write updated blog-posts.ts file
-    const fileContent = `import { BlogPost } from "@/lib/schemas";
-
-/**
- * Blog Posts Metadata
- *
- * This file contains metadata for all blog posts.
- * The actual content is stored in markdown files in /data/blog/
- *
- * Each blog post requires:
- * - A unique slug (used in URL and filename)
- * - A corresponding .md file at /data/blog/{slug}.md
- * - Metadata including title, description, dates, author, tags
- */
-
-export const blogPosts: BlogPost[] = ${JSON.stringify(blogPosts, null, 2)};
-`;
-
+    const fileContent = generateBlogPostsFileContent(blogPosts);
     fs.writeFileSync(blogPostsPath, fileContent, 'utf-8');
 
     // Write markdown content file
@@ -94,19 +62,15 @@ export const blogPosts: BlogPost[] = ${JSON.stringify(blogPosts, null, 2)};
 
     return createTypedSuccessResponse({ message: 'Blog post created successfully', data: validatedMetadata });
   } catch (error) {
-    console.error('Error creating blog post:', error);
+    logger.error('Error creating blog post', error as Error);
     return createTypedErrorResponse(API_ERROR_CODES.INTERNAL_SERVER_ERROR, error instanceof Error ? error.message : 'Failed to create blog post');
   }
-}
+});
 
 /**
  * PUT - Update existing blog post
  */
-export async function PUT(request: NextRequest) {
-  if (!isDev) {
-    return createTypedErrorResponse(API_ERROR_CODES.FORBIDDEN, 'Blog API only available in development mode');
-  }
-
+export const PUT = withDevOnly(async (request: NextRequest) => {
   try {
     const body = await request.json();
     const { metadata, content } = body;
@@ -132,23 +96,7 @@ export async function PUT(request: NextRequest) {
     blogPosts[index] = validatedMetadata;
 
     // Write updated blog-posts.ts file
-    const fileContent = `import { BlogPost } from "@/lib/schemas";
-
-/**
- * Blog Posts Metadata
- *
- * This file contains metadata for all blog posts.
- * The actual content is stored in markdown files in /data/blog/
- *
- * Each blog post requires:
- * - A unique slug (used in URL and filename)
- * - A corresponding .md file at /data/blog/{slug}.md
- * - Metadata including title, description, dates, author, tags
- */
-
-export const blogPosts: BlogPost[] = ${JSON.stringify(blogPosts, null, 2)};
-`;
-
+    const fileContent = generateBlogPostsFileContent(blogPosts);
     fs.writeFileSync(blogPostsPath, fileContent, 'utf-8');
 
     // Write markdown content file
@@ -157,19 +105,15 @@ export const blogPosts: BlogPost[] = ${JSON.stringify(blogPosts, null, 2)};
 
     return createTypedSuccessResponse({ message: 'Blog post updated successfully', data: validatedMetadata });
   } catch (error) {
-    console.error('Error updating blog post:', error);
+    logger.error('Error updating blog post', error as Error);
     return createTypedErrorResponse(API_ERROR_CODES.INTERNAL_SERVER_ERROR, error instanceof Error ? error.message : 'Failed to update blog post');
   }
-}
+});
 
 /**
  * DELETE - Delete blog post
  */
-export async function DELETE(request: NextRequest) {
-  if (!isDev) {
-    return createTypedErrorResponse(API_ERROR_CODES.FORBIDDEN, 'Blog API only available in development mode');
-  }
-
+export const DELETE = withDevOnly(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get('slug');
@@ -192,23 +136,7 @@ export async function DELETE(request: NextRequest) {
     blogPosts.splice(index, 1);
 
     // Write updated blog-posts.ts file
-    const fileContent = `import { BlogPost } from "@/lib/schemas";
-
-/**
- * Blog Posts Metadata
- *
- * This file contains metadata for all blog posts.
- * The actual content is stored in markdown files in /data/blog/
- *
- * Each blog post requires:
- * - A unique slug (used in URL and filename)
- * - A corresponding .md file at /data/blog/{slug}.md
- * - Metadata including title, description, dates, author, tags
- */
-
-export const blogPosts: BlogPost[] = ${JSON.stringify(blogPosts, null, 2)};
-`;
-
+    const fileContent = generateBlogPostsFileContent(blogPosts);
     fs.writeFileSync(blogPostsPath, fileContent, 'utf-8');
 
     // Delete markdown file
@@ -225,7 +153,7 @@ export const blogPosts: BlogPost[] = ${JSON.stringify(blogPosts, null, 2)};
 
     return createTypedSuccessResponse({ message: 'Blog post deleted successfully' });
   } catch (error) {
-    console.error('Error deleting blog post:', error);
+    logger.error('Error deleting blog post', error as Error);
     return createTypedErrorResponse(API_ERROR_CODES.INTERNAL_SERVER_ERROR, 'Failed to delete blog post');
   }
-}
+});

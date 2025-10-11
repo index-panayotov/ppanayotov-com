@@ -249,6 +249,43 @@ export const AIEnhanceApiResponseSchema = z.object({
   confidence: z.number().min(0).max(1)
 });
 
+/**
+ * AI API request for CV writing assistance (OpenRouter)
+ */
+export interface AIApiRequest {
+  data: string;
+  creativity?: number;
+  systemInput?: string;
+  model?: string;
+}
+
+export const AIApiRequestSchema = z.object({
+  data: z.string()
+    .min(1, 'Content cannot be empty')
+    .max(10000, 'Content exceeds maximum length (10000 characters)'),
+  creativity: z.number()
+    .min(0, 'Creativity must be between 0 and 1')
+    .max(1, 'Creativity must be between 0 and 1')
+    .optional(),
+  systemInput: z.string()
+    .max(20000, 'System input exceeds maximum length (20000 characters)')
+    .optional(),
+  model: z.enum(['gpt-4', 'gpt-3.5-turbo', 'claude-3'], {
+    errorMap: () => ({ message: 'Invalid model: must be one of gpt-4, gpt-3.5-turbo, claude-3' })
+  }).optional()
+});
+
+/**
+ * AI API response
+ */
+export interface AIApiResponse {
+  response: string;
+}
+
+export const AIApiResponseSchema = z.object({
+  response: z.string()
+});
+
 // === TEXT-TO-IMAGE API TYPES ===
 
 /**
@@ -397,40 +434,6 @@ export type ValidatedApiHandler<
 ) => Promise<NextResponse<ApiResponse<z.infer<TResponseSchema>>>>;
 
 // === HELPER FUNCTIONS ===
-
-/**
- * Create a typed error response
- */
-export function createTypedErrorResponse(
-  code: ApiErrorCode,
-  message: string,
-  details?: ValidationErrorDetails[] | undefined
-): NextResponse<ApiResponse<never>> {
-  return NextResponse.json({
-    success: false,
-    error: {
-      code,
-      message,
-      ...(details !== undefined && { details: { validationErrors: details } })
-    },
-    timestamp: Date.now()
-  });
-}
-
-/**
- * Create a typed success response
- */
-export function createTypedSuccessResponse<T>(
-  data: T,
-  message?: string | undefined
-): NextResponse<ApiResponse<T>> {
-  return NextResponse.json({
-    success: true,
-    data,
-    ...(message !== undefined && { message }),
-    timestamp: Date.now()
-  });
-}
 
 /**
  * Validate request body against a Zod schema

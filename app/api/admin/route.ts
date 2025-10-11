@@ -12,9 +12,7 @@ import { z } from "zod";
 import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
 import { loadSystemSettings, loadCVData, loadTopSkills, loadUserProfile } from "@/lib/data-loader";
 import { logger } from "@/lib/logger";
-
-// Only allow in development mode
-const isDev = process.env.NODE_ENV === 'development';
+import { withDevOnly, generateDataFileContent } from "@/lib/api-utils";
 
 // Schema for GET request search parameters
 const GetAdminApiParamsSchema = z.object({
@@ -24,14 +22,7 @@ const GetAdminApiParamsSchema = z.object({
 /**
  * Type-safe GET handler for admin data operations
  */
-export async function GET(request: NextRequest) {
-  if (!isDev) {
-    return createTypedErrorResponse(
-      API_ERROR_CODES.FORBIDDEN,
-      "Admin API only available in development mode"
-    );
-  }
-
+export const GET = withDevOnly(async (request: NextRequest) => {
   // Validate search parameters
   const paramValidation = validateSearchParams(request, GetAdminApiParamsSchema);
 
@@ -99,19 +90,12 @@ export async function GET(request: NextRequest) {
       'Failed to retrieve admin data'
     );
   }
-}
+});
 
 /**
  * Type-safe POST handler for updating data files
  */
-export async function POST(request: NextRequest) {
-  if (!isDev) {
-    return createTypedErrorResponse(
-      API_ERROR_CODES.FORBIDDEN,
-      "Admin API only available in development mode"
-    );
-  }
-
+export const POST = withDevOnly(async (request: NextRequest) => {
   // Validate request body
   const validation = await validateRequestBody(request, AdminDataUpdateApiRequestSchema);
 
@@ -146,71 +130,8 @@ export async function POST(request: NextRequest) {
   try {
     const filePath = path.join(process.cwd(), "data", file);
 
-
-    // Format the data as a TypeScript export
-    let fileContent = "";
-
-    if (file === "cv-data.ts") {
-      fileContent = `import { ExperienceEntry } from "@/types";\n\nexport const experiences: ExperienceEntry[] = ${JSON.stringify(
-        data,
-        null,
-        2
-      )};\n`;
-    } else if (file === "topSkills.ts") {
-      fileContent = `export const topSkills = ${JSON.stringify(
-        data,
-        null,
-        2
-      )};\n`;
-    } else if (file === "user-profile.ts") {
-      fileContent = `import { LanguageProficiency, UserProfile } from "@/lib/schemas";
-
-export const userProfile: UserProfile = ${JSON.stringify(data, null, 2)};\n`;
-    } else if (file === "system_settings.ts") {
-      // Format system settings as a proper TypeScript module
-      // Use JSON.stringify to safely serialize the data
-      const settings = data as any;
-
-      // Ensure we have a complete settings object with defaults
-      const completeSettings = {
-        blogEnable: settings.blogEnable ?? false,
-        useWysiwyg: settings.useWysiwyg ?? true,
-        showContacts: settings.showContacts ?? true,
-        gtagCode: settings.gtagCode ?? "",
-        gtagEnabled: settings.gtagEnabled ?? false,
-        selectedTemplate: settings.selectedTemplate ?? "classic",
-        pwa: {
-          siteName: settings.pwa?.siteName ?? "CV Website",
-          shortName: settings.pwa?.shortName ?? "CV",
-          description: settings.pwa?.description ?? "",
-          startUrl: settings.pwa?.startUrl ?? "/",
-          display: settings.pwa?.display ?? "standalone",
-          backgroundColor: settings.pwa?.backgroundColor ?? "#ffffff",
-          themeColor: settings.pwa?.themeColor ?? "#0f172a",
-          orientation: settings.pwa?.orientation ?? "portrait-primary",
-          categories: settings.pwa?.categories ?? [],
-          icons: settings.pwa?.icons ?? []
-        }
-      };
-
-      fileContent = `// system_settings.ts
-// Exports system-wide settings as a JSON object
-
-const systemSettings = ${JSON.stringify(completeSettings, null, 2)};
-
-export default systemSettings;
-`;
-    }
-
-    // Verify fileContent was generated
-    if (!fileContent) {
-      logger.error('No file content generated', new Error('File content generation failed'), { file });
-      return createTypedErrorResponse(
-        API_ERROR_CODES.INTERNAL_ERROR,
-        `Failed to generate content for ${file}`,
-        [{ field: 'file', message: 'No content generated', code: 'NO_CONTENT', value: file }]
-      );
-    }
+    // Generate file content using utility function
+    const fileContent = generateDataFileContent(file, data);
 
     // Write the file
     fs.writeFileSync(filePath, fileContent);
@@ -233,4 +154,4 @@ export default systemSettings;
       }]
     );
   }
-}
+});

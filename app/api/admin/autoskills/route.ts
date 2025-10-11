@@ -7,11 +7,8 @@ import {
 } from "@/types/api";
 import { ApiErrorCode } from "@/types/core";
 import { logger } from "@/lib/logger";
-import { env } from "@/lib/env";
 import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
-
-// Only allow in development mode
-const isDev = env.NODE_ENV === "development";
+import { withDevOnly } from "@/lib/api-utils";
 
 /**
  * Type-safe POST handler to analyze experience data and return the top skills.
@@ -21,14 +18,7 @@ const isDev = env.NODE_ENV === "development";
  *
  * @returns A typed JSON response with skills array including frequency and confidence metrics.
  */
-export async function POST(request: NextRequest) {
-  if (!isDev) {
-    return createTypedErrorResponse(
-      API_ERROR_CODES.FORBIDDEN,
-      "Admin API only available in development mode"
-    );
-  }
-
+export const POST = withDevOnly(async (request: NextRequest) => {
   try {
     // Validate request body
     const validation = await validateRequestBody(request, GenerateSkillsApiRequestSchema);
@@ -106,4 +96,4 @@ export async function POST(request: NextRequest) {
       "Failed to generate top skills"
     );
   }
-}
+});

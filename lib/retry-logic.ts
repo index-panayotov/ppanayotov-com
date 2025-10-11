@@ -80,7 +80,9 @@ export async function withRetry<T>(
       }
 
       const delay = calculateDelay(attempt, baseDelay, maxDelay, backoffFactor);
-      console.warn(`Attempt ${attempt} failed, retrying in ${delay}ms:`, lastError.message);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`Attempt ${attempt} failed, retrying in ${delay}ms:`, lastError.message);
+      }
 
       await sleep(delay);
     }

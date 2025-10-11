@@ -3,10 +3,8 @@ import fs from "fs";
 import path from "path";
 import sharp from "sharp";
 import { logger } from "@/lib/logger";
-import { env } from "@/lib/env";
 import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
-
-const isDev = env.NODE_ENV === "development";
+import { withDevOnly } from "@/lib/api-utils";
 
 /**
  * Image file signatures (magic numbers) for validation
@@ -50,14 +48,7 @@ function isValidImageFile(buffer: Buffer): boolean {
 /**
  * POST - Upload and optimize profile image
  */
-export async function POST(request: NextRequest) {
-  if (!isDev) {
-    return createTypedErrorResponse(
-      API_ERROR_CODES.FORBIDDEN,
-      "Upload API only available in development mode"
-    );
-  }
-
+export const POST = withDevOnly(async (request: NextRequest) => {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File;
@@ -145,16 +136,9 @@ export async function POST(request: NextRequest) {
     });
     return createTypedErrorResponse(API_ERROR_CODES.INTERNAL_SERVER_ERROR, "Failed to upload image");
   }
-}
+});
 
-export async function DELETE(request: NextRequest) {
-  if (!isDev) {
-    return createTypedErrorResponse(
-      API_ERROR_CODES.FORBIDDEN,
-      "Delete API only available in development mode"
-    );
-  }
-
+export const DELETE = withDevOnly(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url);
     const webUrl = searchParams.get("webUrl");
@@ -183,4 +167,4 @@ export async function DELETE(request: NextRequest) {
     logger.error('Failed to delete images', error as Error, { webUrl, pdfUrl });
     return createTypedErrorResponse(API_ERROR_CODES.INTERNAL_SERVER_ERROR, "Failed to delete images");
   }
-}
+});

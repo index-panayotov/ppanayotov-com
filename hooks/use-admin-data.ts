@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { loadAdminData, saveAdminData, AdminData } from '@/lib/admin-data-loader';
 import { ExperienceEntry } from '@/types';
 import { UserProfile, SystemSettings } from '@/lib/schemas';
@@ -14,7 +14,6 @@ export function useAdminData() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const router = useRouter();
-  const { toast } = useToast();
 
   // Load data on mount
   useEffect(() => {
@@ -75,23 +74,19 @@ export function useAdminData() {
         }
       });
 
-      toast({
-        title: 'Success',
+      toast.success('Success', {
         description: 'Data saved successfully',
-        className: 'bg-green-50 border-green-200 text-green-800',
       });
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to save';
-      toast({
-        title: 'Error',
+      toast.error('Error', {
         description: errorMsg,
-        variant: 'destructive',
       });
       throw err;
     } finally {
       setSaving(false);
     }
-  }, [data, toast]);
+  }, [data]);
 
   // Update functions for specific data types
   const updateExperiences = useCallback((experiences: ExperienceEntry[]) => {

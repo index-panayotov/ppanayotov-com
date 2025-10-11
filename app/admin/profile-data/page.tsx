@@ -1,10 +1,8 @@
 'use client';
 
-
 import { AdminNavigation } from "@/components/admin/admin-navigation";
-import { AuthCheck } from "@/components/admin/auth-check";
+import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
 import { useAdminData } from "@/hooks/use-admin-data";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import dynamic from "next/dynamic";
 import { Loader2 } from "lucide-react";
 
@@ -24,50 +22,28 @@ export default function ProfileDataPage() {
     updateProfileData(updatedData);
   };
 
-  if (loading) {
-    return (
-      <AuthCheck>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-slate-600">Loading profile data...</p>
-          </div>
-        </div>
-      </AuthCheck>
-    );
-  }
-
-  if (error || !data) {
-    return (
-      <AuthCheck>
-        <div className="p-8">
-          <Alert variant="destructive">
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error || 'Failed to load profile data'}</AlertDescription>
-          </Alert>
-        </div>
-      </AuthCheck>
-    );
-  }
-
   return (
-    <AuthCheck>
+    <AdminPageWrapper
+      loading={loading}
+      error={error || (!data ? 'Failed to load profile data' : null)}
+      loadingMessage="Loading profile data..."
+    >
       <div className="h-full">
         <AdminNavigation
-          experiencesCount={data.experiences.length}
-          topSkillsCount={data.topSkills.length}
+          experiencesCount={data?.experiences.length ?? 0}
+          topSkillsCount={data?.topSkills.length ?? 0}
           blogPostsCount={0}
           saving={saving}
         />
 
         <div className="p-6">
           <ProfileDataTab
-            profileData={data.profileData}
+            profileData={data?.profileData ?? {} as any}
             setProfileData={updateProfileData}
             saving={saving}
             handleSave={handleSave}
             handleProfileFieldChange={handleProfileFieldChange}
-            systemSettings={data.systemSettings}
+            systemSettings={data?.systemSettings ?? {} as any}
             addLanguage={() => {}} // Would implement
             editLanguage={() => {}} // Would implement
             deleteLanguage={() => {}} // Would implement
@@ -87,6 +63,6 @@ export default function ProfileDataPage() {
           />
         </div>
       </div>
-    </AuthCheck>
+    </AdminPageWrapper>
   );
 }

@@ -126,7 +126,7 @@ class APIClient {
           initialDelay: 1000,
           onRetry: (error, attempt, delay) => {
             if (process.env.NODE_ENV === 'development') {
-              console.warn(`🔄 Upload retry ${attempt}/${retries} for ${url} in ${delay}ms`);
+              logger.warn(`Upload retry ${attempt}/${retries} for ${url} in ${delay}ms`);
             }
           },
         }
@@ -237,7 +237,7 @@ class APIClient {
           initialDelay: 1000,
           onRetry: (error, attempt, delay) => {
             if (process.env.NODE_ENV === 'development') {
-              console.warn(`🔄 Retry ${attempt}/${retries} for ${url} in ${delay}ms`);
+              logger.warn(`Retry ${attempt}/${retries} for ${url} in ${delay}ms`);
             }
           },
         }

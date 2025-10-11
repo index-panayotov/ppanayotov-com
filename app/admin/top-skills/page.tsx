@@ -2,9 +2,8 @@
 
 import { useState } from 'react';
 import { AdminNavigation } from "@/components/admin/admin-navigation";
-import { AuthCheck } from "@/components/admin/auth-check";
+import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
 import { useAdminData } from "@/hooks/use-admin-data";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import dynamic from "next/dynamic";
 import { Loader2 } from "lucide-react";
 
@@ -42,45 +41,23 @@ export default function TopSkillsPage() {
     updateTopSkills(skills);
   };
 
-  if (loading) {
-    return (
-      <AuthCheck>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-slate-600">Loading top skills...</p>
-          </div>
-        </div>
-      </AuthCheck>
-    );
-  }
-
-  if (error || !data) {
-    return (
-      <AuthCheck>
-        <div className="p-8">
-          <Alert variant="destructive">
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error || 'Failed to load top skills data'}</AlertDescription>
-          </Alert>
-        </div>
-      </AuthCheck>
-    );
-  }
-
   return (
-    <AuthCheck>
+    <AdminPageWrapper
+      loading={loading}
+      error={error || (!data ? 'Failed to load top skills data' : null)}
+      loadingMessage="Loading top skills..."
+    >
       <div className="h-full">
         <AdminNavigation
-          experiencesCount={data.experiences.length}
-          topSkillsCount={data.topSkills.length}
+          experiencesCount={data?.experiences.length ?? 0}
+          topSkillsCount={data?.topSkills.length ?? 0}
           blogPostsCount={0}
           saving={saving}
         />
 
         <div className="p-6">
           <TopSkillsTab
-            topSkills={data.topSkills}
+            topSkills={data?.topSkills ?? []}
             saving={saving}
             handleSave={handleSave}
             addTopSkill={addTopSkill}
@@ -92,6 +69,6 @@ export default function TopSkillsPage() {
           />
         </div>
       </div>
-    </AuthCheck>
+    </AdminPageWrapper>
   );
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getOpenRouterAnswer } from "@/services/openrouter";
 import { createOptimizedResponse } from "@/lib/api-compression";
 import { logger } from "@/lib/logger";
+import { validateRequestBody, AIApiRequestSchema } from "@/types/api";
 
 // Define the comprehensive system prompt for the CV Writing Assistant
 const CV_WRITING_ASSISTANT_PROMPT = `
@@ -69,119 +70,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Parse the request body with error handling
-    let body;
-    try {
-      body = await req.json();
-    } catch (error) {
+    // Validate request body using Zod schema
+    const validation = await validateRequestBody(req, AIApiRequestSchema);
+
+    if (!validation.success) {
       return NextResponse.json(
-        { error: "Invalid JSON: Could not parse request body" },
+        { error: validation.error.message },
         { status: 400 }
       );
     }
 
-    // Comprehensive validation of the request body
-    if (!body || typeof body !== "object") {
-      return NextResponse.json(
-        { error: "Invalid request: Request body must be a valid JSON object" },
-        { status: 400 }
-      );
-    } // Extract and validate required fields
-    const { data, creativity, systemInput: userSystemInput, model } = body;
+    const { data, creativity, systemInput: userSystemInput, model } = validation.data;
 
-    // Validate data field (required)
-    if (data === undefined) {
-      return NextResponse.json(
-        { error: "Missing required field: data is required" },
-        { status: 400 }
-      );
-    }
-
-    // Validate data type and content
-    if (typeof data !== "string") {
-      return NextResponse.json(
-        { error: "Invalid data format: data must be a string" },
-        { status: 400 }
-      );
-    }
-
-    // Check data length to prevent abuse
-    if (data.length > 10000) {
-      return NextResponse.json(
-        {
-          error:
-            "Invalid data: content exceeds maximum length (10000 characters)"
-        },
-        { status: 400 }
-      );
-    }
-
-    // Check for empty content after trimming
-    if (data.trim().length === 0) {
-      return NextResponse.json(
-        { error: "Invalid data: content cannot be empty" },
-        { status: 400 }
-      );
-    }
-
-    // Validate creativity if provided
-    if (creativity !== undefined) {
-      if (typeof creativity !== "number") {
-        return NextResponse.json(
-          { error: "Invalid creativity format: must be a number" },
-          { status: 400 }
-        );
-      }
-
-      if (creativity < 0 || creativity > 1) {
-        return NextResponse.json(
-          { error: "Invalid creativity value: must be between 0 and 1" },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Validate systemInput if provided
-    if (userSystemInput !== undefined) {
-      if (typeof userSystemInput !== "string") {
-        return NextResponse.json(
-          { error: "Invalid systemInput format: must be a string" },
-          { status: 400 }
-        );
-      }
-
-      // Check for potential prompt injection or malicious input
-      if (userSystemInput.length > 20000) {
-        return NextResponse.json(
-          {
-            error:
-              "Invalid systemInput: exceeds maximum length (20000 characters)"
-          },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Validate model if provided (optional enhancement)
-    if (model !== undefined) {
-      if (typeof model !== "string") {
-        return NextResponse.json(
-          { error: "Invalid model format: must be a string" },
-          { status: 400 }
-        );
-      }
-
-      // Validate against allowed models if needed
-      const allowedModels = ["gpt-4", "gpt-3.5-turbo", "claude-3"]; // Example
-      if (!allowedModels.includes(model)) {
-        return NextResponse.json(
-          {
-            error: `Invalid model: must be one of ${allowedModels.join(", ")}`
-          },
-          { status: 400 }
-        );
-      }
-    } // Use the specific CV writing assistant prompt as the system input if no custom systemInput provided
+    // Use the specific CV writing assistant prompt as the system input if no custom systemInput provided
     const systemInput = userSystemInput || CV_WRITING_ASSISTANT_PROMPT;
 
     // Set up request timeout with AbortController

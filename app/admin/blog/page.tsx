@@ -2,15 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { AdminNavigation } from "@/components/admin/admin-navigation";
-import { AuthCheck } from "@/components/admin/auth-check";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BlogPost } from "@/lib/schemas";
-import { loadBlogPosts, deleteBlogPost } from "@/app/admin/handlers";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Pencil, Trash2, Calendar, User, Tag, Eye, EyeOff } from "lucide-react";
+import { loadBlogPosts, deleteBlogPost } from "@/lib/handlers";
+import { toast } from "sonner";
+import { Plus, Pencil, Trash2, Calendar, User, Tag, Eye, EyeOff } from "lucide-react";
 import dynamic from "next/dynamic";
 
 // Dynamic imports for components that use browser APIs
@@ -33,14 +32,31 @@ export default function BlogPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [currentPost, setCurrentPost] = useState<BlogPost | null>(null);
   const [postToDelete, setPostToDelete] = useState<{ slug: string; title: string } | null>(null);
-  const { toast } = useToast();
+
+  // Toast adapter to convert custom ToastFunction API to Sonner
+  const toastAdapter = ({ title, description, variant, className }: {
+    title: string;
+    description: string;
+    variant?: 'default' | 'destructive';
+    className?: string;
+  }) => {
+    if (variant === 'destructive') {
+      toast.error(title, { description });
+    } else if (className?.includes('green')) {
+      toast.success(title, { description });
+    } else if (className?.includes('blue')) {
+      toast.info(title, { description });
+    } else {
+      toast(title, { description });
+    }
+  };
 
   // Load blog posts on mount
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
-        await loadBlogPosts(setBlogPosts, toast);
+        await loadBlogPosts(setBlogPosts, toastAdapter);
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load blog posts');
@@ -49,7 +65,8 @@ export default function BlogPage() {
       }
     };
     loadData();
-  }, [toast]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCreateNew = () => {
     setCurrentPost(null);
@@ -74,40 +91,18 @@ export default function BlogPage() {
       blogPosts,
       setBlogPosts,
       setSaving,
-      toast
+      toastAdapter
     );
     setDeleteDialogOpen(false);
     setPostToDelete(null);
   };
 
-  if (loading) {
-    return (
-      <AuthCheck>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-            <p className="text-slate-600">Loading blog posts...</p>
-          </div>
-        </div>
-      </AuthCheck>
-    );
-  }
-
-  if (error) {
-    return (
-      <AuthCheck>
-        <div className="p-8">
-          <Alert variant="destructive">
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        </div>
-      </AuthCheck>
-    );
-  }
-
   return (
-    <AuthCheck>
+    <AdminPageWrapper
+      loading={loading}
+      error={error}
+      loadingMessage="Loading blog posts..."
+    >
       <div className="h-full">
         <AdminNavigation
           experiencesCount={0}
@@ -248,6 +243,6 @@ export default function BlogPage() {
           saving={saving}
         />
       </div>
-    </AuthCheck>
+    </AdminPageWrapper>
   );
 }
