@@ -17,6 +17,9 @@ export enum API_ERROR_CODES {
   PAYLOAD_TOO_LARGE = 'PAYLOAD_TOO_LARGE',
 }
 
+// Type alias for API error code values
+export type ApiErrorCode = API_ERROR_CODES;
+
 interface ApiResponse<T> {
   success: boolean;
   data?: T;
@@ -34,7 +37,14 @@ interface ApiResponseOptions {
   headers?: Record<string, string>;
 }
 
-export function createTypedSuccessResponse<T>(data: T, options: ApiResponseOptions = {}): NextResponse {
+// Function overloads to support both string message and options object
+export function createTypedSuccessResponse<T>(data: T, message?: string): NextResponse;
+export function createTypedSuccessResponse<T>(data: T, options?: ApiResponseOptions): NextResponse;
+export function createTypedSuccessResponse<T>(data: T, optionsOrMessage?: ApiResponseOptions | string): NextResponse {
+  // Determine if second param is a string (message) or options object
+  const isMessage = typeof optionsOrMessage === 'string';
+  const options: ApiResponseOptions = isMessage ? {} : (optionsOrMessage || {});
+
   const {
     maxAge = 300,
     staleWhileRevalidate = 60,

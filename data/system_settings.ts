@@ -2,6 +2,7 @@
 // Exports system-wide settings as a JSON object
 
 const systemSettings = {
+  "siteUrl": "https://ppanayotov.com",
   "blogEnable": false,
   "useWysiwyg": true,
   "showContacts": true,

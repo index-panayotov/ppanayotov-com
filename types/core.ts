@@ -317,20 +317,10 @@ export function ensureArray<T>(value: T | T[]): T[] {
 // === API ERROR CODES ===
 
 /**
- * Common API error codes
+ * Re-export API_ERROR_CODES from lib/api-response for backward compatibility
  */
-export const API_ERROR_CODES = {
-  VALIDATION_ERROR: 'VALIDATION_ERROR',
-  NOT_FOUND: 'NOT_FOUND',
-  UNAUTHORIZED: 'UNAUTHORIZED',
-  FORBIDDEN: 'FORBIDDEN',
-  INTERNAL_ERROR: 'INTERNAL_ERROR',
-  FILE_UPLOAD_ERROR: 'FILE_UPLOAD_ERROR',
-  AI_SERVICE_ERROR: 'AI_SERVICE_ERROR',
-  RATE_LIMIT_EXCEEDED: 'RATE_LIMIT_EXCEEDED'
-} as const;
-
-export type ApiErrorCode = typeof API_ERROR_CODES[keyof typeof API_ERROR_CODES];
+export { API_ERROR_CODES } from '@/lib/api-response';
+export type { ApiErrorCode } from '@/lib/api-response';
 
 // Re-export commonly used Zod types
 export { z } from 'zod';

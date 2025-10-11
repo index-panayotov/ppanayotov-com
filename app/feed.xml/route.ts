@@ -9,11 +9,15 @@
  * - Proper XML escaping
  * - Valid dates in RFC 822 format
  * - UTF-8 encoding
+ * - Prerendered at build time for optimal performance
  */
 
 import { NextResponse } from 'next/server';
-import { loadBlogPosts } from '@/lib/data-loader';
+import { loadBlogPosts, loadUserProfile, loadSystemSettings } from '@/lib/data-loader';
 import { BlogPost } from '@/lib/schemas';
+
+// Force static generation at build time
+export const dynamic = 'force-static';
 
 /**
  * Escapes XML special characters
@@ -32,28 +36,34 @@ function escapeXml(unsafe: string): string {
  */
 export async function GET() {
   try {
+    // Load data from static files
     const blogPosts = loadBlogPosts() as BlogPost[];
+    const userProfile = loadUserProfile();
+    const systemSettings = loadSystemSettings();
+
     const publishedPosts = blogPosts
       .filter(post => post.published)
       .sort((a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime());
 
-    const siteUrl = 'https://ppanayotov.com';
+    const siteUrl = systemSettings.siteUrl;
     const feedUrl = `${siteUrl}/feed.xml`;
     const blogUrl = `${siteUrl}/blog`;
+    const authorEmail = userProfile.email || 'noreply@example.com';
+    const authorName = userProfile.name;
 
     const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Preslav Panayotov Blog</title>
+    <title>${escapeXml(authorName)} Blog</title>
     <link>${blogUrl}</link>
     <description>Insights on software development, technology trends, and lessons learned from building scalable applications</description>
     <language>en-us</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${feedUrl}" rel="self" type="application/rss+xml" />
     <generator>Next.js</generator>
-    <webMaster>preslav.panayotov@gmail.com (Preslav Panayotov)</webMaster>
-    <managingEditor>preslav.panayotov@gmail.com (Preslav Panayotov)</managingEditor>
-    <copyright>Copyright ${new Date().getFullYear()} Preslav Panayotov</copyright>
+    <webMaster>${authorEmail} (${escapeXml(authorName)})</webMaster>
+    <managingEditor>${authorEmail} (${escapeXml(authorName)})</managingEditor>
+    <copyright>Copyright ${new Date().getFullYear()} ${escapeXml(authorName)}</copyright>
     <category>Technology</category>
     <category>Software Development</category>
     <ttl>60</ttl>
@@ -68,7 +78,7 @@ ${publishedPosts.map(post => {
       <guid isPermaLink="true">${guid}</guid>
       <description>${escapeXml(post.description)}</description>
       <pubDate>${pubDate}</pubDate>
-      <author>preslav.panayotov@gmail.com (${escapeXml(post.author)})</author>
+      <author>${authorEmail} (${escapeXml(post.author)})</author>
 ${post.tags && post.tags.length > 0 ? post.tags.map(tag => `      <category>${escapeXml(tag)}</category>`).join('\n') : ''}
 ${post.featuredImage ? `      <enclosure url="${siteUrl}${post.featuredImage}" type="image/webp" />` : ''}
 ${post.readingTime ? `      <content:encoded><![CDATA[<p>Reading time: ${post.readingTime} minutes</p>]]></content:encoded>` : ''}
@@ -81,7 +91,7 @@ ${post.readingTime ? `      <content:encoded><![CDATA[<p>Reading time: ${post.re
       status: 200,
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400, immutable',
         'X-Content-Type-Options': 'nosniff',
       },
     });
@@ -89,11 +99,12 @@ ${post.readingTime ? `      <content:encoded><![CDATA[<p>Reading time: ${post.re
     console.error('RSS feed generation error:', error);
 
     // Return minimal error feed instead of 500
+    // Use generic fallback in case data loading failed
     const errorFeed = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <title>Preslav Panayotov Blog</title>
-    <link>https://ppanayotov.com/blog</link>
+    <title>Blog</title>
+    <link>/blog</link>
     <description>RSS feed temporarily unavailable</description>
   </channel>
 </rss>`;

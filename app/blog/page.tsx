@@ -1,21 +1,40 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { loadBlogPosts } from '@/lib/data-loader';
+import { loadBlogPosts, loadUserProfile } from '@/lib/data-loader';
 import { BlogPost } from '@/lib/schemas';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, User, Clock, Tag, ChevronLeft, ChevronRight, Rss } from 'lucide-react';
 
-export const metadata: Metadata = {
-  title: 'Blog | Preslav Panayotov',
-  description: 'Explore articles on software development, technology insights, and professional experiences.',
-  openGraph: {
-    title: 'Blog | Preslav Panayotov',
+/**
+ * Blog listing page with pagination
+ *
+ * Caching Strategy:
+ * - Uses Next.js automatic static optimization
+ * - Main page (/blog) is prerendered at build time
+ * - Paginated pages (?page=2, ?page=3, etc.) are cached on-demand (ISR)
+ * - All data loaded from static files (no database queries)
+ *
+ * Note: Cannot use 'force-static' because it would break pagination
+ * (searchParams would be empty). Current approach provides good performance
+ * while maintaining pagination functionality.
+ */
+
+// Generate metadata dynamically from user profile
+export async function generateMetadata(): Promise<Metadata> {
+  const userProfile = loadUserProfile();
+
+  return {
+    title: `Blog | ${userProfile.name}`,
     description: 'Explore articles on software development, technology insights, and professional experiences.',
-    type: 'website',
-  },
-};
+    openGraph: {
+      title: `Blog | ${userProfile.name}`,
+      description: 'Explore articles on software development, technology insights, and professional experiences.',
+      type: 'website',
+    },
+  };
+}
 
 interface BlogPageProps {
   searchParams: Promise<{

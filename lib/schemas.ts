@@ -307,6 +307,7 @@ export const UserProfileSchema = z.object({
 });
 
 export const SystemSettingsSchema = z.object({
+  siteUrl: z.string().url('Please enter a valid site URL').default('https://ppanayotov.com'),
   blogEnable: z.boolean().default(false),
   useWysiwyg: z.boolean().default(true),
   showContacts: z.boolean().default(true),

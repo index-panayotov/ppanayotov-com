@@ -23,7 +23,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { BlogPost, BlogPostSchema } from '@/lib/schemas';
-import { createBlogPost, updateBlogPost } from '@/app/admin/handlers';
+import { createBlogPost, updateBlogPost } from '@/lib/handlers';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, FileText } from 'lucide-react';
 import { generateSlug, markdownToEditorJs, editorJsToMarkdown } from '@/lib/markdown-utils';

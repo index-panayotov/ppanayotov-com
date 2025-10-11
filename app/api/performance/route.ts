@@ -3,7 +3,7 @@ import {
   createTypedSuccessResponse,
   createTypedErrorResponse,
   API_ERROR_CODES
-} from '@/types/api';
+} from '@/lib/api-response';
 
 /**
  * Performance Metrics Collection API

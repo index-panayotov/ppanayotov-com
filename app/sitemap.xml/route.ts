@@ -7,13 +7,17 @@ import { BlogPost } from '@/lib/schemas';
 import fs from 'fs';
 import path from 'path';
 
+// Force static generation at build time
+export const dynamic = 'force-static';
+
 /**
- * Dynamic sitemap.xml generation for professional CV website
+ * Static sitemap.xml generation for professional CV website
  * Pulls data from /data/ folder to create SEO-optimized sitemap
+ * Prerendered at build time for optimal performance.
  */
 export async function GET() {
-  const baseUrl = 'https://www.ppanayotov.com';
   const systemSettings = loadSystemSettings();
+  const baseUrl = systemSettings.siteUrl;
   
   // Get file modification times for lastmod dates
   const getLastModified = (filePath: string): string => {
@@ -142,7 +146,7 @@ ${urls.map(url => `  <url>
   return new NextResponse(sitemap, {
     headers: {
       'Content-Type': 'application/xml',
-      'Cache-Control': 'public, max-age=86400, s-maxage=86400', // Cache for 24 hours
+      'Cache-Control': 'public, max-age=86400, s-maxage=86400, immutable', // Cache for 24 hours (static)
     },
   });
 }

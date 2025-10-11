@@ -407,8 +407,9 @@ export const ValidationErrorDetailsSchema = z.object({
   value: z.unknown().optional()
 });
 
-// Re-export API_ERROR_CODES from core for backward compatibility
-export { API_ERROR_CODES, type ApiErrorCode } from './core';
+// Re-export API_ERROR_CODES from lib/api-response for backward compatibility
+export { API_ERROR_CODES } from '@/lib/api-response';
+export type { ApiErrorCode } from '@/lib/api-response';
 
 // === UTILITY TYPES ===
 

@@ -1,10 +1,9 @@
-import { TemplateRegistryEntry, TemplateId, TemplateComponent } from './types';
-import { lazy } from 'react';
+import { TemplateMetadata, TemplateId } from './types';
 
 /**
  * Template Metadata Registry
  */
-export const TEMPLATE_METADATA: Record<TemplateId, TemplateRegistryEntry['metadata']> = {
+export const TEMPLATE_METADATA: Record<TemplateId, TemplateMetadata> = {
   classic: {
     id: 'classic',
     name: 'Classic',
@@ -46,41 +45,14 @@ export const TEMPLATE_METADATA: Record<TemplateId, TemplateRegistryEntry['metada
     ],
     bestFor: ['Design roles', 'Startups', 'Creative industries', 'Portfolio showcase']
   }
-};
-
-/**
- * Lazy-loaded template components
- */
-const TEMPLATE_COMPONENTS: Record<TemplateId, () => Promise<{ default: TemplateComponent }>> = {
-  classic: () => import('./classic'),
-  professional: () => import('./professional'),
-  modern: () => import('./modern')
-};
-
-/**
- * Get template component (lazy-loaded)
- */
-export function getTemplateComponent(templateId: TemplateId): TemplateComponent {
-  return lazy(TEMPLATE_COMPONENTS[templateId]);
-}
-
-/**
- * Get template metadata
- */
-export function getTemplateMetadata(templateId: TemplateId): TemplateRegistryEntry['metadata'] {
-  return TEMPLATE_METADATA[templateId];
-}
+} as const;
 
 /**
  * Get all available templates
  */
-export function getAllTemplates(): TemplateRegistryEntry['metadata'][] {
-  return Object.values(TEMPLATE_METADATA);
-}
+export const getAllTemplates = (): TemplateMetadata[] => Object.values(TEMPLATE_METADATA);
 
 /**
  * Validate template ID
  */
-export function isValidTemplateId(id: string): id is TemplateId {
-  return id in TEMPLATE_METADATA;
-}
+export const isValidTemplateId = (id: string): id is TemplateId => id in TEMPLATE_METADATA;

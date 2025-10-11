@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server';
 import { loadSystemSettings } from '@/lib/data-loader';
 
+// Force static generation at build time
+export const dynamic = 'force-static';
+
 /**
- * Dynamic PWA manifest endpoint that serves manifest.json based on system settings
+ * Static PWA manifest endpoint that serves manifest.json based on system settings
  *
  * This approach keeps all PWA configuration in a single source of truth (system_settings.ts)
  * and enables programmatic updates, localization, and environment-specific overrides.
+ *
+ * Prerendered at build time for optimal performance.
  *
  * Accessible at: /manifest/route.ts -> /manifest.json
  */
@@ -50,7 +55,7 @@ export async function GET() {
     return NextResponse.json(manifest, {
       headers: {
         'Content-Type': 'application/manifest+json; charset=utf-8',
-        'Cache-Control': 'public, max-age=0, must-revalidate', // No cache in development
+        'Cache-Control': 'public, max-age=31536000, immutable', // Cache for 1 year (static asset)
       }
     });
 

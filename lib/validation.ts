@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { ValidationResult, ApiError, API_ERROR_CODES } from '@/types/core';
+import { ValidationResult, ApiError } from '@/types/core';
+import { API_ERROR_CODES } from '@/lib/api-response';
 import { EditorJSData, EditorJSDataSchema } from '@/lib/schemas';
 
 // Re-export all schemas from lib/schemas.ts for backward compatibility

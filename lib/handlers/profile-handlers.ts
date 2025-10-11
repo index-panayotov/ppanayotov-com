@@ -229,7 +229,7 @@ export const deleteEducation = (
 
   toast({
     title: "Education Deleted",
-    description: `"${institution}" has been removed",
+    description: `"${institution}" has been removed`,
     variant: "destructive"
   });
 };

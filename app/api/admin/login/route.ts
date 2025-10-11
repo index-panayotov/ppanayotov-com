@@ -2,11 +2,10 @@ import { NextRequest } from 'next/server';
 import {
   AdminLoginApiRequestSchema,
   AdminLoginApiResponse,
-  API_ERROR_CODES,
-  createTypedSuccessResponse,
-  createTypedErrorResponse,
   validateRequestBody
 } from '@/types/api';
+import { API_ERROR_CODES } from '@/lib/api-response';
+import { createTypedSuccessResponse, createTypedErrorResponse } from '@/lib/api-response';
 import { ApiErrorCode } from '@/types/core';
 
 /**
