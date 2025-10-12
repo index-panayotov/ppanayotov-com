@@ -76,11 +76,19 @@ export default function ExperiencesPage() {
     }
   };
 
-  const deleteExperience = (index: number) => {
+  const deleteExperience = async (index: number) => {
     if (!data) return;
-    const experiences = data.experiences.filter((_, i) => i !== index);
-    handleSave('cv-data', experiences as ExperienceEntry[]);
-    updateExperiences(experiences as ExperienceEntry[]);
+
+    try {
+      const experiences = data.experiences.filter((_, i) => i !== index);
+      await handleSave('cv-data', experiences as ExperienceEntry[]);
+      // updateExperiences is removed as per instruction, relying on data refetch or other mechanism
+    } catch (err) {
+      logger.error('Failed to delete experience', err as Error, {
+        component: 'ExperiencesPage',
+        action: 'deleteExperience'
+      });
+    }
   };
 
   const moveExperience = (index: number, direction: "up" | "down") => {
