@@ -34,22 +34,20 @@ const BlogDeleteDialog: React.FC<BlogDeleteDialogProps> = ({
             <AlertTriangle className="h-5 w-5" />
             Delete Blog Post
           </AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2">
-            <p>
-              Are you sure you want to delete <strong>&quot;{postToDelete?.title}&quot;</strong>?
-            </p>
-            <p className="text-sm">
+          <AlertDialogDescription>
+            Are you sure you want to delete <strong>&quot;{postToDelete?.title}&quot;</strong>?
+            <span className="text-sm block mt-2">
               This action will:
-            </p>
-            <ul className="list-disc list-inside text-sm space-y-1 ml-2">
-              <li>Remove the blog post from the metadata file</li>
-              <li>Delete the markdown content file</li>
-              <li>Delete all uploaded images for this post</li>
-            </ul>
-            <p className="text-sm font-semibold text-red-600 mt-3">
-              This action cannot be undone.
-            </p>
+            </span>
           </AlertDialogDescription>
+          <ul className="list-disc list-inside text-sm space-y-1 ml-2 mt-2">
+            <li>Remove the blog post from the metadata file</li>
+            <li>Delete the markdown content file</li>
+            <li>Delete all uploaded images for this post</li>
+          </ul>
+          <p className="text-sm font-semibold text-red-600 mt-3">
+            This action cannot be undone.
+          </p>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={saving}>Cancel</AlertDialogCancel>
