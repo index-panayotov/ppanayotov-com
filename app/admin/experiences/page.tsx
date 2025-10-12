@@ -91,16 +91,24 @@ export default function ExperiencesPage() {
     }
   };
 
-  const moveExperience = (index: number, direction: "up" | "down") => {
+  const moveExperience = async (index: number, direction: "up" | "down") => {
     if (!data) return;
-    const experiences = [...data.experiences];
-    const newIndex = direction === "up" ? index - 1 : index + 1;
 
-    if (newIndex >= 0 && newIndex < experiences.length) {
-      const [movedExperience] = experiences.splice(index, 1);
-      experiences.splice(newIndex, 0, movedExperience);
-      handleSave('cv-data', experiences as ExperienceEntry[]);
-      updateExperiences(experiences as ExperienceEntry[]);
+    try {
+      const experiences = [...data.experiences];
+      const newIndex = direction === "up" ? index - 1 : index + 1;
+
+      if (newIndex >= 0 && newIndex < experiences.length) {
+        const [movedExperience] = experiences.splice(index, 1);
+        experiences.splice(newIndex, 0, movedExperience);
+        await handleSave('cv-data', experiences as ExperienceEntry[]);
+        updateExperiences(experiences as ExperienceEntry[]); // Keep updateExperiences for optimistic UI update
+      }
+    } catch (err) {
+      logger.error('Failed to move experience', err as Error, {
+        component: 'ExperiencesPage',
+        action: 'moveExperience'
+      });
     }
   };
 
