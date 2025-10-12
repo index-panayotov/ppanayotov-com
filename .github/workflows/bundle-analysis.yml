@@ -79,7 +79,7 @@ jobs:
       - name: Generate bundle analysis report
         run: |
           echo "## Bundle Analysis Report" > bundle-report.md
-          echo "- **Total Size**: $(du -sh .next/static | cut -f1)KB" >> bundle-report.md
+          echo "- **Total Size**: $(du -sk .next/static | cut -f1)KB" >> bundle-report.md
           echo "- **JavaScript Files**: $(find .next/static -name "*.js" | wc -l)" >> bundle-report.md
           echo "- **CSS Files**: $(find .next/static -name "*.css" | wc -l)" >> bundle-report.md
           echo "- **Static Assets**: $(find .next/static -type f | wc -l)" >> bundle-report.md
