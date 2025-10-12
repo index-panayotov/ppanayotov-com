@@ -58,9 +58,7 @@ export default function EditBlogPostPage() {
     return (
       <div className="h-full">
         <AdminNavigation
-          experiencesCount={0}
-          topSkillsCount={0}
-          blogPostsCount={0}
+
           saving={false}
         />
         <div className="flex items-center justify-center min-h-screen">
@@ -76,9 +74,7 @@ export default function EditBlogPostPage() {
   return (
     <div className="h-full">
       <AdminNavigation
-        experiencesCount={0}
-        topSkillsCount={0}
-        blogPostsCount={0}
+
         saving={false}
       />
 
