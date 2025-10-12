@@ -119,10 +119,10 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
           <div className="relative container mx-auto max-w-4xl">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
               <div className="flex-1 text-center lg:text-left">
-                <h1 id="hero-heading" className="text-4xl lg:text-5xl font-bold text-white mb-4">
+                <h1 id="hero-heading" className="text-4xl lg:text-5xl font-bold text-white mb-4" style={{ minHeight: '2.5rem' }}>
                   {profileData.name}
                 </h1>
-                <h2 className="text-xl lg:text-2xl text-blue-100 mb-6">
+                <h2 className="text-xl lg:text-2xl text-blue-100 mb-6" style={{ minHeight: '3rem' }}>
                   <TypingEffect text={profileData.title} speed={80} />
                 </h2>
                 <p className="text-blue-50 mb-2">{profileData.location}</p>
@@ -316,12 +316,13 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
                           </div>
                           <div>
                             <h3 className="font-semibold text-slate-800 mb-1">Email</h3>
-                            <div className="cursor-default">
+                            <div className="cursor-default" style={{ minHeight: '40px', display: 'flex', alignItems: 'center' }}>
                               <img
                                 src={`/api/text-image?fieldType=email&size=16&color=%23059669&bg=transparent`}
                                 alt="Email address (protected from bots)"
                                 className="protected-image"
                                 draggable={false}
+                                loading="eager"
                               />
                             </div>
                           </div>
@@ -335,12 +336,13 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
                           </div>
                           <div>
                             <h3 className="font-semibold text-slate-800 mb-1">Phone</h3>
-                            <div className="cursor-default">
+                            <div className="cursor-default" style={{ minHeight: '40px', display: 'flex', alignItems: 'center' }}>
                               <img
                                 src={`/api/text-image?fieldType=phone&size=16&color=%2316a34a&bg=transparent`}
                                 alt="Phone number (protected from bots)"
                                 className="protected-image"
                                 draggable={false}
+                                loading="eager"
                               />
                             </div>
                           </div>

@@ -11,7 +11,7 @@ interface TypingEffectProps {
 /**
  * Animated typing React client component that reveals `text` one character at a time.
  *
- * Renders the progressively revealed text and, while typing, a blinking cursor (`|`).
+ * Uses visibility: hidden placeholder to reserve space without causing layout shift.
  *
  * @param text - The full text to animate.
  * @param speed - Delay in milliseconds between each character (default: 100).
@@ -45,15 +45,23 @@ export const TypingEffect = memo(function TypingEffect({ text, speed = 100, clas
 
   return (
     <span
-      className={className}
+      className={`inline-block relative ${className}`}
       aria-live="polite"
       aria-atomic="true"
       role="text"
     >
-      {displayText}
-      {!isComplete && (
-        <span className="animate-pulse text-slate-400" aria-hidden="true">|</span>
-      )}
+      {/* Invisible text to reserve space - prevents CLS */}
+      <span className="invisible select-none pointer-events-none" aria-hidden="true">
+        {text}
+      </span>
+
+      {/* Visible typing text - positioned absolutely over invisible text */}
+      <span className="absolute left-0 top-0">
+        {displayText}
+        {!isComplete && (
+          <span className="animate-pulse text-slate-400 ml-0.5" aria-hidden="true">|</span>
+        )}
+      </span>
     </span>
   )
 });

@@ -6,14 +6,16 @@ import { userProfile } from "@/data/user-profile"
 import systemSettings from "@/data/system_settings"
 import { GoogleTagManager } from '@next/third-parties/google'
 import { StructuredData } from "@/components/structured-data"
+import AnalyticsWrapper from "@/components/analytics-wrapper"
+
 
 import { ErrorBoundary } from "@/components/error-boundary"
 
 
-// Optimized font loading with display swap and preload
+// Optimized font loading with display optional to prevent CLS from FOUT
 const inter = Inter({
   subsets: ["latin"],
-  display: 'swap',
+  display: 'optional',
   preload: true,
   fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
   adjustFontFallback: true,
@@ -86,7 +88,7 @@ export default function RootLayout({
         <ErrorBoundary>
           {children}
         </ErrorBoundary>
-
+        <AnalyticsWrapper />
 
       </body>
     </html>
