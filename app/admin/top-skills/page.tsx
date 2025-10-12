@@ -35,10 +35,36 @@ export default function TopSkillsPage() {
 
   const generateAutomaticTopSkills = async () => {
     if (!data) return;
-    // Simplified - would extract skills from experiences
-    const skills = ["JavaScript", "React", "Node.js", "TypeScript"];
-    handleSave('topSkills.ts', skills);
-    updateTopSkills(skills);
+
+    try {
+      const response = await fetch('/api/admin/autoskills', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ experiences: data.experiences }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to generate automatic top skills:', response.statusText);
+        // Fallback to current skills or empty array on error
+        updateTopSkills(data.topSkills || []);
+        return;
+      }
+
+      const result = await response.json();
+      let skills = Array.isArray(result.skills) ? result.skills.map(String) : [];
+
+      // Ensure skills are unique and trimmed
+      skills = Array.from(new Set(skills.map(s => s.trim()))).filter(Boolean);
+
+      handleSave('topSkills.ts', skills);
+      updateTopSkills(skills);
+    } catch (error) {
+      console.error('Error generating automatic top skills:', error);
+      // Fallback to current skills or empty array on error
+      updateTopSkills(data.topSkills || []);
+    }
   };
 
   const moveTopSkill = (index: number, direction: "up" | "down") => {
