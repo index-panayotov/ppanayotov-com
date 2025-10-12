@@ -25,7 +25,7 @@ export const SocialLinksReorder: React.FC<SocialLinksReorderProps> = ({
   onToggleVisibility,
   onBulkToggle
 }) => {
-  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragStart = useCallback(() => {
@@ -59,29 +59,35 @@ export const SocialLinksReorder: React.FC<SocialLinksReorderProps> = ({
     onReorder(updatedLinks);
   }, [socialLinks, onReorder]);
 
-  const handleSelectToggle = useCallback((index: number) => {
-    const newSelected = new Set(selectedIndices);
-    if (newSelected.has(index)) {
-      newSelected.delete(index);
+  const handleSelectToggle = useCallback((id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
     } else {
-      newSelected.add(index);
+      newSelected.add(id);
     }
-    setSelectedIndices(newSelected);
-  }, [selectedIndices]);
+    setSelectedIds(newSelected);
+  }, [selectedIds]);
 
   const handleSelectAll = useCallback(() => {
-    if (selectedIndices.size === socialLinks.length) {
-      setSelectedIndices(new Set());
+    if (selectedIds.size === socialLinks.length) {
+      setSelectedIds(new Set());
     } else {
-      setSelectedIndices(new Set(socialLinks.map((_, index) => index)));
+      setSelectedIds(new Set(socialLinks.map(link => link.url)));
     }
-  }, [selectedIndices.size, socialLinks.length]);
+  }, [selectedIds.size, socialLinks.length]);
+
+  const getLinkIndexById = useCallback((id: string) => {
+    return socialLinks.findIndex(link => link.url === id);
+  }, [socialLinks]);
 
   const handleBulkVisibilityToggle = useCallback((field: 'visible' | 'visibleInHero', value: boolean) => {
-    const indices = Array.from(selectedIndices);
+    const indices = Array.from(selectedIds)
+      .map(id => getLinkIndexById(id))
+      .filter(index => index !== -1); // Filter out any not found IDs
     onBulkToggle(indices, field, value);
-    setSelectedIndices(new Set());
-  }, [selectedIndices, onBulkToggle]);
+    setSelectedIds(new Set());
+  }, [selectedIds, onBulkToggle, getLinkIndexById]);
 
   const hasSelection = selectedIndices.size > 0;
   const allSelected = selectedIndices.size === socialLinks.length;
@@ -99,7 +105,7 @@ export const SocialLinksReorder: React.FC<SocialLinksReorderProps> = ({
               className="rounded border-slate-300"
             />
             <span className="text-sm font-medium">
-              {hasSelection ? `${selectedIndices.size} selected` : 'Select all'}
+              {hasSelection ? `${selectedIds.size} selected` : 'Select all'}
             </span>
           </div>
 
@@ -155,8 +161,8 @@ export const SocialLinksReorder: React.FC<SocialLinksReorderProps> = ({
             >
               {socialLinks.map((link, index) => (
                 <Draggable
-                  key={`${link.platform}-${index}`}
-                  draggableId={`${link.platform}-${index}`}
+                  key={link.url}
+                  draggableId={link.url}
                   index={index}
                 >
                   {(provided, snapshot) => (
@@ -166,7 +172,7 @@ export const SocialLinksReorder: React.FC<SocialLinksReorderProps> = ({
                       className={`transition-all duration-200 ${
                         snapshot.isDragging
                           ? 'shadow-lg rotate-2 scale-105'
-                          : selectedIndices.has(index)
+                          : selectedIds.has(link.url)
                           ? 'ring-2 ring-blue-500'
                           : ''
                       } ${isDragging ? 'select-none' : ''}`}
@@ -176,8 +182,8 @@ export const SocialLinksReorder: React.FC<SocialLinksReorderProps> = ({
                           {/* Selection Checkbox */}
                           <input
                             type="checkbox"
-                            checked={selectedIndices.has(index)}
-                            onChange={() => handleSelectToggle(index)}
+                            checked={selectedIds.has(link.url)}
+                            onChange={() => handleSelectToggle(link.url)}
                             className="rounded border-slate-300"
                           />
 
