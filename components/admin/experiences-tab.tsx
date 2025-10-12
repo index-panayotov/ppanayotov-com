@@ -31,7 +31,7 @@ export default function ExperiencesTab({
         <div className="flex gap-2">
           <AdminButton
             variant="primary"
-            onClick={() => handleSave("cv-data.ts", experiences)}
+            onClick={() => handleSave("cv-data", experiences)}
             disabled={saving}
             loading={saving}
           >
