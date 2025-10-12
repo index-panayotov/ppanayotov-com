@@ -12,8 +12,8 @@ interface AdminCardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 interface AdminCardHeaderProps {
-  title?: string;
-  description?: string;
+  title?: ReactNode;
+  description?: ReactNode;
   actions?: ReactNode;
   children?: ReactNode;
   className?: string;
