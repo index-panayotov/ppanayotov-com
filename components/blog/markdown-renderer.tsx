@@ -44,9 +44,12 @@ const sanitizeSchema = {
     // Allow safe attributes for images
     img: ['src', 'alt', 'title', 'width', 'height', 'className'],
     // Allow safe attributes for links (target, rel already restricted by default)
-    a: ['href', 'title', 'className'],
+    a: ['href', 'title', 'className', 'target', 'rel'], // Add target and rel
     // Allow className for custom styling on other elements
     '*': [...(defaultSchema.attributes?.['*'] || []), 'className'],
+  },
+  protocols: {
+    href: ['http', 'https', 'ftp', 'ftps', 'data', 'relative'], // Only allow these protocols for href
   },
   // Explicitly list allowed tag names for clarity
   tagNames: [
@@ -101,14 +104,28 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
           ),
 
           // Links
-          a: ({ node, ...props }: ComponentPropsWithoutRef<'a'>) => (
-            <a
-              className="text-blue-600 hover:text-blue-800 underline decoration-blue-300 hover:decoration-blue-500 transition-colors"
-              target="_blank"
-              rel="noopener noreferrer"
-              {...props}
-            />
-          ),
+          a: ({ node, href, ...props }: ComponentPropsWithoutRef<'a'>) => {
+            if (href && (href.startsWith('mailto:') || href.startsWith('tel:'))) {
+              return (
+                <span
+                  className="text-blue-600 hover:text-blue-800 underline decoration-blue-300 hover:decoration-blue-500 transition-colors cursor-not-allowed"
+                  aria-label={href}
+                  {...props}
+                >
+                  {props.children}
+                </span>
+              );
+            }
+            return (
+              <a
+                className="text-blue-600 hover:text-blue-800 underline decoration-blue-300 hover:decoration-blue-500 transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+                href={href}
+                {...props}
+              />
+            );
+          },
 
           // Lists
           ul: ({ node, ...props }: ComponentPropsWithoutRef<'ul'>) => (
