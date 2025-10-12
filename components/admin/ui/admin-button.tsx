@@ -18,6 +18,7 @@ interface AdminIconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: AdminIconButtonVariant;
   icon: ReactNode;
   tooltip?: string;
+  ariaLabel: string; // New required prop
   loading?: boolean;
 }
 
@@ -83,22 +84,23 @@ AdminButton.displayName = "AdminButton";
 export const AdminIconButton = forwardRef<HTMLButtonElement, AdminIconButtonProps>(
   ({ 
     variant = 'ghost', 
-    icon, 
-    tooltip, 
-    loading = false, 
-    disabled = false,
-    className, 
-    ...props 
-  }, ref) => {
-    const isDisabled = disabled || loading;
+        icon,
+        tooltip,
+        ariaLabel, // Destructure new prop
+        loading = false,
+        disabled = false,
+        className,
+        ...props
+      }, ref) => {
+        const isDisabled = disabled || loading;
     
-    return (
-      <button
-        ref={ref}
-        disabled={isDisabled}
-        title={tooltip}
-        aria-label={tooltip}
-        className={cn(
+        return (
+          <button
+            ref={ref}
+            disabled={isDisabled}
+            {...props} // Spread props first to allow aria-label to be explicitly set later
+            title={tooltip}
+            aria-label={ariaLabel} // Use the new required ariaLabel prop        className={cn(
           // Base styles
           'inline-flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed',
           // Variant styles from design system
