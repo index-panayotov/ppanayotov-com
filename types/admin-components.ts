@@ -19,22 +19,6 @@ export interface ProfileDataTabProps {
   handleSave: (file: string, data: any) => void;
   handleProfileFieldChange: (field: string, value: string) => void;
   systemSettings: any;
-  addLanguage: () => void;
-  editLanguage: (lang: any, index: number) => void;
-  deleteLanguage: (index: number) => void;
-  moveLanguage: (index: number, direction: "up" | "down") => void;
-  addEducation: () => void;
-  editEducation: (edu: any, index: number) => void;
-  deleteEducation: (index: number) => void;
-  moveEducation: (index: number, direction: "up" | "down") => void;
-  addCertification: () => void;
-  editCertification: (cert: any, index: number) => void;
-  deleteCertification: (index: number) => void;
-  moveCertification: (index: number, direction: "up" | "down") => void;
-  addSocialLink: () => void;
-  editSocialLink: (link: any, index: number) => void;
-  deleteSocialLink: (index: number) => void;
-  moveSocialLink: (index: number, direction: "up" | "down") => void;
 }
 
 export interface ExperiencesTabProps {

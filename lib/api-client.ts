@@ -123,12 +123,7 @@ class APIClient {
         },
         {
           maxAttempts: retries,
-          initialDelay: 1000,
-          onRetry: (error, attempt, delay) => {
-            if (process.env.NODE_ENV === 'development') {
-              logger.warn(`Upload retry ${attempt}/${retries} for ${url} in ${delay}ms`);
-            }
-          },
+          baseDelay: 1000,
         }
       );
 
@@ -136,6 +131,12 @@ class APIClient {
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      // Validate response has json method before calling
+      if (typeof response.json !== 'function') {
+        console.error('Invalid upload response object:', response);
+        throw new Error('Invalid response: response.json is not a function');
       }
 
       return await response.json();
@@ -234,12 +235,7 @@ class APIClient {
         },
         {
           maxAttempts: retries,
-          initialDelay: 1000,
-          onRetry: (error, attempt, delay) => {
-            if (process.env.NODE_ENV === 'development') {
-              logger.warn(`Retry ${attempt}/${retries} for ${url} in ${delay}ms`);
-            }
-          },
+          baseDelay: 1000,
         }
       );
 
@@ -247,6 +243,12 @@ class APIClient {
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      // Validate response has json method before calling
+      if (typeof response.json !== 'function') {
+        console.error('Invalid response object:', response);
+        throw new Error('Invalid response: response.json is not a function');
       }
 
       return await response.json();

@@ -255,8 +255,9 @@ export const BlogPostSchema = z.object({
     'Slug must be lowercase with hyphens only (e.g., my-first-post)'
   ),
   title: NonEmptyStringSchema.max(200, 'Title must be less than 200 characters'),
-  description: NonEmptyStringSchema.min(50, 'Description should be at least 50 characters for SEO')
-    .max(160, 'Description should be less than 160 characters for SEO'),
+  description: z.string()
+    .max(160, 'Description should be less than 160 characters for SEO')
+    .default(''),
   publishedDate: z.string().min(1, 'Published date is required'),
   updatedDate: OptionalStringSchema,
   author: NonEmptyStringSchema,

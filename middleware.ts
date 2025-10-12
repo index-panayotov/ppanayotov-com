@@ -6,19 +6,31 @@ export function middleware(request: NextRequest) {
   // Get the pathname of the request
   const path = request.nextUrl.pathname;
 
-  // Check if the path is for the admin area
-  if (path.startsWith('/admin')) {
+  // Check if the path is for the admin area (pages or API routes)
+  if (path.startsWith('/admin') || path.startsWith('/api/admin')) {
     // Check if the user is authenticated
     const isAuthenticated = request.cookies.has('admin_authenticated');
-    
-    // If not authenticated and not already on the login page, redirect to login
-    if (!isAuthenticated && path !== '/admin/login') {
-      return NextResponse.redirect(new URL('/admin/login', request.url));
+
+    // Allow login page and login API without authentication
+    if (path === '/admin/login' || path === '/api/admin/login') {
+      // If already authenticated, redirect to dashboard
+      if (isAuthenticated && path === '/admin/login') {
+        return NextResponse.redirect(new URL('/admin', request.url));
+      }
+      return NextResponse.next();
     }
-    
-    // If authenticated and trying to access login page, redirect to admin dashboard
-    if (isAuthenticated && path === '/admin/login') {
-      return NextResponse.redirect(new URL('/admin', request.url));
+
+    // All other admin routes require authentication
+    if (!isAuthenticated) {
+      // For API routes, return 401 instead of redirect
+      if (path.startsWith('/api/admin')) {
+        return NextResponse.json(
+          { success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required' } },
+          { status: 401 }
+        );
+      }
+      // For page routes, redirect to login
+      return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }
 
@@ -27,5 +39,5 @@ export function middleware(request: NextRequest) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/api/admin/:path*'],
 };

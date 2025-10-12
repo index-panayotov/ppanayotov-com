@@ -37,7 +37,6 @@ export interface DashboardStats {
   certifications: number;
   lastUpdated: string;
   totalWords: number;
-  completionScore: number;
 }
 
 export interface QuickAction {
@@ -48,11 +47,7 @@ export interface QuickAction {
   color: string;
 }
 
-export interface ActivityItem {
-  action: string;
-  time: string;
-  type: 'experience' | 'skill' | 'ai' | 'certification' | 'education' | 'profile';
-}
+
 
 export interface AdminDashboardProps {
   experiences: ExperienceEntry[];

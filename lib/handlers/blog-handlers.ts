@@ -16,15 +16,28 @@ export const loadBlogPosts = async (
   try {
     const data = await apiClient.get<{ success?: boolean; data?: BlogPost[]; error?: string }>("/api/admin/blog");
 
-    if (data.data && Array.isArray(data.data)) {
-      setBlogPosts(data.data);
+    // Handle error response from API
+    if (data.error) {
+      throw new Error(data.error);
     }
+
+    // Handle success response with data
+    if (data.success && data.data && Array.isArray(data.data)) {
+      setBlogPosts(data.data);
+      return;
+    }
+
+    // Unexpected response format - log it and throw error
+    console.error('Unexpected API response format:', data);
+    throw new Error('Unexpected response format from blog API');
   } catch (err: unknown) {
+    console.error('loadBlogPosts error:', err);
     toast({
       title: "Error",
       description: err instanceof Error ? err.message : "Failed to load blog posts",
       variant: "destructive"
     });
+    throw err; // Re-throw so the page can show error state
   }
 };
 
