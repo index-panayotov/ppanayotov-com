@@ -24,9 +24,7 @@ export function BackToTop() {
   useEffect(() => {
     const toggleVisibility = () => {
       const shouldBeVisible = window.scrollY > 300
-      if (shouldBeVisible !== isVisible) {
-        setIsVisible(shouldBeVisible)
-      }
+      setIsVisible(shouldBeVisible) // Call setIsVisible directly
       ticking.current = false
     }
 
@@ -45,7 +43,7 @@ export function BackToTop() {
         cancelAnimationFrame(rafId.current)
       }
     }
-  }, [isVisible])
+  }, []) // Empty dependency array
 
   const scrollToTop = () => {
     window.scrollTo({
