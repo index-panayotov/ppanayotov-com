@@ -3,7 +3,8 @@ import { cn } from "@/lib/utils";
 import { adminClassNames } from "../design-system";
 import { Loader2 } from "lucide-react";
 
-type AdminButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
+type AdminButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'success';
+type AdminIconButtonVariant = 'base' | 'ghost' | 'primary' | 'danger';
 type AdminButtonSize = 'sm' | 'md' | 'lg';
 
 interface AdminButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -14,7 +15,7 @@ interface AdminButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 interface AdminIconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: AdminButtonVariant;
+  variant?: AdminIconButtonVariant;
   icon: ReactNode;
   tooltip?: string;
   loading?: boolean;
