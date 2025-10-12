@@ -1,6 +1,8 @@
 'use client';
 
-import { Toaster } from "@/components/ui/toaster";
+import dynamic from 'next/dynamic';
+
+const SonnerToaster = dynamic(() => import('@/components/ui/sonner').then(mod => mod.Toaster), { ssr: false });
 import { usePathname } from "next/navigation";
 import { ErrorBoundary } from "@/components/error-boundary";
 
@@ -17,7 +19,7 @@ export default function AdminLayout({
     return (
       <ErrorBoundary>
         {children}
-        <Toaster />
+        <SonnerToaster position="top-right" richColors expand={true} />
       </ErrorBoundary>
     );
   }
@@ -29,7 +31,7 @@ export default function AdminLayout({
           {children}
         </div>
       </div>
-      <Toaster />
+      <SonnerToaster position="top-right" richColors expand={true} />
     </ErrorBoundary>
   );
 }

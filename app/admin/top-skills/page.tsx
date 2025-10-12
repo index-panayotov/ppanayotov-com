@@ -17,7 +17,7 @@ export default function TopSkillsPage() {
   const { data, loading, error, saving, handleSave, updateTopSkills } = useAdminData();
   const [newSkill, setNewSkill] = useState("");
 
-  // Handler functions (simplified)
+
   const addTopSkill = () => {
     if (!newSkill.trim() || !data) return;
     const topSkills = [...data.topSkills, newSkill.trim()];
@@ -41,6 +41,19 @@ export default function TopSkillsPage() {
     updateTopSkills(skills);
   };
 
+  const moveTopSkill = (index: number, direction: "up" | "down") => {
+    if (!data) return;
+    const topSkills = [...data.topSkills];
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+
+    if (newIndex >= 0 && newIndex < topSkills.length) {
+      const [movedSkill] = topSkills.splice(index, 1);
+      topSkills.splice(newIndex, 0, movedSkill);
+      handleSave('topSkills', topSkills);
+      updateTopSkills(topSkills);
+    }
+  };
+
   return (
     <AdminPageWrapper
       loading={loading}
@@ -49,9 +62,6 @@ export default function TopSkillsPage() {
     >
       <div className="h-full">
         <AdminNavigation
-          experiencesCount={data?.experiences.length ?? 0}
-          topSkillsCount={data?.topSkills.length ?? 0}
-          blogPostsCount={0}
           saving={saving}
         />
 
@@ -62,7 +72,7 @@ export default function TopSkillsPage() {
             handleSave={handleSave}
             addTopSkill={addTopSkill}
             removeTopSkill={removeTopSkill}
-            moveTopSkill={() => {}} // Would implement
+            moveTopSkill={moveTopSkill}
             generateAutomaticTopSkills={generateAutomaticTopSkills}
             newSkill={newSkill}
             setNewSkill={setNewSkill}

@@ -3,8 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
 
-const isDev = process.env.NODE_ENV === 'development';
-
 /**
  * Image file signatures (magic numbers) for validation
  * Format: { extension: [magic number bytes] }
@@ -50,13 +48,6 @@ function isValidImageFile(buffer: Buffer): boolean {
  * Validates image files using magic number verification
  */
 export async function POST(request: NextRequest) {
-  if (!isDev) {
-    return NextResponse.json(
-      { error: 'Upload API only available in development mode' },
-      { status: 403 }
-    );
-  }
-
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -153,13 +144,6 @@ export async function POST(request: NextRequest) {
  * DELETE - Delete blog file
  */
 export async function DELETE(request: NextRequest) {
-  if (!isDev) {
-    return NextResponse.json(
-      { error: 'Delete API only available in development mode' },
-      { status: 403 }
-    );
-  }
-
   try {
     const { searchParams } = new URL(request.url);
     const url = searchParams.get('url');

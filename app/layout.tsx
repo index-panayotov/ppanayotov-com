@@ -6,9 +6,9 @@ import { userProfile } from "@/data/user-profile"
 import systemSettings from "@/data/system_settings"
 import { GoogleTagManager } from '@next/third-parties/google'
 import { StructuredData } from "@/components/structured-data"
-import { ServiceWorkerRegistration } from "@/components/service-worker-registration"
+
 import { ErrorBoundary } from "@/components/error-boundary"
-import { PerformanceDashboard } from "@/components/performance-dashboard"
+
 
 // Optimized font loading with display swap and preload
 const inter = Inter({
@@ -75,18 +75,6 @@ export default function RootLayout({
     <html lang="en" className={`scroll-smooth md:scroll-pt-20 ${inter.variable}`}>
       <head>
         <StructuredData />
-        {/* PWA Manifest */}
-        <link rel="manifest" href="/manifest" />
-        {/* Mobile viewport optimization */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-        <meta name="format-detection" content="telephone=no" />
-        {/* iOS specific meta tags */}
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content={systemSettings.pwa.shortName} />
-        {/* Theme colors for mobile browsers */}
-        <meta name="theme-color" content={systemSettings.pwa.themeColor} />
-        <meta name="msapplication-TileColor" content={systemSettings.pwa.themeColor} />
         {/* Resource hints for better performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -98,8 +86,8 @@ export default function RootLayout({
         <ErrorBoundary>
           {children}
         </ErrorBoundary>
-        <ServiceWorkerRegistration />
-        <PerformanceDashboard />
+
+
       </body>
     </html>
   )

@@ -30,7 +30,7 @@ export default function ExperiencesPage() {
   const [newSkill, setNewSkill] = useState("");
 
 
-  // Handler functions (simplified - would include all the logic from handlers.ts)
+
   const addExperience = () => {
     setCurrentExperience({
       title: "",
@@ -81,6 +81,19 @@ export default function ExperiencesPage() {
     updateExperiences(experiences as ExperienceEntry[]);
   };
 
+  const moveExperience = (index: number, direction: "up" | "down") => {
+    if (!data) return;
+    const experiences = [...data.experiences];
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+
+    if (newIndex >= 0 && newIndex < experiences.length) {
+      const [movedExperience] = experiences.splice(index, 1);
+      experiences.splice(newIndex, 0, movedExperience);
+      handleSave('cv-data', experiences as ExperienceEntry[]);
+      updateExperiences(experiences as ExperienceEntry[]);
+    }
+  };
+
   return (
     <AdminPageWrapper
       loading={loading}
@@ -89,9 +102,6 @@ export default function ExperiencesPage() {
     >
       <div className="h-full">
         <AdminNavigation
-          experiencesCount={data?.experiences.length ?? 0}
-          topSkillsCount={data?.topSkills.length ?? 0}
-          blogPostsCount={0}
           saving={saving}
         />
 
@@ -103,7 +113,7 @@ export default function ExperiencesPage() {
             addExperience={addExperience}
             editExperience={editExperience}
             deleteExperience={deleteExperience}
-            moveExperience={() => {}} // Would implement
+            moveExperience={moveExperience}
           />
         </div>
 

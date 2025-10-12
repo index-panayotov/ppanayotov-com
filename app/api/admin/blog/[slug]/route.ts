@@ -1,43 +1,30 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { loadBlogPost } from '@/lib/data-loader';
-
-const isDev = process.env.NODE_ENV === 'development';
+import { logger } from '@/lib/logger';
+import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
+import { withDevOnly } from '@/lib/api-utils';
 
 /**
  * GET - Fetch single blog post with content
  */
-export async function GET(
+export const GET = withDevOnly(async (
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
-  if (!isDev) {
-    return NextResponse.json(
-      { error: 'Blog API only available in development mode' },
-      { status: 403 }
-    );
-  }
-
+  { params }: { params: { slug: string } }
+) => {
   try {
-    const { slug } = await params;
+    const { slug } = params;
 
     if (!slug) {
-      return NextResponse.json(
-        { error: 'Slug parameter is required' },
-        { status: 400 }
-      );
+      return createTypedErrorResponse(API_ERROR_CODES.BAD_REQUEST, 'Slug parameter is required');
     }
 
     const result = loadBlogPost(slug);
-
-    return NextResponse.json({
-      success: true,
-      data: result
-    });
+    return createTypedSuccessResponse(result);
   } catch (error) {
-    console.error('Error loading blog post:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to load blog post' },
-      { status: 404 }
+    logger.error('Error loading blog post', error as Error);
+    return createTypedErrorResponse(
+      API_ERROR_CODES.NOT_FOUND,
+      error instanceof Error ? error.message : 'Failed to load blog post'
     );
   }
-}
+});

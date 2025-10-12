@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { AdminNavigation } from "@/components/admin/admin-navigation";
 import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
 import { Button } from "@/components/ui/button";
@@ -12,25 +13,19 @@ import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Calendar, User, Tag, Eye, EyeOff } from "lucide-react";
 import dynamic from "next/dynamic";
 
-// Dynamic imports for components that use browser APIs
-const BlogPostDialog = dynamic(
-  () => import("@/components/admin/blog-post-dialog"),
-  { ssr: false }
-);
-
+// Dynamic import for delete dialog only
 const BlogDeleteDialog = dynamic(
   () => import("@/components/admin/blog-delete-dialog"),
   { ssr: false }
 );
 
 export default function BlogPage() {
+  const router = useRouter();
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [currentPost, setCurrentPost] = useState<BlogPost | null>(null);
   const [postToDelete, setPostToDelete] = useState<{ slug: string; title: string } | null>(null);
 
   // Toast adapter to convert custom ToastFunction API to Sonner
@@ -69,13 +64,11 @@ export default function BlogPage() {
   }, []);
 
   const handleCreateNew = () => {
-    setCurrentPost(null);
-    setDialogOpen(true);
+    router.push('/admin/blog/new');
   };
 
   const handleEdit = (post: BlogPost) => {
-    setCurrentPost(post);
-    setDialogOpen(true);
+    router.push(`/admin/blog/edit/${post.slug}`);
   };
 
   const handleDeleteClick = (post: BlogPost) => {
@@ -105,9 +98,6 @@ export default function BlogPage() {
     >
       <div className="h-full">
         <AdminNavigation
-          experiencesCount={0}
-          topSkillsCount={0}
-          blogPostsCount={blogPosts.length}
           saving={saving}
         />
 
@@ -225,16 +215,7 @@ export default function BlogPage() {
           )}
         </div>
 
-        {/* Dialogs */}
-        <BlogPostDialog
-          open={dialogOpen}
-          setOpen={setDialogOpen}
-          currentPost={currentPost}
-          blogPosts={blogPosts}
-          setBlogPosts={setBlogPosts}
-          setSaving={setSaving}
-        />
-
+        {/* Delete Dialog */}
         <BlogDeleteDialog
           open={deleteDialogOpen}
           setOpen={setDeleteDialogOpen}

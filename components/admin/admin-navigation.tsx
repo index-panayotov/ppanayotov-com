@@ -21,20 +21,13 @@ interface NavigationItem {
   title: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  count?: number;
 }
 
 interface AdminNavigationProps {
-  experiencesCount?: number;
-  topSkillsCount?: number;
-  blogPostsCount?: number;
   saving?: boolean;
 }
 
 export function AdminNavigation({
-  experiencesCount = 0,
-  topSkillsCount = 0,
-  blogPostsCount = 0,
   saving = false
 }: AdminNavigationProps) {
   const pathname = usePathname();
@@ -52,24 +45,6 @@ export function AdminNavigation({
       icon: LayoutDashboard
     },
     {
-      title: "Experiences",
-      href: "/admin/experiences",
-      icon: Briefcase,
-      count: experiencesCount
-    },
-    {
-      title: "Top Skills",
-      href: "/admin/top-skills",
-      icon: Target,
-      count: topSkillsCount
-    },
-    {
-      title: "Blog",
-      href: "/admin/blog",
-      icon: FileText,
-      count: blogPostsCount
-    },
-    {
       title: "Profile Data",
       href: "/admin/profile-data",
       icon: User
@@ -78,6 +53,21 @@ export function AdminNavigation({
       title: "Settings",
       href: "/admin/settings",
       icon: Settings
+    },
+    {
+      title: "Experiences",
+      href: "/admin/experiences",
+      icon: Briefcase
+    },
+    {
+      title: "Top Skills",
+      href: "/admin/top-skills",
+      icon: Target
+    },
+    {
+      title: "Blog",
+      href: "/admin/blog",
+      icon: FileText
     }
   ];
 
@@ -117,7 +107,8 @@ export function AdminNavigation({
       <nav className="flex items-center space-x-1 pb-4">
         {navigationItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          // Highlight tab if we're on the exact route OR on a nested route under it
+          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
           return (
             <Link key={item.href} href={item.href}>
@@ -132,11 +123,7 @@ export function AdminNavigation({
               >
                 <Icon className="h-4 w-4" />
                 <span className="font-medium">{item.title}</span>
-                {item.count !== undefined && item.count > 0 && (
-                  <Badge variant="secondary" className="ml-1 text-xs">
-                    {item.count}
-                  </Badge>
-                )}
+
               </Button>
             </Link>
           );

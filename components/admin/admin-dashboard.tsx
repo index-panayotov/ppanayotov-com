@@ -14,7 +14,7 @@ import {
   Brain
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { AdminDashboardProps, DashboardStats, QuickAction, ActivityItem } from "@/types/admin";
+import { AdminDashboardProps, DashboardStats, QuickAction } from "@/types/admin";
 
 export function AdminDashboard({ experiences, topSkills, profileData }: AdminDashboardProps) {
   const router = useRouter();
@@ -26,18 +26,6 @@ export function AdminDashboard({ experiences, topSkills, profileData }: AdminDas
       return acc + (exp.description?.split(' ').length || 0);
     }, 0) + (profileData.summary?.split(' ').length || 0);
 
-    // Calculate completion score using weighted criteria
-    let completionScore = 0;
-    if (profileData.name) completionScore += 10;
-    if (profileData.title) completionScore += 10;
-    if (profileData.summary) completionScore += 15;
-    if (profileData.email) completionScore += 5;
-    if (profileData.linkedin) completionScore += 5;
-    if (experiences.length > 0) completionScore += 20;
-    if (topSkills.length > 0) completionScore += 15;
-    if (profileData.languages?.length > 0) completionScore += 10;
-    if (profileData.education?.length > 0) completionScore += 10;
-
     return {
       experiences: experiences.length,
       topSkills: topSkills.length,
@@ -45,8 +33,7 @@ export function AdminDashboard({ experiences, topSkills, profileData }: AdminDas
       education: profileData.education?.length || 0,
       certifications: profileData.certifications?.length || 0,
       lastUpdated: new Date().toISOString(),
-      totalWords,
-      completionScore: Math.min(100, completionScore)
+      totalWords
     };
   }, [experiences, topSkills, profileData]);
 
@@ -94,71 +81,79 @@ export function AdminDashboard({ experiences, topSkills, profileData }: AdminDas
     }
   ], [handleNavigation]);
 
-  // Memoized recent activity (placeholder data - in real app would come from props)
-  const recentActivity = useMemo<ActivityItem[]>(() => [
-    { action: "Updated experience at TechCorp", time: "2 hours ago", type: "experience" },
-    { action: "Added new skill: React", time: "1 day ago", type: "skill" },
-    { action: "Enhanced summary with AI", time: "3 days ago", type: "ai" },
-    { action: "Added certification", time: "1 week ago", type: "certification" }
-  ], []);
+
 
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card
-          className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => handleNavigation('experiences')}
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700">Experiences</CardTitle>
-            <Briefcase className="h-5 w-5 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{stats.experiences}</div>
-            <p className="text-xs text-slate-500 mt-1">Work experiences</p>
-          </CardContent>
-        </Card>
-
-        <Card
-          className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => handleNavigation('topSkills')}
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700">Top Skills</CardTitle>
-            <Target className="h-5 w-5 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{stats.topSkills}</div>
-            <p className="text-xs text-slate-500 mt-1">Featured skills</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-900">Total Words</CardTitle>
-            <BarChart3 className="h-5 w-5 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-900">{stats.totalWords.toLocaleString()}</div>
-            <p className="text-xs text-blue-700 mt-1">Content words</p>
-          </CardContent>
-        </Card>
-
-        <Card
-          className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => handleNavigation('profileData')}
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700">Languages</CardTitle>
-            <Globe className="h-5 w-5 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{stats.languages}</div>
-            <p className="text-xs text-slate-500 mt-1">Known languages</p>
-          </CardContent>
-        </Card>
+      {/* Welcome Header */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-slate-900">Welcome to your Dashboard!</h1>
+        <p className="text-lg text-slate-600 mt-2">Here's a quick overview of your CV content and quick actions.</p>
       </div>
+
+      {/* Stats Cards */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Overview Statistics</CardTitle>
+          <CardDescription>Key metrics about your CV content</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card
+              className="group cursor-pointer hover:shadow-lg transition-all duration-300"
+              onClick={() => handleNavigation('experiences')}
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-700 group-hover:text-blue-600 transition-colors">Experiences</CardTitle>
+                <Briefcase className="h-6 w-6 text-blue-500 group-hover:text-blue-600 transition-colors" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-4xl font-bold text-slate-900">{stats.experiences}</div>
+                <p className="text-sm text-slate-500 mt-1">Work experiences</p>
+              </CardContent>
+            </Card>
+
+            <Card
+              className="group cursor-pointer hover:shadow-lg transition-all duration-300"
+              onClick={() => handleNavigation('topSkills')}
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-700 group-hover:text-green-600 transition-colors">Top Skills</CardTitle>
+                <Target className="h-6 w-6 text-green-500 group-hover:text-green-600 transition-colors" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-4xl font-bold text-slate-900">{stats.topSkills}</div>
+                <p className="text-sm text-slate-500 mt-1">Featured skills</p>
+              </CardContent>
+            </Card>
+
+            <Card className="group bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-lg transition-all duration-300">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-blue-900 group-hover:text-blue-700 transition-colors">Total Words</CardTitle>
+                <BarChart3 className="h-6 w-6 text-blue-500 group-hover:text-blue-700 transition-colors" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-4xl font-bold text-blue-900">{stats.totalWords.toLocaleString()}</div>
+                <p className="text-sm text-blue-700 mt-1">Content words</p>
+              </CardContent>
+            </Card>
+
+            <Card
+              className="group cursor-pointer hover:shadow-lg transition-all duration-300"
+              onClick={() => handleNavigation('profileData')}
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-700 group-hover:text-purple-600 transition-colors">Languages</CardTitle>
+                <Globe className="h-6 w-6 text-purple-500 group-hover:text-purple-600 transition-colors" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-4xl font-bold text-slate-900">{stats.languages}</div>
+                <p className="text-sm text-slate-500 mt-1">Known languages</p>
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Quick Actions */}
       <Card>
@@ -174,14 +169,14 @@ export function AdminDashboard({ experiences, topSkills, profileData }: AdminDas
                 <button
                   key={index}
                   onClick={action.action}
-                  className="flex flex-col items-center gap-3 p-4 rounded-lg border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all group"
+                  className="flex flex-col items-center gap-3 p-5 rounded-lg border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all group hover:scale-[1.02] hover:shadow-md"
                 >
                   <div className={`p-3 rounded-lg ${action.color} text-white group-hover:scale-110 transition-transform`}>
-                    <Icon className="h-6 w-6" />
+                    <Icon className="h-7 w-7" />
                   </div>
                   <div className="text-center">
-                    <div className="font-semibold text-sm text-slate-900">{action.title}</div>
-                    <div className="text-xs text-slate-500 mt-1">{action.description}</div>
+                    <div className="font-semibold text-base text-slate-900">{action.title}</div>
+                    <div className="text-sm text-slate-500 mt-1">{action.description}</div>
                   </div>
                 </button>
               );
@@ -192,78 +187,9 @@ export function AdminDashboard({ experiences, topSkills, profileData }: AdminDas
 
       {/* Content Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Completion Progress */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
-              Content Completion
-            </CardTitle>
-            <CardDescription>
-              Track your CV completeness
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Overall Progress</span>
-                <span>{stats.completionScore}%</span>
-              </div>
-              <div className="w-full bg-slate-200 rounded-full h-2">
-                <div 
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${stats.completionScore}%` }}
-                />
-              </div>
-            </div>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Basic Info</span>
-                <Badge variant={profileData.name && profileData.title ? "default" : "secondary"}>
-                  {profileData.name && profileData.title ? "Complete" : "Incomplete"}
-                </Badge>
-              </div>
-              <div className="flex justify-between">
-                <span>Experiences</span>
-                <Badge variant={stats.experiences > 0 ? "default" : "secondary"}>
-                  {stats.experiences} entries
-                </Badge>
-              </div>
-              <div className="flex justify-between">
-                <span>Skills</span>
-                <Badge variant={stats.topSkills > 0 ? "default" : "secondary"}>
-                  {stats.topSkills} skills
-                </Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Recent Activity
-            </CardTitle>
-            <CardDescription>
-              Latest changes to your CV
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-blue-600 rounded-full" />
-                  <div className="flex-1">
-                    <div>{activity.action}</div>
-                    <div className="text-muted-foreground text-xs">{activity.time}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+
+
       </div>
     </div>
   );

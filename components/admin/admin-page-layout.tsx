@@ -12,9 +12,6 @@ interface AdminPageLayoutProps {
   error?: string | null;
   loadingMessage?: string;
   title?: string;
-  experiencesCount?: number;
-  topSkillsCount?: number;
-  blogPostsCount?: number;
   saving?: boolean;
 }
 
@@ -28,9 +25,6 @@ export function AdminPageLayout({
   error = null,
   loadingMessage = "Loading...",
   title,
-  experiencesCount = 0,
-  topSkillsCount = 0,
-  blogPostsCount = 0,
   saving = false
 }: AdminPageLayoutProps) {
   if (loading) {
@@ -50,9 +44,6 @@ export function AdminPageLayout({
     <AuthCheck>
       <div className="min-h-screen bg-slate-50">
         <AdminNavigation
-          experiencesCount={experiencesCount}
-          topSkillsCount={topSkillsCount}
-          blogPostsCount={blogPostsCount}
           saving={saving}
         />
 

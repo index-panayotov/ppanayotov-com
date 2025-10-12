@@ -139,9 +139,7 @@ export const SocialLinksReorder: React.FC<SocialLinksReorderProps> = ({
           )}
         </div>
 
-        <Badge variant="secondary">
-          {socialLinks.length} social {socialLinks.length === 1 ? 'link' : 'links'}
-        </Badge>
+
       </div>
 
       {/* Drag & Drop List */}

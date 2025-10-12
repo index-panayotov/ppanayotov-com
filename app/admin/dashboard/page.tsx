@@ -12,26 +12,7 @@ const AdminNavigation = lazy(() => import("@/components/admin/admin-navigation")
 
 export default function DashboardPage() {
   const { data, loading, error, saving } = useAdminData();
-  const [blogPostsCount, setBlogPostsCount] = React.useState(0);
 
-  // Load blog posts count
-  React.useEffect(() => {
-    const loadBlogCount = async () => {
-      try {
-        const res = await fetch('/api/admin/blog');
-        const result = await res.json();
-        if (result.success && Array.isArray(result.data)) {
-          setBlogPostsCount(result.data.length);
-        }
-      } catch (error) {
-        logger.error('Failed to load blog posts count', error as Error, {
-          component: 'DashboardPage',
-          action: 'loadBlogCount'
-        });
-      }
-    };
-    loadBlogCount();
-  }, []);
 
   return (
     <AdminPageWrapper
@@ -42,9 +23,6 @@ export default function DashboardPage() {
       <div className="h-full">
         <Suspense fallback={<div className="h-16 bg-slate-100 animate-pulse" />}>
           <AdminNavigation
-            experiencesCount={data?.experiences.length ?? 0}
-            topSkillsCount={data?.topSkills.length ?? 0}
-            blogPostsCount={blogPostsCount}
             saving={saving}
           />
         </Suspense>

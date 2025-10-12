@@ -15,7 +15,7 @@ const ProfileDataTab = dynamic(
 export default function ProfileDataPage() {
   const { data, loading, error, saving, handleSave, updateProfileData } = useAdminData();
 
-  // Simplified handlers - would implement full logic
+
   const handleProfileFieldChange = (field: string, value: string) => {
     if (!data) return;
     const updatedData = { ...data.profileData, [field]: value };
@@ -30,9 +30,6 @@ export default function ProfileDataPage() {
     >
       <div className="h-full">
         <AdminNavigation
-          experiencesCount={data?.experiences.length ?? 0}
-          topSkillsCount={data?.topSkills.length ?? 0}
-          blogPostsCount={0}
           saving={saving}
         />
 
@@ -44,22 +41,6 @@ export default function ProfileDataPage() {
             handleSave={handleSave}
             handleProfileFieldChange={handleProfileFieldChange}
             systemSettings={data?.systemSettings ?? {} as any}
-            addLanguage={() => {}} // Would implement
-            editLanguage={() => {}} // Would implement
-            deleteLanguage={() => {}} // Would implement
-            moveLanguage={() => {}} // Would implement
-            addEducation={() => {}} // Would implement
-            editEducation={() => {}} // Would implement
-            deleteEducation={() => {}} // Would implement
-            moveEducation={() => {}} // Would implement
-            addCertification={() => {}} // Would implement
-            editCertification={() => {}} // Would implement
-            deleteCertification={() => {}} // Would implement
-            moveCertification={() => {}} // Would implement
-            addSocialLink={() => {}} // Would implement
-            editSocialLink={() => {}} // Would implement
-            deleteSocialLink={() => {}} // Would implement
-            moveSocialLink={() => {}} // Would implement
           />
         </div>
       </div>

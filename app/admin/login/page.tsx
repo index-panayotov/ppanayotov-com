@@ -8,9 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 
-// In a real application, this would use a secure authentication system
-// For demo purposes, we're using a simple environment variable
-// The password is stored in the .env file
+
 
 export default function LoginPage() {
   const [password, setPassword] = useState('');

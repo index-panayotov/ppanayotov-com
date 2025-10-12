@@ -19,9 +19,6 @@ export default function SettingsPage() {
       error={error}
       loadingMessage="Loading settings..."
       title="System Settings"
-      experiencesCount={data?.experiences.length || 0}
-      topSkillsCount={data?.topSkills.length || 0}
-      blogPostsCount={0}
       saving={saving}
     >
       <SettingsTab
