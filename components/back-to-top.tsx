@@ -59,6 +59,8 @@ export function BackToTop() {
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
       }`}
       aria-label="Back to top"
+      aria-hidden={!isVisible} // Add aria-hidden
+      tabIndex={isVisible ? 0 : -1} // Add tabIndex
     >
       <FiArrowUp size={20} />
     </button>
