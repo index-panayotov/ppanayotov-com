@@ -56,10 +56,13 @@ export default function ExperiencesPage() {
 
     try {
       const experiences = [...data.experiences];
+      const experienceToSave = { ...currentExperience }; // Shallow copy
+      delete experienceToSave._index; // Delete _index
+
       if (currentExperience._index !== undefined) {
-        experiences[currentExperience._index] = currentExperience;
+        experiences[currentExperience._index] = experienceToSave; // Use the copy
       } else {
-        experiences.push(currentExperience);
+        experiences.push(experienceToSave); // Use the copy
       }
 
       await handleSave('cv-data', experiences as ExperienceEntry[]);
