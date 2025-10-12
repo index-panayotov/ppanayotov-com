@@ -4,11 +4,10 @@ import { adminClassNames } from "../design-system";
 
 type AdminCardVariant = 'base' | 'elevated' | 'interactive';
 
-interface AdminCardProps {
+interface AdminCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   variant?: AdminCardVariant;
-  className?: string;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLDivElement>; // Reconcile onClick signature
   disabled?: boolean;
 }
 
