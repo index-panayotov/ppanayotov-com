@@ -86,6 +86,7 @@ export default function ExperiencesTab({
                             onClick={() => moveExperience(index, "up")}
                             disabled={index === 0 || saving}
                             tooltip="Move up"
+                            ariaLabel="Move experience up"
                           />
                           <AdminIconButton
                             variant="ghost"
@@ -93,6 +94,7 @@ export default function ExperiencesTab({
                             onClick={() => moveExperience(index, "down")}
                             disabled={index === experiences.length - 1 || saving}
                             tooltip="Move down"
+                            ariaLabel="Move experience down"
                           />
                           <AdminIconButton
                             variant="primary"
@@ -100,6 +102,7 @@ export default function ExperiencesTab({
                             onClick={() => editExperience(exp, index)}
                             disabled={saving}
                             tooltip="Edit"
+                            ariaLabel="Edit experience"
                           />
                           <AdminIconButton
                             variant="danger"
@@ -107,6 +110,7 @@ export default function ExperiencesTab({
                             onClick={() => deleteExperience(index)}
                             disabled={saving}
                             tooltip="Delete"
+                            ariaLabel="Delete experience"
                           />
                         </>
                       }
