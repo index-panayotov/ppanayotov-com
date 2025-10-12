@@ -36,10 +36,10 @@ const BlogDeleteDialog: React.FC<BlogDeleteDialogProps> = ({
           </AlertDialogTitle>
           <AlertDialogDescription>
             Are you sure you want to delete <strong>&quot;{postToDelete?.title}&quot;</strong>?
-            <span className="text-sm block mt-2">
-              This action will:
-            </span>
           </AlertDialogDescription>
+          <p className="text-sm mt-2">
+            This action will:
+          </p>
           <ul className="list-disc list-inside text-sm space-y-1 ml-2 mt-2">
             <li>Remove the blog post from the metadata file</li>
             <li>Delete the markdown content file</li>
