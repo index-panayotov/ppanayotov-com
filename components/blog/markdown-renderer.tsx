@@ -105,7 +105,8 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
 
           // Links
           a: ({ node, href, ...props }: ComponentPropsWithoutRef<'a'>) => {
-            if (href && (href.startsWith('mailto:') || href.startsWith('tel:'))) {
+            const normalizedHref = href?.trim().toLowerCase(); // Normalize href
+            if (normalizedHref && (normalizedHref.startsWith('mailto:') || normalizedHref.startsWith('tel:'))) {
               return (
                 <span
                   className="text-blue-600 hover:text-blue-800 underline decoration-blue-300 hover:decoration-blue-500 transition-colors cursor-not-allowed"
