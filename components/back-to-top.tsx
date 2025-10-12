@@ -18,10 +18,12 @@ import { FiArrowUp } from "react-icons/fi"
  */
 export function BackToTop() {
   const [isVisible, setIsVisible] = useState(false)
+  const [mounted, setMounted] = useState(false); // New state
   const rafId = useRef<number | null>(null)
   const ticking = useRef(false)
 
   useEffect(() => {
+    setMounted(true); // Set mounted to true on client
     const toggleVisibility = () => {
       const shouldBeVisible = window.scrollY > 300
       setIsVisible(shouldBeVisible) // Call setIsVisible directly
@@ -59,8 +61,8 @@ export function BackToTop() {
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
       }`}
       aria-label="Back to top"
-      aria-hidden={!isVisible} // Add aria-hidden
-      tabIndex={isVisible ? 0 : -1} // Add tabIndex
+      aria-hidden={!mounted || !isVisible} // Use mounted state
+      tabIndex={mounted && isVisible ? 0 : -1} // Use mounted state
     >
       <FiArrowUp size={20} />
     </button>
