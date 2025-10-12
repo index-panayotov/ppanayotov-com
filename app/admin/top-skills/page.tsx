@@ -21,7 +21,7 @@ export default function TopSkillsPage() {
   const addTopSkill = () => {
     if (!newSkill.trim() || !data) return;
     const topSkills = [...data.topSkills, newSkill.trim()];
-    handleSave('topSkills', topSkills);
+    handleSave('topSkills.ts', topSkills);
     updateTopSkills(topSkills);
     setNewSkill("");
   };
@@ -29,7 +29,7 @@ export default function TopSkillsPage() {
   const removeTopSkill = (skill: string) => {
     if (!data) return;
     const topSkills = data.topSkills.filter(s => s !== skill);
-    handleSave('topSkills', topSkills);
+    handleSave('topSkills.ts', topSkills);
     updateTopSkills(topSkills);
   };
 
@@ -37,7 +37,7 @@ export default function TopSkillsPage() {
     if (!data) return;
     // Simplified - would extract skills from experiences
     const skills = ["JavaScript", "React", "Node.js", "TypeScript"];
-    handleSave('topSkills', skills);
+    handleSave('topSkills.ts', skills);
     updateTopSkills(skills);
   };
 
@@ -49,7 +49,7 @@ export default function TopSkillsPage() {
     if (newIndex >= 0 && newIndex < topSkills.length) {
       const [movedSkill] = topSkills.splice(index, 1);
       topSkills.splice(newIndex, 0, movedSkill);
-      handleSave('topSkills', topSkills);
+      handleSave('topSkills.ts', topSkills);
       updateTopSkills(topSkills);
     }
   };
