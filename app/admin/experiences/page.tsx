@@ -7,8 +7,7 @@ import { useAdminData } from "@/hooks/use-admin-data";
 import { ExperienceEntry } from "@/lib/schemas";
 import { logger } from "@/lib/logger";
 
-// Extended type for admin editing with index
-type ExperienceEntryWithIndex = ExperienceEntry & { _index?: number };
+import type { ExperienceEntryWithIndex } from '@/lib/handlers/types';
 import dynamic from "next/dynamic";
 import { Loader2 } from "lucide-react";
 
