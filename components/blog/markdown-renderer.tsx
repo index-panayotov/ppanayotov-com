@@ -49,7 +49,9 @@ const sanitizeSchema = {
     '*': [...(defaultSchema.attributes?.['*'] || []), 'className'],
   },
   protocols: {
-    href: ['http', 'https', 'ftp', 'ftps', 'data', 'relative'], // Only allow these protocols for href
+    // mailto and tel are intentionally excluded for bot protection (handled by custom 'a' component)
+    // Relative URLs are allowed by default when not restricted, this is a render-time check (second layer of defense)
+    href: ['http', 'https'],
   },
   // Explicitly list allowed tag names for clarity
   tagNames: [
