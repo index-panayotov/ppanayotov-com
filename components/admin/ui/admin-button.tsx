@@ -97,10 +97,11 @@ export const AdminIconButton = forwardRef<HTMLButtonElement, AdminIconButtonProp
         return (
           <button
             ref={ref}
-            disabled={isDisabled}
-            {...props} // Spread props first to allow aria-label to be explicitly set later
-            title={tooltip}
-            aria-label={ariaLabel} // Use the new required ariaLabel prop        className={cn(
+                    disabled={isDisabled}
+                    {...props}
+                    title={tooltip}
+                    aria-label={ariaLabel}
+                    className={cn(
           // Base styles
           'inline-flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed',
           // Variant styles from design system
