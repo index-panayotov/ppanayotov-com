@@ -3,6 +3,11 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { loadSystemSettings, loadUserProfile } from '@/lib/data-loader';
+import { getThemeClasses } from '@/lib/utils';
+import { BlogHeader } from '@/components/blog/blog-header';
+import { Footer } from '@/components/footer';
+import { ContactSection } from '@/components/contact-section';
 
 interface BlogLayoutProps {
   children: ReactNode;
@@ -15,6 +20,10 @@ interface BlogLayoutProps {
  * if blog content loading or rendering fails.
  */
 export default function BlogLayout({ children }: BlogLayoutProps) {
+  const systemSettings = loadSystemSettings();
+  const profileData = loadUserProfile();
+  const themeClasses = getThemeClasses(systemSettings.selectedTemplate);
+
   return (
     <ErrorBoundary
       fallback={
@@ -51,7 +60,21 @@ export default function BlogLayout({ children }: BlogLayoutProps) {
         </div>
       }
     >
-      {children}
+      <div className={themeClasses}>
+        <BlogHeader
+          profileData={profileData}
+          systemSettings={systemSettings}
+          selectedTemplate={systemSettings.selectedTemplate}
+        />
+        <main>{children}</main>
+        <div className="container mx-auto px-4 max-w-4xl">
+            {systemSettings.showContacts && <ContactSection profileData={profileData} />}
+        </div>
+        <Footer
+            profileData={profileData}
+            selectedTemplate={systemSettings.selectedTemplate}
+        />
+      </div>
     </ErrorBoundary>
   );
 }

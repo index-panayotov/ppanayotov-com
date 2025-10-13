@@ -49,9 +49,10 @@ function isValidImageFile(buffer: Buffer): boolean {
  * POST - Upload and optimize profile image
  */
 export const POST = withDevOnly(async (request: NextRequest) => {
+  let file: File | null = null;
   try {
     const formData = await request.formData();
-    const file = formData.get("file") as File;
+    file = formData.get("file") as File;
 
     if (!file) {
       return createTypedErrorResponse(API_ERROR_CODES.BAD_REQUEST, "No file provided");
@@ -139,10 +140,12 @@ export const POST = withDevOnly(async (request: NextRequest) => {
 });
 
 export const DELETE = withDevOnly(async (request: NextRequest) => {
+  let webUrl: string | null = null;
+  let pdfUrl: string | null = null;
   try {
     const { searchParams } = new URL(request.url);
-    const webUrl = searchParams.get("webUrl");
-    const pdfUrl = searchParams.get("pdfUrl");
+    webUrl = searchParams.get("webUrl");
+    pdfUrl = searchParams.get("pdfUrl");
 
     if (webUrl && webUrl.startsWith("/uploads/")) {
       const webPath = path.join(process.cwd(), "public", webUrl);

@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import { ComponentPropsWithoutRef } from 'react';
+import { useTheme } from 'next-themes';
 
 interface MarkdownRendererProps {
   content: string;
@@ -74,8 +75,11 @@ const sanitizeSchema = {
 };
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
+  const { resolvedTheme } = useTheme();
+  const isDarkMode = resolvedTheme === 'dark';
+
   return (
-    <div className="prose prose-slate max-w-none">
+    <div className={`prose prose-slate max-w-none ${isDarkMode ? 'prose-invert' : ''}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}

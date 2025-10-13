@@ -207,6 +207,40 @@ export function safeGetBoolean(
 /**
  * Safely extract error message from various error types
  */
+
+import { TemplateId } from "@/app/templates/types";
+
+/**
+ * Returns Tailwind CSS classes for the main container based on the selected template.
+ * This helps in applying consistent theme-specific backgrounds and text colors.
+ */
+export function getThemeClasses(templateId: TemplateId): string {
+  switch (templateId) {
+    case "professional":
+      return "min-h-screen bg-white text-slate-800 dark:bg-gray-900 dark:text-slate-200";
+    case "modern":
+      return "min-h-screen bg-gradient-to-br from-white to-gray-50 text-slate-800 dark:from-slate-900 dark:to-gray-950 dark:text-slate-200";
+    case "classic":
+    default:
+      return "min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 text-slate-800 dark:from-slate-900 dark:to-slate-950 dark:text-slate-200";
+  }
+}
+
+/**
+ * Returns Tailwind CSS classes for the blog header based on the selected template.
+ */
+export function getBlogHeaderClasses(templateId: TemplateId): string {
+  switch (templateId) {
+    case "professional":
+      return "bg-white text-slate-800 dark:bg-gray-900 dark:text-slate-200";
+    case "modern":
+      return "bg-gradient-to-r from-blue-600 to-purple-700 text-white";
+    case "classic":
+    default:
+      return "bg-gradient-to-r from-slate-700 to-slate-800 text-white";
+  }
+}
+
 export function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     return error.message;

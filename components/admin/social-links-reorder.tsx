@@ -89,8 +89,8 @@ export const SocialLinksReorder: React.FC<SocialLinksReorderProps> = ({
     setSelectedIds(new Set());
   }, [selectedIds, onBulkToggle, getLinkIndexById]);
 
-  const hasSelection = selectedIndices.size > 0;
-  const allSelected = selectedIndices.size === socialLinks.length;
+  const hasSelection = selectedIds.size > 0;
+  const allSelected = selectedIds.size === socialLinks.length;
 
   return (
     <div className="space-y-4">

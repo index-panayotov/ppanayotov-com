@@ -6,13 +6,14 @@ import { withDevOnly } from '@/lib/api-utils';
 
 /**
  * GET - Fetch single blog post with content
+ * Next.js 15: params is now async and must be awaited
  */
 export const GET = withDevOnly(async (
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) => {
   try {
-    const { slug } = params;
+    const { slug } = await context.params;
 
     if (!slug) {
       return createTypedErrorResponse(API_ERROR_CODES.BAD_REQUEST, 'Slug parameter is required');

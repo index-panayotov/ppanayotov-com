@@ -1,11 +1,12 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { loadBlogPosts, loadUserProfile } from '@/lib/data-loader';
+import { loadBlogPosts, loadUserProfile, loadSystemSettings } from '@/lib/data-loader';
 import { BlogPost } from '@/lib/schemas';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, User, Clock, Tag, ChevronLeft, ChevronRight, Rss } from 'lucide-react';
+import { getBlogHeaderClasses } from '@/lib/utils';
 
 /**
  * Blog listing page with pagination
@@ -49,6 +50,8 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const currentPage = parseInt(params.page || '1', 10);
 
   const allPosts = loadBlogPosts() as BlogPost[];
+  const systemSettings = loadSystemSettings();
+  const headerClasses = getBlogHeaderClasses(systemSettings.selectedTemplate);
 
   // Filter only published posts and sort by date (newest first)
   const publishedPosts = allPosts
@@ -63,34 +66,11 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const paginatedPosts = publishedPosts.slice(startIndex, endIndex);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-slate-700 to-slate-800 text-white py-16">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">Blog</h1>
-              <p className="text-lg text-slate-200 max-w-2xl">
-                Insights on software development, technology trends, and lessons learned from building scalable applications.
-              </p>
-            </div>
-            {/* RSS Feed Link */}
-            <Link
-              href="/feed.xml"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors text-sm"
-              title="Subscribe to RSS feed"
-            >
-              <Rss className="h-5 w-5" />
-              <span className="hidden sm:inline">RSS Feed</span>
-            </Link>
-          </div>
-        </div>
-      </div>
+    <div>
+
 
       {/* Blog Posts */}
-      <div className="container mx-auto px-4 py-12 max-w-5xl">
+      <div className="container mx-auto px-4 py-12 max-w-4xl">
         {publishedPosts.length === 0 ? (
           <Card>
             <CardContent className="pt-6">
