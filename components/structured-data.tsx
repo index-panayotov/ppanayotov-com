@@ -1,5 +1,6 @@
 import { userProfile } from "@/data/user-profile";
 import { experiences } from "@/data/cv-data";
+import { getProfileImageUrl } from "@/lib/image-utils";
 
 /**
  * Renders a JSON-LD Person schema as an inline <script> tag.
@@ -12,6 +13,13 @@ import { experiences } from "@/data/cv-data";
  * @returns A React element containing a script tag of type `application/ld+json` with the JSON-LD payload.
  */
 export function StructuredData() {
+  // Extract LinkedIn URL from socialLinks array
+  const linkedInLink = userProfile.socialLinks?.find(link => link.platform === 'LinkedIn' && link.visible);
+  const linkedInUrl = linkedInLink?.url || '';
+
+  // Get profile image URL (web context for structured data)
+  const profileImageUrl = getProfileImageUrl(userProfile, 'web');
+
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -19,15 +27,15 @@ export function StructuredData() {
     "name": userProfile.name,
     "jobTitle": userProfile.title,
     "url": "https://www.ppanayotov.com",
-    "image": userProfile.profileImage,
+    "image": profileImageUrl || undefined,
     "address": {
       "@type": "PostalAddress",
       "addressLocality": userProfile.location
     },
     "email": `mailto:${userProfile.email}`,
     "telephone": userProfile.phone,
-    "sameAs": userProfile.linkedin ? [
-      `https://${userProfile.linkedin.replace(/^https?:\/\//i, '')}`
+    "sameAs": linkedInUrl ? [
+      `https://${linkedInUrl.replace(/^https?:\/\//i, '')}`
     ] : [],
     "knowsAbout": Array.from(new Set(experiences.flatMap(exp => exp.tags))).slice(0, 10),
     "alumniOf": userProfile.education.map(edu => ({
