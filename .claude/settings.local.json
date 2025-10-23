@@ -9,7 +9,8 @@
       "Bash(grep:*)",
       "Bash(git log:*)",
       "mcp__puppeteer__puppeteer_navigate",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Bash(npm outdated)"
     ],
     "deny": [],
     "ask": []

@@ -16,6 +16,9 @@ interface BlogPostPageProps {
   }>;
 }
 
+// Enable ISR with 1-hour revalidation for automatic content updates
+export const revalidate = 3600;
+
 // Generate static paths for all blog posts
 export async function generateStaticParams() {
   const blogPosts = loadBlogPosts(); // Load all blog posts

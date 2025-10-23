@@ -148,14 +148,14 @@ export const DELETE = withDevOnly(async (request: NextRequest) => {
     pdfUrl = searchParams.get("pdfUrl");
 
     if (webUrl && webUrl.startsWith("/uploads/")) {
-      const webPath = path.join(process.cwd(), "public", webUrl);
+      const webPath = path.join(process.cwd(), "public", webUrl.substring(1));
       if (fs.existsSync(webPath)) {
         fs.unlinkSync(webPath);
       }
     }
 
     if (pdfUrl && pdfUrl.startsWith("/uploads/")) {
-      const pdfPath = path.join(process.cwd(), "public", pdfUrl);
+      const pdfPath = path.join(process.cwd(), "public", pdfUrl.substring(1));
       if (fs.existsSync(pdfPath)) {
         fs.unlinkSync(pdfPath);
       }

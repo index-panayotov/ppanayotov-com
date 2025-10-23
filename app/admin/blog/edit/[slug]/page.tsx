@@ -57,10 +57,7 @@ export default function EditBlogPostPage() {
   if (loading) {
     return (
       <div className="h-full">
-        <AdminNavigation
-
-          saving={false}
-        />
+        <AdminNavigation saving={false} />
         <div className="flex items-center justify-center min-h-screen">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
@@ -73,10 +70,7 @@ export default function EditBlogPostPage() {
 
   return (
     <div className="h-full">
-      <AdminNavigation
-
-        saving={false}
-      />
+      <AdminNavigation saving={false} />
 
       <BlogPostForm mode="edit" initialPost={post} />
     </div>

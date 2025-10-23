@@ -156,10 +156,10 @@ export default function ImageUpload({
       <CardContent>
         {hasImage ? (
           <div className="relative">
-            <img 
-              src={currentImageUrl || currentWebUrl || ''} 
-              alt="Current" 
-              className="rounded-md object-cover w-full h-48"
+            <img
+              src={currentImageUrl || currentWebUrl || ''}
+              alt="Current"
+              className="rounded-md object-cover w-[300px] h-[300px]"
             />
             <Button 
               variant="destructive" 

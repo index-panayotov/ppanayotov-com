@@ -12,15 +12,15 @@ import { getBlogHeaderClasses } from '@/lib/utils';
  * Blog listing page with pagination
  *
  * Caching Strategy:
- * - Uses Next.js automatic static optimization
- * - Main page (/blog) is prerendered at build time
- * - Paginated pages (?page=2, ?page=3, etc.) are cached on-demand (ISR)
+ * - Uses Next.js Static Site Generation (SSG) with Incremental Static Regeneration (ISR)
+ * - All paginated pages are pre-generated at build time via generateStaticParams
+ * - Pages automatically revalidate every hour (3600 seconds)
  * - All data loaded from static files (no database queries)
- *
- * Note: Cannot use 'force-static' because it would break pagination
- * (searchParams would be empty). Current approach provides good performance
- * while maintaining pagination functionality.
+ * - Provides fast page loads with automatic content updates
  */
+
+// Enable ISR with 1-hour revalidation
+export const revalidate = 3600;
 
 // Generate metadata dynamically from user profile
 export async function generateMetadata(): Promise<Metadata> {
@@ -45,6 +45,24 @@ interface BlogPageProps {
 
 const POSTS_PER_PAGE = 10;
 
+// Generate static params for all paginated pages at build time
+export async function generateStaticParams() {
+  const allPosts = loadBlogPosts() as BlogPost[];
+  const publishedPosts = allPosts.filter(post => post.published);
+  const totalPages = Math.ceil(publishedPosts.length / POSTS_PER_PAGE);
+
+  // Generate params for all pages (including page 1 which uses no param)
+  const params = [];
+  for (let i = 1; i <= totalPages; i++) {
+    // Page 1 is the default (no page param), pages 2+ have explicit page param
+    if (i > 1) {
+      params.push({ page: String(i) });
+    }
+  }
+
+  return params;
+}
+
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   const params = await searchParams;
   const currentPage = parseInt(params.page || '1', 10);
@@ -66,11 +84,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const paginatedPosts = publishedPosts.slice(startIndex, endIndex);
 
   return (
-    <div>
-
-
-      {/* Blog Posts */}
-      <div className="container mx-auto px-4 py-12 max-w-4xl">
+    <div className="container mx-auto px-4 py-12 max-w-4xl">
         {publishedPosts.length === 0 ? (
           <Card>
             <CardContent className="pt-6">
@@ -224,7 +238,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           )}
         </>
         )}
-      </div>
     </div>
   );
 }

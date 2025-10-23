@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, memo } from "react";
 import { OutputData } from '@editorjs/editorjs';
 import { logger } from '@/lib/logger';
+import { validateImageFile } from '@/lib/image-utils';
 
 interface BlogEditorJSWrapperProps {
   data: OutputData | null;
@@ -108,6 +109,22 @@ const BlogEditorJSWrapper: React.FC<BlogEditorJSWrapperProps> = ({
               uploader: {
                 uploadByFile: async (file: File) => {
                   try {
+                    // Client-side validation before upload
+                    const validation = validateImageFile(file);
+                    if (!validation.valid) {
+                      logger.warn('Image upload validation failed', {
+                        component: 'BlogEditorJSWrapper',
+                        slug,
+                        fileName: file.name,
+                        fileSize: file.size,
+                        error: validation.error
+                      });
+                      return {
+                        success: 0,
+                        error: validation.error
+                      };
+                    }
+
                     const formData = new FormData();
                     formData.append('file', file);
                     formData.append('slug', slug);
