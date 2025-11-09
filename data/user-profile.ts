@@ -5,9 +5,10 @@ export const userProfile: UserProfile = {
   "title": "Software Delivery Manager",
   "phone": "+359 883 41 44 99",
   "location": "Sofia, Sofia City, Bulgaria",
+  "profileImageUrl": "",
   "profileImageWebUrl": "",
   "profileImagePdfUrl": "",
-  "summary": "[{\"id\":\"wwkb293exok\",\"type\":\"paragraph\",\"data\":{\"text\":\"Software Delivery Manager with <b>over 10 years of experience </b>in the IT industry, including 5 years in leading delivery and engineering teams. Proven expertise in software development, project execution, and process optimization, ensuring on-time delivery, high-quality outcomes, and continuous team performance improvement.\"}}]",
+  "summary": "Software Delivery Manager with **over 10 years of experience** in the IT industry, including 5 years in leading delivery and engineering teams. Proven expertise in software development, project execution, and process optimization, ensuring on-time delivery, high-quality outcomes, and continuous team performance improvement.",
   "email": "preslav.panayotov@gmail.com",
   "socialLinks": [
     {

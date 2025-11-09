@@ -3,6 +3,7 @@
 import Image, { ImageProps } from 'next/image';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { PLACEHOLDER_PRESETS } from '@/lib/placeholder';
 
 /**
  * OptimizedImage Component
@@ -31,7 +32,7 @@ interface OptimizedImageProps extends Omit<ImageProps, 'src' | 'alt'> {
 export function OptimizedImage({
   src,
   alt,
-  fallbackSrc = '/api/placeholder/400/300',
+  fallbackSrc = PLACEHOLDER_PRESETS.profile,
   className,
   containerClassName,
   priority = false,
@@ -41,7 +42,9 @@ export function OptimizedImage({
   onError,
   ...props
 }: OptimizedImageProps) {
-  const [currentSrc, setCurrentSrc] = useState(src);
+  // Guard against empty or whitespace-only src values
+  const sanitizedSrc = src?.trim() || fallbackSrc;
+  const [currentSrc, setCurrentSrc] = useState(sanitizedSrc);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 

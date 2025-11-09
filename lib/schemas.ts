@@ -70,37 +70,12 @@ export const ImageURLSchema = z.string()
     return url.startsWith('/') || url.startsWith('http') || url.startsWith('data:');
   }, 'Invalid image URL or path');
 
-// === EDITORJS SCHEMAS ===
+// === EXPERIENCE DESCRIPTION SCHEMA ===
 
 /**
- * EditorJS block structure for proper typing
+ * Schema for validating experience descriptions (markdown string)
  */
-export const EditorJSBlockSchema = z.object({
-  id: z.string().optional(),
-  type: z.string(),
-  data: z.object({
-    text: z.string().optional()
-  }).passthrough() // Allow additional properties
-});
-
-/**
- * EditorJS data structure schema
- */
-export const EditorJSDataSchema = z.object({
-  blocks: z.array(EditorJSBlockSchema),
-  time: z.number().optional(),
-  version: z.string().optional()
-});
-
-/**
- * Schema for validating experience descriptions (string or EditorJS)
- */
-export const ExperienceDescriptionSchema = z.union([
-  NonEmptyStringSchema,
-  EditorJSDataSchema
-], {
-  errorMap: () => ({ message: 'Description is required' })
-});
+export const ExperienceDescriptionSchema = NonEmptyStringSchema;
 
 // === SOCIAL PLATFORM SCHEMAS ===
 
@@ -282,8 +257,8 @@ export const UserProfileSchema = z.object({
   profileImageWebUrl: z.string().optional(),
   profileImagePdfUrl: z.string().optional(),
 
-  // Summary (optional, can be string or EditorJS format)
-  summary: z.union([z.string(), EditorJSDataSchema]).optional(),
+  // Summary (optional markdown string)
+  summary: z.string().optional(),
 
   // Optional arrays with default empty values
   socialLinks: z.array(SocialLinkSchema).optional().default([]),
@@ -354,8 +329,6 @@ export type TopSkill = string; // Simplified: just a string, not an object
 export type BlogPost = z.infer<typeof BlogPostSchema>;
 export type UserProfile = z.infer<typeof UserProfileSchema>;
 export type SystemSettings = z.infer<typeof SystemSettingsSchema>;
-export type EditorJSBlock = z.infer<typeof EditorJSBlockSchema>;
-export type EditorJSData = z.infer<typeof EditorJSDataSchema>;
 export type PartialUserProfile = z.infer<typeof PartialUserProfileSchema>;
 
 // === BACKWARD COMPATIBILITY ALIASES ===

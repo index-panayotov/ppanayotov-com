@@ -1,6 +1,6 @@
 "use client";
 import { FiMail, FiPhone, FiMapPin, FiExternalLink } from "react-icons/fi";
-import EditorJsRenderer from "@/components/ui/editor-js-renderer";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { TemplateProps } from "./types";
 
 import { getSocialIcon } from "@/lib/social-platforms";
@@ -90,7 +90,7 @@ export default function ModernTemplate({ experiences, topSkills, profileData, sy
             <h2 id="summary-heading" className="text-3xl font-black mb-6 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
               About Me
             </h2>
-            <EditorJsRenderer
+            <MarkdownRenderer
               content={profileData.summary}
               className="text-slate-300 text-lg leading-relaxed"
             />
@@ -142,7 +142,7 @@ export default function ModernTemplate({ experiences, topSkills, profileData, sy
                   </div>
                 </div>
 
-                <EditorJsRenderer
+                <MarkdownRenderer
                   content={exp.description}
                   className="text-slate-300 leading-relaxed mb-4"
                 />

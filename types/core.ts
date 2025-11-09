@@ -96,11 +96,6 @@ export const createApiResponseSchema = <T extends z.ZodType>(dataSchema: T) =>
     timestamp: z.number().optional()
   });
 
-// === EDITORJS TYPES ===
-
-// EditorJS types are defined in lib/schemas.ts
-// Import directly from lib/schemas instead of re-exporting to avoid circular deps
-
 // === FORM TYPES ===
 
 /**
@@ -212,15 +207,6 @@ export const SearchParamsSchema = z.object({
 export function isApiResponse<T>(value: unknown): value is ApiResponse<T> {
   const schema = createApiResponseSchema(z.unknown());
   return schema.safeParse(value).success;
-}
-
-/**
- * Check if a value is a valid EditorJS data structure
- * Note: Import EditorJSData and EditorJSDataSchema from @/lib/schemas
- */
-export function isEditorJSData(value: unknown): boolean {
-  // Import the schema when needed from @/lib/schemas
-  return typeof value === 'object' && value !== null && 'blocks' in value;
 }
 
 /**

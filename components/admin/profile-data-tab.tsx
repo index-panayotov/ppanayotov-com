@@ -62,7 +62,9 @@ export default function ProfileDataTab({
         </div>
         <div className="flex gap-2">
           <Button
-            onClick={() => handleSave('user-profile.ts', profileData)}
+            onClick={() => {
+              handleSave('user-profile.ts', profileData);
+            }}
             disabled={saving}
           >
             {saving ? 'Saving...' : 'Save Profile Data'}

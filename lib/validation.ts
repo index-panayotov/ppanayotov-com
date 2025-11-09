@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { ValidationResult, ApiError } from '@/types/core';
 import { API_ERROR_CODES } from '@/lib/api-response';
-import { EditorJSData, EditorJSDataSchema } from '@/lib/schemas';
 
 // Re-export all schemas from lib/schemas.ts for backward compatibility
 export * from '@/lib/schemas';
@@ -196,48 +195,11 @@ export function createFieldError(field: string, message: string): ApiError {
 // === UTILITY VALIDATION FUNCTIONS ===
 
 /**
- * Check if a string is a valid EditorJS JSON structure
- */
-export function isValidEditorJSData(value: string): boolean {
-  try {
-    const parsed = JSON.parse(value);
-    return EditorJSDataSchema.safeParse(parsed).success;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Validate and parse EditorJS data
- */
-export function parseEditorJSData(value: string): EditorJSData | null {
-  try {
-    const parsed = JSON.parse(value);
-    const result = EditorJSDataSchema.safeParse(parsed);
-    return result.success ? result.data : null;
-  } catch {
-    return null;
-  }
-}
-
-/**
  * Extract plain text from various input formats
  */
 export function extractPlainTextSafe(input: unknown): string {
   if (typeof input === 'string') {
     return sanitizeTextInput(input);
-  }
-
-  // Try to parse as EditorJS data
-  if (typeof input === 'object' && input !== null) {
-    const editorData = EditorJSDataSchema.safeParse(input);
-    if (editorData.success) {
-      return editorData.data.blocks
-        .filter(block => block.type === 'paragraph' && block.data.text)
-        .map(block => block.data.text)
-        .join(' ')
-        .trim();
-    }
   }
 
   return '';

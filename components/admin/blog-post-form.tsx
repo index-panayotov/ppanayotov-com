@@ -20,18 +20,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { BlogPost, BlogPostSchema } from '@/lib/schemas';
 import { toast } from 'sonner';
 import { Loader2, FileText, Sparkles, ArrowLeft, Save, X } from 'lucide-react';
-import { generateSlug, markdownToEditorJs, editorJsToMarkdown, markdownToPlainText, truncateText } from '@/lib/markdown-utils';
-import dynamic from 'next/dynamic';
-import { OutputData } from '@editorjs/editorjs';
+import { generateSlug, markdownToPlainText, truncateText } from '@/lib/markdown-utils';
+import MarkdownEditor from '@/components/admin/markdown-editor';
 import ImageUpload from '@/components/admin/image-upload';
 import { userProfile } from '@/data/user-profile';
 import { apiClient } from '@/lib/api-client';
-
-// Dynamic import for EditorJS wrapper
-const BlogEditorJSWrapper = dynamic(
-  () => import('@/components/admin/blog-editorjs-wrapper'),
-  { ssr: false, loading: () => <div className="flex items-center justify-center p-8"><Loader2 className="h-6 w-6 animate-spin" /></div> }
-);
 
 interface BlogPostFormProps {
   initialPost?: BlogPost | null;
@@ -42,7 +35,7 @@ type BlogFormData = Omit<BlogPost, 'readingTime'>;
 
 export default function BlogPostForm({ initialPost, mode }: BlogPostFormProps) {
   const router = useRouter();
-  const [editorData, setEditorData] = useState<OutputData | null>(null);
+  const [content, setContent] = useState<string>('');
   const [loadingContent, setLoadingContent] = useState(false);
   const [generatingDescription, setGeneratingDescription] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -82,7 +75,7 @@ export default function BlogPostForm({ initialPost, mode }: BlogPostFormProps) {
 
   // Load post content when editing
   useEffect(() => {
-    const loadContent = async () => {
+    const loadPostContent = async () => {
       if (initialPost && isEditMode) {
         setLoadingContent(true);
         try {
@@ -105,7 +98,7 @@ export default function BlogPostForm({ initialPost, mode }: BlogPostFormProps) {
             return;
           }
 
-          const { metadata, content } = result.data;
+          const { metadata, content: markdownContent } = result.data;
 
           // Update form with metadata
           reset({
@@ -120,9 +113,8 @@ export default function BlogPostForm({ initialPost, mode }: BlogPostFormProps) {
             published: metadata.published,
           });
 
-          // Convert markdown to EditorJS
-          const blocks = markdownToEditorJs(content);
-          setEditorData({ time: Date.now(), blocks, version: '2.28.0' });
+          // Load markdown directly
+          setContent(markdownContent || '');
         } catch (err) {
           toast.error('Connection Error', {
             description: `Failed to load blog post content. ${err instanceof Error ? err.message : ''}`,
@@ -133,16 +125,16 @@ export default function BlogPostForm({ initialPost, mode }: BlogPostFormProps) {
         }
       } else if (!isEditMode) {
         // New post - initialize empty
-        setEditorData({ time: Date.now(), blocks: [], version: '2.28.0' });
+        setContent('');
       }
     };
 
-    loadContent();
+    loadPostContent();
   }, [initialPost, isEditMode, reset, authorName, router]);
 
   // Generate SEO description from content using AI
   const generateSeoDescription = async () => {
-    if (!editorData || editorData.blocks.length === 0) {
+    if (!content || content.trim().length === 0) {
       toast.error('No Content', {
         description: 'Please add blog content first before generating an SEO description',
       });
@@ -152,8 +144,7 @@ export default function BlogPostForm({ initialPost, mode }: BlogPostFormProps) {
     setGeneratingDescription(true);
 
     try {
-      const markdown = editorJsToMarkdown(editorData.blocks);
-      const plainText = markdownToPlainText(markdown);
+      const plainText = markdownToPlainText(content);
       const contentSample = truncateText(plainText, 500);
 
       const response = await apiClient.post<{ response: string }>('/api/ai', {
@@ -195,7 +186,7 @@ Respond with ONLY the meta description text, nothing else.`,
 
   // Handle form submission
   const onSubmit = async (data: BlogFormData) => {
-    if (!editorData || editorData.blocks.length === 0) {
+    if (!content || content.trim().length === 0) {
       toast.error('Validation Error', {
         description: 'Blog post content cannot be empty',
       });
@@ -205,19 +196,15 @@ Respond with ONLY the meta description text, nothing else.`,
     setSaving(true);
 
     try {
-      // Convert EditorJS to markdown
-      const content = editorJsToMarkdown(editorData.blocks);
-
       // Auto-generate description if blank
       let finalDescription = data.description?.trim() || '';
-      if (!finalDescription && editorData.blocks.length > 0) {
+      if (!finalDescription && content.trim().length > 0) {
         try {
           toast.info('Generating SEO Description', {
             description: 'Creating optimized meta description from content...',
           });
 
-          const markdown = editorJsToMarkdown(editorData.blocks);
-          const plainText = markdownToPlainText(markdown);
+          const plainText = markdownToPlainText(content);
           const contentSample = truncateText(plainText, 500);
 
           const response = await apiClient.post<{ response: string }>('/api/ai', {
@@ -433,9 +420,9 @@ Respond with ONLY the meta description text, nothing else.`,
                         variant="outline"
                         size="sm"
                         onClick={generateSeoDescription}
-                        disabled={generatingDescription || !editorData || editorData.blocks.length === 0}
+                        disabled={generatingDescription || !content || content.trim().length === 0}
                         className="gap-2 shrink-0"
-                        title={!editorData || editorData.blocks.length === 0 ? "Add blog content first to enable AI generation" : "Generate SEO description from your content"}
+                        title={!content || content.trim().length === 0 ? "Add blog content first to enable AI generation" : "Generate SEO description from your content"}
                       >
                         {generatingDescription ? (
                           <>
@@ -525,19 +512,25 @@ Respond with ONLY the meta description text, nothing else.`,
                 <FileText className="h-5 w-5" />
                 Blog Content
               </FormLabel>
-              <div className="bg-white rounded-lg border" style={{ minHeight: '600px' }}>
-                {editorData ? (
-                  <BlogEditorJSWrapper
-                    data={editorData}
-                    onChange={setEditorData}
-                    slug={currentSlug || 'temp'}
-                  />
-                ) : (
-                  <div className="flex items-center justify-center p-12">
-                    <Loader2 className="h-6 w-6 animate-spin" />
-                  </div>
-                )}
+              <div className="rounded-lg border bg-white overflow-hidden">
+                <MarkdownEditor
+                  value={content}
+                  onChange={setContent}
+                  placeholder="Write your blog post content in markdown...
+
+**Markdown tips:**
+- Use **bold** and *italic* for emphasis
+- Create lists with - or 1.
+- Add links: [text](url)
+- Insert images: ![alt text](url)
+- Add code blocks with ```
+"
+                  height={600}
+                />
               </div>
+              <FormDescription className="text-sm text-slate-500">
+                Write your blog content using markdown formatting. The editor supports live preview.
+              </FormDescription>
             </div>
           </form>
         </Form>

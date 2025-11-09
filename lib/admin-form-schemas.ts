@@ -36,9 +36,6 @@ export const ExperienceFormSchema = z.object({
   description: NonEmptyStringSchema.refine(
     (val) => val.length >= 10,
     'Description must be at least 10 characters'
-  ).refine(
-    (val) => val.length <= 2000,
-    'Description must be 2000 characters or less'
   ),
   tags: z.array(z.string().trim().min(1, 'Tag cannot be empty')).default([])
 });

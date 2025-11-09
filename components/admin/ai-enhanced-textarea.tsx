@@ -7,8 +7,7 @@ import { Loader2 } from "lucide-react";
 import { RiRobot2Fill } from "react-icons/ri";
 import { toast } from "@/hooks/use-toast";
 
-import editorJsConfig from "@/data/editorjs-config";
-import { LazyEditorJS } from "@/components/admin/lazy-editorjs";
+import MarkdownEditor from "@/components/admin/markdown-editor";
 import { apiClient } from "@/lib/api-client";
 import { SystemSettings } from "@/lib/schemas";
 import { logger } from "@/lib/logger";
@@ -91,11 +90,28 @@ Respond with ONLY the improved text without any explanations or additional text.
   return (
     <div className="relative">
       {systemSettings.useWysiwyg
-        ? <LazyEditorJS
-            value={value}
-            onChange={onChange}
-            config={editorJsConfig}
-          />
+        ? <div className="pb-10">
+            <MarkdownEditor
+              value={String(value || '')}
+              onChange={(val) => {
+                if (onChange) {
+                  const syntheticEvent = {
+                    target: {
+                      value: val,
+                      name: props.name
+                    }
+                  } as React.ChangeEvent<HTMLTextAreaElement>;
+                  onChange(syntheticEvent);
+                }
+                if (onValueChange) {
+                  onValueChange(val);
+                }
+              }}
+              placeholder={props.placeholder as string}
+              height={300}
+              className="markdown-editor-wrapper"
+            />
+          </div>
         : <Textarea
             className={`${className} pr-12 pb-10 resize-none`}
             value={value}
@@ -107,7 +123,7 @@ Respond with ONLY the improved text without any explanations or additional text.
         type="button"
         variant="ghost"
         size="icon"
-        className="absolute top-2 right-2 bg-background hover:bg-slate-100"
+        className="absolute top-2 right-2 bg-background hover:bg-slate-100 z-10"
         onClick={handleAIClick}
         disabled={isLoading}
         aria-label={

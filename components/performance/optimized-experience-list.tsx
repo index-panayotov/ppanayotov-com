@@ -11,9 +11,9 @@
 
 import React, { memo, useMemo, useCallback, useState } from 'react';
 import type { ExperienceEntry } from '@/types';
-import { OptimizedImage } from './optimized-image';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 import { logger } from '@/lib/logger';
-import EditorJsRenderer from '@/components/ui/editor-js-renderer';
+import { MarkdownRenderer } from '@/components/markdown-renderer';
 
 interface ExperienceListProps {
   experiences: ExperienceEntry[];
@@ -117,7 +117,7 @@ const ExperienceItem = memo<ExperienceItemProps>(({
 
           {/* Description */}
           {experience.description && (
-            <EditorJsRenderer
+            <MarkdownRenderer
               content={experience.description}
               className="text-sm text-slate-600 mb-3 line-clamp-3 leading-relaxed"
             />

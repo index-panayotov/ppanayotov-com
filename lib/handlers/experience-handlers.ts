@@ -3,8 +3,6 @@
  */
 
 import { ExperienceEntry } from "@/types";
-import { processFormValue } from "@/lib/editorjs-utils";
-import systemSettings from "@/data/system_settings";
 import { apiClient } from "@/lib/api-client";
 import { ToastFunction, ExperienceEntryWithIndex } from "./types";
 
@@ -72,11 +70,6 @@ export const saveExperience = async (
   const expToSave = { ...currentExperience };
   const index = expToSave._index;
   delete expToSave._index;
-
-  // Process description to handle EditorJS format
-  if (expToSave.description) {
-    expToSave.description = processFormValue(expToSave.description, systemSettings.useWysiwyg);
-  }
 
   // Clean up empty optional fields
   if (!expToSave.location?.trim()) {

@@ -12,7 +12,7 @@ import { ScrollProgress } from "@/components/scroll-progress";
 import { BackToTop } from "@/components/back-to-top";
 import { TypingEffect } from "@/components/typing-effect";
 import { LazySection } from "@/components/lazy-section";
-import EditorJsRenderer from "@/components/ui/editor-js-renderer";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { OptimizedExperienceList } from "@/components/performance/optimized-experience-list";
 import { getProfileImageUrl } from "@/lib/image-utils";
 
@@ -126,7 +126,7 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
                   <TypingEffect text={profileData.title} speed={80} />
                 </h2>
                 <p className="text-blue-50 mb-2">{profileData.location}</p>
-                <EditorJsRenderer
+                <MarkdownRenderer
                   content={profileData.summary}
                   className="text-blue-50/90 text-lg mb-6 max-w-2xl"
                 />
@@ -190,7 +190,7 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
           <LazySection rootMargin="100px" minHeight="300px">
             <section id="summary" className="cv-section" aria-labelledby="summary-heading">
               <SectionHeading id="summary-heading" title="Summary" subtitle="Professional overview and core competencies" />
-              <EditorJsRenderer
+              <MarkdownRenderer
                 content={profileData.summary}
                 className="text-slate-700 leading-relaxed"
               />

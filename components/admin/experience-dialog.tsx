@@ -254,7 +254,7 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
                     />
                   </FormControl>
                   <FormDescription>
-                    Minimum 10 characters, maximum 2000 characters
+                    Minimum 10 characters. Supports markdown formatting (bold, lists, links, etc.)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

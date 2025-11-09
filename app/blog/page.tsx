@@ -5,7 +5,7 @@ import { BlogPost } from '@/lib/schemas';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, User, Clock, Tag, ChevronLeft, ChevronRight, Rss } from 'lucide-react';
+import { Calendar, Tag, ChevronLeft, ChevronRight, Rss } from 'lucide-react';
 import { getBlogHeaderClasses } from '@/lib/utils';
 
 /**
@@ -129,16 +129,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                           })}
                         </time>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4" />
-                        <span>{post.author}</span>
-                      </div>
-                      {post.readingTime && (
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4" />
-                          <span>{post.readingTime} min read</span>
-                        </div>
-                      )}
                     </div>
                     {post.tags && post.tags.length > 0 && (
                       <div className="flex items-center gap-2">

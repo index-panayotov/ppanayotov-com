@@ -114,8 +114,6 @@ export const POST = withDevOnly(async (request: NextRequest) => {
 
   const { file, data } = validation.data;
 
-
-
   // Security: Whitelist allowed files to prevent path traversal
   const ALLOWED_FILES = ['cv-data.ts', 'topSkills.ts', 'user-profile.ts', 'system_settings.ts'];
   if (!ALLOWED_FILES.includes(file)) {

@@ -146,9 +146,10 @@ export const experiences: ExperienceEntry[] = ${JSON.stringify(data, null, 2)};
 `;
 
     case 'user-profile.ts':
+      const serialized = JSON.stringify(data, null, 2);
       return `import { LanguageProficiency, UserProfile } from "@/lib/schemas";
 
-export const userProfile: UserProfile = ${JSON.stringify(data, null, 2)};
+export const userProfile: UserProfile = ${serialized};
 `;
 
     case 'system_settings.ts':

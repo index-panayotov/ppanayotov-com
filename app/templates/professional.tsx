@@ -1,6 +1,6 @@
 "use client";
 import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
-import EditorJsRenderer from "@/components/ui/editor-js-renderer";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { TemplateProps } from "./types";
 
 import { getSocialIcon } from "@/lib/social-platforms";
@@ -78,7 +78,7 @@ export default function ProfessionalTemplate({ experiences, topSkills, profileDa
           <h2 id="summary-heading" className="text-2xl font-bold text-slate-800 border-b-2 border-slate-800 pb-2 mb-4">
             Professional Summary
           </h2>
-          <EditorJsRenderer
+          <MarkdownRenderer
             content={profileData.summary}
             className="text-slate-700 leading-relaxed text-lg"
           />
@@ -116,7 +116,7 @@ export default function ProfessionalTemplate({ experiences, topSkills, profileDa
                     {exp.location && <p className="text-sm">{exp.location}</p>}
                   </div>
                 </div>
-                <EditorJsRenderer
+                <MarkdownRenderer
                   content={exp.description}
                   className="text-slate-700 mb-3 leading-relaxed"
                 />

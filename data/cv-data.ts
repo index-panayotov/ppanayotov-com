@@ -246,5 +246,16 @@ export const experiences: ExperienceEntry[] = [
       "Coding Standards"
     ],
     "location": "Sofia"
+  },
+  {
+    "title": "",
+    "company": "",
+    "dateRange": "",
+    "location": "",
+    "description": "",
+    "tags": [],
+    "isCurrentRole": false,
+    "achievements": [],
+    "technologies": []
   }
 ];
