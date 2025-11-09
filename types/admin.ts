@@ -59,48 +59,8 @@ export interface AdminDashboardProps {
 export type { ExperienceEntry } from "@/lib/schemas";
 
 // Admin component prop types
-
-export interface ExperiencesTabProps {
-  experiences: ExperienceEntry[];
-  saving: boolean;
-  handleSave: (file: string, data: any) => Promise<void>;
-  addExperience: () => void;
-  editExperience: (exp: ExperienceEntry, index: number) => void;
-  deleteExperience: (index: number) => void;
-  moveExperience: (index: number, direction: "up" | "down") => void;
-}
-
-export interface TopSkillsTabProps {
-  topSkills: string[];
-  saving: boolean;
-  handleSave: (file: string, data: any) => Promise<void>;
-  addTopSkill: () => void;
-  removeTopSkill: (skill: string) => void;
-  moveTopSkill: (index: number, direction: "up" | "down") => void;
-  generateAutomaticTopSkills: () => Promise<void>;
-  newSkill: string;
-  setNewSkill: (skill: string) => void;
-}
-
-export interface ProfileDataTabProps {
-  profileData: UserProfile;
-  setProfileData: (data: UserProfile) => void;
-  saving: boolean;
-  handleSave: (file: string, data: any) => Promise<void>;
-  handleProfileFieldChange: (field: string, value: string) => void;
-  addLanguage: () => void;
-  editLanguage: (lang: Language, index: number) => void;
-  deleteLanguage: (index: number) => void;
-  moveLanguage: (index: number, direction: "up" | "down") => void;
-  addEducation: () => void;
-  editEducation: (edu: Education, index: number) => void;
-  deleteEducation: (index: number) => void;
-  moveEducation: (index: number, direction: "up" | "down") => void;
-  addCertification: () => void;
-  editCertification: (cert: Certification, index: number) => void;
-  deleteCertification: (index: number) => void;
-  moveCertification: (index: number, direction: "up" | "down") => void;
-}
+// Note: TopSkillsTabProps, ProfileDataTabProps, and ExperiencesTabProps are now
+// defined in @/types/admin-components.ts to avoid duplication
 
 // Dialog and form types
 export interface ExperienceDialogProps {

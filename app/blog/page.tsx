@@ -12,8 +12,8 @@ import { getBlogHeaderClasses } from '@/lib/utils';
  * Blog listing page with pagination
  *
  * Caching Strategy:
- * - Uses Next.js Static Site Generation (SSG) with Incremental Static Regeneration (ISR)
- * - All paginated pages are pre-generated at build time via generateStaticParams
+ * - Uses Next.js Incremental Static Regeneration (ISR) with on-demand rendering
+ * - Pagination handled via query string (?page=2) - pages generated on first request
  * - Pages automatically revalidate every hour (3600 seconds)
  * - All data loaded from static files (no database queries)
  * - Provides fast page loads with automatic content updates
@@ -44,24 +44,6 @@ interface BlogPageProps {
 }
 
 const POSTS_PER_PAGE = 10;
-
-// Generate static params for all paginated pages at build time
-export async function generateStaticParams() {
-  const allPosts = loadBlogPosts() as BlogPost[];
-  const publishedPosts = allPosts.filter(post => post.published);
-  const totalPages = Math.ceil(publishedPosts.length / POSTS_PER_PAGE);
-
-  // Generate params for all pages (including page 1 which uses no param)
-  const params = [];
-  for (let i = 1; i <= totalPages; i++) {
-    // Page 1 is the default (no page param), pages 2+ have explicit page param
-    if (i > 1) {
-      params.push({ page: String(i) });
-    }
-  }
-
-  return params;
-}
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   const params = await searchParams;

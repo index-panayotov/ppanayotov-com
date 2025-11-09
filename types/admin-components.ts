@@ -1,9 +1,9 @@
-import { ExperienceEntry } from "@/types"; // Assuming ExperienceEntry is in @/types/index.ts or similar
+import { ExperienceEntry, UserProfile, SystemSettings } from "@/lib/schemas";
 
 export interface TopSkillsTabProps {
   topSkills: string[];
   saving: boolean;
-  handleSave: (file: string, data: any) => void;
+  handleSave: (file: string, data: string[]) => Promise<void>;
   addTopSkill: () => void;
   removeTopSkill: (skill: string) => void;
   moveTopSkill: (index: number, direction: "up" | "down") => void;
@@ -13,18 +13,18 @@ export interface TopSkillsTabProps {
 }
 
 export interface ProfileDataTabProps {
-  profileData: any;
-  setProfileData: (data: any) => void;
+  profileData: UserProfile;
+  setProfileData: (data: UserProfile) => void;
   saving: boolean;
-  handleSave: (file: string, data: any) => void;
+  handleSave: (file: string, data: UserProfile) => Promise<void>;
   handleProfileFieldChange: (field: string, value: string) => void;
-  systemSettings: any;
+  systemSettings: SystemSettings;
 }
 
 export interface ExperiencesTabProps {
   experiences: ExperienceEntry[];
   saving: boolean;
-  handleSave: (file: string, data: any) => void;
+  handleSave: (file: string, data: ExperienceEntry[]) => Promise<void>;
   addExperience: () => void;
   editExperience: (exp: ExperienceEntry, index: number) => void;
   deleteExperience: (index: number) => void;

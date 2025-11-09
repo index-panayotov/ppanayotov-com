@@ -3,7 +3,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Plus, ArrowUp, ArrowDown, Edit, Trash2, Briefcase } from "lucide-react";
-import { ExperiencesTabProps } from "@/types/admin";
+import { ExperiencesTabProps } from "@/types/admin-components";
 import { AdminCard, AdminCardHeader, AdminCardContent } from "./ui/admin-card";
 import { AdminButton } from "./ui/admin-button";
 import { AdminIconButton } from "./ui/admin-button";

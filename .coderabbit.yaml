@@ -55,6 +55,3 @@ focus_areas:
   - best_practices
   - type_safety
 
-# Disable certain review types
-disable:
-  - "nitpick_comments"

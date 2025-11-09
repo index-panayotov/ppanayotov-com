@@ -33,29 +33,50 @@ interface SocialLinkDialogProps {
   saving?: boolean;
 }
 
+// Platform key mappings - centralized to avoid duplication
+const PLATFORM_MAP: Record<string, SocialPlatform> = {
+  facebook: 'Facebook',
+  github: 'GitHub',
+  twitter: 'Twitter',
+  linkedin: 'LinkedIn',
+  instagram: 'Instagram',
+  youtube: 'YouTube',
+  tiktok: 'TikTok',
+  medium: 'Medium',
+  devto: 'DevTo',
+  stackoverflow: 'StackOverflow',
+  discord: 'Discord',
+  telegram: 'Telegram',
+  whatsapp: 'WhatsApp',
+  mastodon: 'Mastodon',
+  threads: 'Threads',
+  custom: 'Custom'
+};
+
+// Inverse mapping: PascalCase -> lowercase (for validation)
+const PLATFORM_KEY_MAP: Record<SocialPlatform, string> = {
+  'Facebook': 'facebook',
+  'GitHub': 'github',
+  'Twitter': 'twitter',
+  'LinkedIn': 'linkedin',
+  'Instagram': 'instagram',
+  'YouTube': 'youtube',
+  'TikTok': 'tiktok',
+  'Medium': 'medium',
+  'DevTo': 'devto',
+  'StackOverflow': 'stackoverflow',
+  'Discord': 'discord',
+  'Telegram': 'telegram',
+  'WhatsApp': 'whatsapp',
+  'Mastodon': 'mastodon',
+  'Threads': 'threads',
+  'Custom': 'custom'
+};
+
 // Get platforms from configuration system
-const SOCIAL_PLATFORMS: SocialPlatform[] = getAvailablePlatforms().map(key => {
-  // Convert platform keys to the format expected by the SocialPlatform type
-  const platformMap: Record<string, SocialPlatform> = {
-    facebook: 'Facebook',
-    github: 'GitHub',
-    twitter: 'Twitter',
-    linkedin: 'LinkedIn',
-    instagram: 'Instagram',
-    youtube: 'YouTube',
-    tiktok: 'TikTok',
-    medium: 'Medium',
-    devto: 'DevTo',
-    stackoverflow: 'StackOverflow',
-    discord: 'Discord',
-    telegram: 'Telegram',
-    whatsapp: 'WhatsApp',
-    mastodon: 'Mastodon',
-    threads: 'Threads',
-    custom: 'Custom'
-  };
-  return platformMap[key] || 'Custom';
-});
+const SOCIAL_PLATFORMS: SocialPlatform[] = getAvailablePlatforms().map(key =>
+  PLATFORM_MAP[key] || 'Custom'
+);
 
 const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
   open,
@@ -70,6 +91,7 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
 
   // Capture initial snapshot when dialog opens for unsaved changes detection
   const initialLinkRef = useRef<{
+    platform: SocialPlatform;
     url: string;
     label: string;
     visible: boolean;
@@ -96,24 +118,7 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
     if (value && !currentSocialLink?.platform) {
       const detectedPlatform = detectPlatformFromUrl(value);
       if (detectedPlatform) {
-        const platformMap: Record<string, SocialPlatform> = {
-          facebook: 'Facebook',
-          github: 'GitHub',
-          twitter: 'Twitter',
-          linkedin: 'LinkedIn',
-          instagram: 'Instagram',
-          youtube: 'YouTube',
-          tiktok: 'TikTok',
-          medium: 'Medium',
-          devto: 'DevTo',
-          stackoverflow: 'StackOverflow',
-          discord: 'Discord',
-          telegram: 'Telegram',
-          whatsapp: 'WhatsApp',
-          mastodon: 'Mastodon',
-          threads: 'Threads'
-        };
-        const mappedPlatform = platformMap[detectedPlatform];
+        const mappedPlatform = PLATFORM_MAP[detectedPlatform];
         if (mappedPlatform) {
           updateField('platform', mappedPlatform);
         }
@@ -138,6 +143,7 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
   useEffect(() => {
     if (open) {
       initialLinkRef.current = {
+        platform: currentSocialLink?.platform || 'Custom',
         url: currentSocialLink?.url || '',
         label: currentSocialLink?.label || '',
         visible: currentSocialLink?.visible || false,
@@ -161,26 +167,7 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
       // Platform-specific validation
       if (currentSocialLink.url?.trim()) {
         // Convert PascalCase platform names to lowercase keys for validation
-        const platformKeyMap: Record<SocialPlatform, string> = {
-          'Facebook': 'facebook',
-          'GitHub': 'github',
-          'Twitter': 'twitter',
-          'LinkedIn': 'linkedin',
-          'Instagram': 'instagram',
-          'YouTube': 'youtube',
-          'TikTok': 'tiktok',
-          'Medium': 'medium',
-          'DevTo': 'devto',
-          'StackOverflow': 'stackoverflow',
-          'Discord': 'discord',
-          'Telegram': 'telegram',
-          'WhatsApp': 'whatsapp',
-          'Mastodon': 'mastodon',
-          'Threads': 'threads',
-          'Custom': 'custom'
-        };
-
-        const platformKey = platformKeyMap[currentSocialLink.platform] || 'custom';
+        const platformKey = PLATFORM_KEY_MAP[currentSocialLink.platform] || 'custom';
         const validation = validateSocialUrl(platformKey, currentSocialLink.url);
 
         if (!validation.isValid && validation.error) {
@@ -225,6 +212,7 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
     // Check if any field has changed from initial values
     if (!newOpen && initialLinkRef.current) {
       const hasChanges = (
+        inputValues.platform !== initialLinkRef.current.platform ||
         inputValues.url.trim() !== initialLinkRef.current.url.trim() ||
         inputValues.label.trim() !== initialLinkRef.current.label.trim() ||
         inputValues.visible !== initialLinkRef.current.visible ||
