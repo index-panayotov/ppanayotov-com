@@ -5,7 +5,7 @@
 
 export { AdminGuard, useAdminAccess, withAdminGuard } from './admin-guard';
 export { AdminPanelWrapper } from './admin-panel-wrapper';
-export { AdminButton } from './admin-button';
+export { AdminButton, AdminIconButton } from './ui/admin-button';
 export { EnvironmentTest } from './environment-test';
 
 // Re-export environment service for convenience
