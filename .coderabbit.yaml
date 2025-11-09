@@ -26,7 +26,7 @@ reviews:
   tools:
     github-checks:
       enabled: true
-      timeout: 90
+      timeout_ms: 90000
 
   # Path-based review configuration
   path_filters:
@@ -44,29 +44,8 @@ chat:
 
 # Knowledge base
 knowledge_base:
-  # Learnings from project structure
   learnings:
-    - "This is a Next.js 15 App Router project with TypeScript"
-    - "Data is stored in static TypeScript files in /data/ directory (no database)"
-    - "Admin panel should NOT be deployed to production unless secured"
-    - "Blog uses markdown files stored in /data/blog/"
-    - "Images are optimized using Sharp library"
-    - "Contact information must remain non-clickable for bot protection"
-    - "Print functionality has been completely removed"
-    - "Uses Incremental Static Regeneration (ISR) for blog pages"
-
-  # Custom instructions for reviews
-  custom_instructions:
-    - "Check for security issues in admin routes and API endpoints"
-    - "Verify that contact information remains non-clickable (no mailto: or tel: links)"
-    - "Ensure proper TypeScript types and avoid 'any' where possible"
-    - "Check for accessibility (ARIA labels, semantic HTML, keyboard navigation)"
-    - "Verify Next.js 15 best practices (Server Components, async metadata, etc.)"
-    - "Check for performance issues (large bundle sizes, unnecessary re-renders)"
-    - "Ensure proper error handling in async operations"
-    - "Verify that admin panel changes don't affect public-facing pages"
-    - "Check for proper ISR/SSG configuration on blog pages"
-    - "Ensure all data comes from /data/ files, not hardcoded values"
+    scope: local
 
 # Review focus areas
 focus_areas:

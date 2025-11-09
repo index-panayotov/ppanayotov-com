@@ -1,10 +1,8 @@
 'use client';
 
-import React, { Suspense } from 'react';
-import { lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
 import { useAdminData } from "@/hooks/use-admin-data";
-import { logger } from "@/lib/logger";
 
 // Lazy load admin components for better performance
 const AdminDashboard = lazy(() => import("@/components/admin/admin-dashboard").then(m => ({ default: m.AdminDashboard })));

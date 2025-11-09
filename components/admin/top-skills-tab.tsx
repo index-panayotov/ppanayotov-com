@@ -40,7 +40,7 @@ export default function TopSkillsTab({
             Auto-Generate
           </Button>
           <Button
-            onClick={() => handleSave("topSkills.ts", topSkills)}
+            onClick={() => handleSave("topSkills", topSkills)}
             disabled={saving}
           >
             {saving ? "Saving..." : "Save Changes"}

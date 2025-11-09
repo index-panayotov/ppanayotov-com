@@ -79,11 +79,22 @@ export default function ExperiencesPage() {
   const deleteExperience = async (index: number) => {
     if (!data) return;
 
+    // Compute new experiences array (filter out the deleted item)
+    const newExperiences = data.experiences.filter((_, i) => i !== index);
+
+    // Store previous data snapshot for rollback
+    const previousExperiences = data.experiences;
+
     try {
-      const experiences = data.experiences.filter((_, i) => i !== index);
-      await handleSave('cv-data', experiences as ExperienceEntry[]);
-      // updateExperiences is removed as per instruction, relying on data refetch or other mechanism
+      // Optimistic update: immediately update local state
+      updateExperiences(newExperiences as ExperienceEntry[]);
+
+      // Persist to backend
+      await handleSave('cv-data', newExperiences as ExperienceEntry[]);
     } catch (err) {
+      // Rollback on error: restore previous state
+      updateExperiences(previousExperiences as ExperienceEntry[]);
+
       logger.error('Failed to delete experience', err as Error, {
         component: 'ExperiencesPage',
         action: 'deleteExperience'

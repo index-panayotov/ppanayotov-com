@@ -75,7 +75,7 @@ export const SocialLinksReorder: React.FC<SocialLinksReorderProps> = ({
     } else {
       setSelectedIds(new Set(socialLinks.map(link => link.url)));
     }
-  }, [selectedIds.size, socialLinks.length]);
+  }, [selectedIds.size, socialLinks]);
 
   const getLinkIndexById = useCallback((id: string) => {
     return socialLinks.findIndex(link => link.url === id);

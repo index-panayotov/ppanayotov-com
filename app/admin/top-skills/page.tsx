@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { AdminNavigation } from "@/components/admin/admin-navigation";
 import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
 import { useAdminData } from "@/hooks/use-admin-data";
+import { logger } from "@/lib/logger";
 import dynamic from "next/dynamic";
 import { Loader2 } from "lucide-react";
 
@@ -18,23 +19,56 @@ export default function TopSkillsPage() {
   const [newSkill, setNewSkill] = useState("");
 
 
-  const addTopSkill = () => {
+  const addTopSkill = async () => {
     if (!newSkill.trim() || !data) return;
-    const topSkills = [...data.topSkills, newSkill.trim()];
-    handleSave('topSkills.ts', topSkills);
-    updateTopSkills(topSkills);
-    setNewSkill("");
+
+    const skillToAdd = newSkill.trim();
+    const newTopSkills = [...data.topSkills, skillToAdd];
+
+    try {
+      // Persist to backend first
+      await handleSave('topSkills', newTopSkills);
+
+      // Only update state after successful save
+      updateTopSkills(newTopSkills);
+      setNewSkill("");
+    } catch (err) {
+      logger.error('Failed to add top skill', err as Error, {
+        component: 'TopSkillsPage',
+        action: 'addTopSkill',
+        skill: skillToAdd
+      });
+    }
   };
 
-  const removeTopSkill = (skill: string) => {
+  const removeTopSkill = async (skill: string) => {
     if (!data) return;
-    const topSkills = data.topSkills.filter(s => s !== skill);
-    handleSave('topSkills.ts', topSkills);
-    updateTopSkills(topSkills);
+
+    const newTopSkills = data.topSkills.filter(s => s !== skill);
+    const previousTopSkills = data.topSkills;
+
+    try {
+      // Optimistic update: immediately update local state
+      updateTopSkills(newTopSkills);
+
+      // Persist to backend
+      await handleSave('topSkills', newTopSkills);
+    } catch (err) {
+      // Rollback on error: restore previous state
+      updateTopSkills(previousTopSkills);
+
+      logger.error('Failed to remove top skill', err as Error, {
+        component: 'TopSkillsPage',
+        action: 'removeTopSkill',
+        skill
+      });
+    }
   };
 
   const generateAutomaticTopSkills = async () => {
     if (!data) return;
+
+    const previousTopSkills = data.topSkills;
 
     try {
       const response = await fetch('/api/admin/autoskills', {
@@ -46,9 +80,12 @@ export default function TopSkillsPage() {
       });
 
       if (!response.ok) {
-        console.error('Failed to generate automatic top skills:', response.statusText);
-        // Fallback to current skills or empty array on error
-        updateTopSkills(data.topSkills || []);
+        const errorMsg = `Failed to generate automatic top skills: ${response.statusText}`;
+        logger.error(errorMsg, new Error(errorMsg), {
+          component: 'TopSkillsPage',
+          action: 'generateAutomaticTopSkills',
+          status: response.status
+        });
         return;
       }
 
@@ -58,25 +95,51 @@ export default function TopSkillsPage() {
       // Ensure skills are unique and trimmed
       skills = Array.from(new Set(skills.map(s => s.trim()))).filter(Boolean);
 
-      handleSave('topSkills.ts', skills);
+      // Persist to backend first
+      await handleSave('topSkills', skills);
+
+      // Only update state after successful save
       updateTopSkills(skills);
-    } catch (error) {
-      console.error('Error generating automatic top skills:', error);
-      // Fallback to current skills or empty array on error
-      updateTopSkills(data.topSkills || []);
+    } catch (err) {
+      logger.error('Error generating automatic top skills', err as Error, {
+        component: 'TopSkillsPage',
+        action: 'generateAutomaticTopSkills'
+      });
+      // Keep UI unchanged on error (don't update state)
     }
   };
 
-  const moveTopSkill = (index: number, direction: "up" | "down") => {
+  const moveTopSkill = async (index: number, direction: "up" | "down") => {
     if (!data) return;
-    const topSkills = [...data.topSkills];
+
+    const newTopSkills = [...data.topSkills];
     const newIndex = direction === "up" ? index - 1 : index + 1;
 
-    if (newIndex >= 0 && newIndex < topSkills.length) {
-      const [movedSkill] = topSkills.splice(index, 1);
-      topSkills.splice(newIndex, 0, movedSkill);
-      handleSave('topSkills.ts', topSkills);
-      updateTopSkills(topSkills);
+    if (newIndex < 0 || newIndex >= newTopSkills.length) {
+      return; // Invalid move, exit early
+    }
+
+    const [movedSkill] = newTopSkills.splice(index, 1);
+    newTopSkills.splice(newIndex, 0, movedSkill);
+
+    const previousTopSkills = data.topSkills;
+
+    try {
+      // Optimistic update: immediately update local state
+      updateTopSkills(newTopSkills);
+
+      // Persist to backend
+      await handleSave('topSkills', newTopSkills);
+    } catch (err) {
+      // Rollback on error: restore previous state
+      updateTopSkills(previousTopSkills);
+
+      logger.error('Failed to move top skill', err as Error, {
+        component: 'TopSkillsPage',
+        action: 'moveTopSkill',
+        skill: movedSkill,
+        direction
+      });
     }
   };
 

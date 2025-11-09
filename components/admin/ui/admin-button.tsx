@@ -54,12 +54,23 @@ export const AdminIconButton = forwardRef<HTMLButtonElement, AdminIconButtonProp
       variant === 'danger' ? 'destructive' :
       variant as ButtonProps['variant'];
 
+    // Compute accessible label: use ariaLabel if provided, otherwise fall back to tooltip
+    const resolvedAriaLabel = ariaLabel || tooltip;
+
+    // In development, warn if both ariaLabel and tooltip are missing
+    if (process.env.NODE_ENV !== 'production' && !resolvedAriaLabel) {
+      console.warn(
+        'AdminIconButton: Icon-only button rendered without an accessible name. ' +
+        'Please provide either ariaLabel or tooltip prop for accessibility.'
+      );
+    }
+
     const button = (
       <Button
         ref={ref}
         variant={buttonVariant}
         size="icon"
-        aria-label={ariaLabel}
+        aria-label={resolvedAriaLabel}
         disabled={props.disabled || loading}
         className={cn('h-8 w-8', className)}
         {...props}

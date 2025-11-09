@@ -6,15 +6,13 @@ import { Button } from '@/components/ui/button';
 import { AIEnhancedInput } from '@/components/admin/ai-enhanced-input';
 import { AIEnhancedTextarea } from '@/components/admin/ai-enhanced-textarea';
 import { adminClassNames } from './design-system';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ArrowUp, ArrowDown, Edit, Trash2, Plus } from 'lucide-react';
 import { ProfileDataTabProps } from '@/types/admin-components';
 import ImageUpload from '@/components/admin/image-upload';
 

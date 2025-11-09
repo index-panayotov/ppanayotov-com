@@ -5,7 +5,7 @@ import { BlogPost } from '@/lib/schemas';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Tag, ChevronLeft, ChevronRight, Rss } from 'lucide-react';
+import { Calendar, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getBlogHeaderClasses } from '@/lib/utils';
 
 /**

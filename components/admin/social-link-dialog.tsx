@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+'use client';
+
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -66,6 +68,14 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [validationSuggestion, setValidationSuggestion] = useState<string>('');
 
+  // Capture initial snapshot when dialog opens for unsaved changes detection
+  const initialLinkRef = useRef<{
+    url: string;
+    label: string;
+    visible: boolean;
+    visibleInHero: boolean;
+  } | null>(null);
+
   // Stable state updater functions using useCallback
   const updateField = useCallback((field: keyof SocialLink, value: string | boolean | number) => {
     setCurrentSocialLink(prev => {
@@ -123,6 +133,18 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
     visible: currentSocialLink?.visible || false,
     visibleInHero: currentSocialLink?.visibleInHero || false
   }), [currentSocialLink]);
+
+  // Capture initial snapshot when dialog opens
+  useEffect(() => {
+    if (open) {
+      initialLinkRef.current = {
+        url: currentSocialLink?.url || '',
+        label: currentSocialLink?.label || '',
+        visible: currentSocialLink?.visible || false,
+        visibleInHero: currentSocialLink?.visibleInHero || false
+      };
+    }
+  }, [open, currentSocialLink]);
 
   // Debounced validation using the new platform system
   useEffect(() => {
@@ -199,21 +221,27 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
       // Prevent closing while saving
       return;
     }
-    
-    if (!newOpen && currentSocialLink && (
-      inputValues.url.trim() || 
-      inputValues.label.trim() ||
-      inputValues.visible ||
-      inputValues.visibleInHero
-    )) {
-      // Show confirmation for unsaved changes
-      if (window.confirm("You have unsaved changes. Are you sure you want to close without saving?")) {
-        setOpen(newOpen);
+
+    // Check if any field has changed from initial values
+    if (!newOpen && initialLinkRef.current) {
+      const hasChanges = (
+        inputValues.url.trim() !== initialLinkRef.current.url.trim() ||
+        inputValues.label.trim() !== initialLinkRef.current.label.trim() ||
+        inputValues.visible !== initialLinkRef.current.visible ||
+        inputValues.visibleInHero !== initialLinkRef.current.visibleInHero
+      );
+
+      if (hasChanges) {
+        // Show confirmation for unsaved changes
+        if (window.confirm("You have unsaved changes. Are you sure you want to close without saving?")) {
+          setOpen(newOpen);
+        }
+        return;
       }
-    } else {
-      setOpen(newOpen);
     }
-  }, [saving, currentSocialLink, inputValues, setOpen]);
+
+    setOpen(newOpen);
+  }, [saving, inputValues, setOpen]);
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
