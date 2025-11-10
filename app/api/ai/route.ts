@@ -1,60 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOpenRouterAnswer } from "@/services/openrouter";
-
-// In-memory storage for rate limiting
-// Note: This will reset when the serverless function cold starts
-type RequestRecord = {
-  timestamps: number[]; // Array of timestamps for each request
-  lastCleanup: number; // Last time we cleaned up old timestamps
-};
-
-const ipRequestMap = new Map<string, RequestRecord>();
-const REQUESTS_PER_MINUTE = 10;
-const WINDOW_MS = 60 * 1000; // 1 minute
-const CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // Clean up every 5 minutes
-
-/**
- * Checks if the client IP has exceeded the rate limit.
- * @param clientIp The client's IP address
- * @returns Whether the client has been rate limited
- */
-async function isRateLimited(clientIp: string): Promise<boolean> {
-  const now = Date.now();
-
-  // Skip rate limiting for development
-  if (process.env.NODE_ENV === "development") {
-    return false;
-  }
-
-  // Create or get the record for this IP
-  if (!ipRequestMap.has(clientIp)) {
-    ipRequestMap.set(clientIp, { timestamps: [], lastCleanup: now });
-  }
-
-  const record = ipRequestMap.get(clientIp)!;
-
-  // Clean up old timestamps if needed
-  if (now - record.lastCleanup > CLEANUP_INTERVAL_MS) {
-    record.timestamps = record.timestamps.filter(
-      (timestamp) => now - timestamp < WINDOW_MS
-    );
-    record.lastCleanup = now;
-  }
-
-  // Filter to only include timestamps within the current window
-  const recentTimestamps = record.timestamps.filter(
-    (timestamp) => now - timestamp < WINDOW_MS
-  );
-
-  // Check if rate limit is exceeded
-  if (recentTimestamps.length >= REQUESTS_PER_MINUTE) {
-    return true;
-  }
-
-  // Record this request
-  record.timestamps.push(now);
-  return false;
-}
+import { createOptimizedResponse } from "@/lib/api-compression";
+import { logger } from "@/lib/logger";
+import { validateRequestBody, AIApiRequestSchema } from "@/types/api";
 
 // Define the comprehensive system prompt for the CV Writing Assistant
 const CV_WRITING_ASSISTANT_PROMPT = `
@@ -122,133 +70,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Implement basic rate limiting
-    const clientIp =
-      req.headers.get("x-forwarded-for")?.split(",")[0] ||
-      req.headers.get("x-real-ip") ||
-      "unknown-ip";
+    // Validate request body using Zod schema
+    const validation = await validateRequestBody(req, AIApiRequestSchema);
 
-    // Apply rate limiting check
-    if (await isRateLimited(clientIp)) {
+    if (!validation.success) {
       return NextResponse.json(
-        { error: "Rate limit exceeded: Please try again later" },
-        { status: 429 }
-      );
-    }
-
-    // Parse the request body with error handling
-    let body;
-    try {
-      body = await req.json();
-    } catch (error) {
-      return NextResponse.json(
-        { error: "Invalid JSON: Could not parse request body" },
+        { error: validation.error.message },
         { status: 400 }
       );
     }
 
-    // Comprehensive validation of the request body
-    if (!body || typeof body !== "object") {
-      return NextResponse.json(
-        { error: "Invalid request: Request body must be a valid JSON object" },
-        { status: 400 }
-      );
-    } // Extract and validate required fields
-    const { data, creativity, systemInput: userSystemInput, model } = body;
+    const { data, creativity, systemInput: userSystemInput, model } = validation.data;
 
-    // Validate data field (required)
-    if (data === undefined) {
-      return NextResponse.json(
-        { error: "Missing required field: data is required" },
-        { status: 400 }
-      );
-    }
-
-    // Validate data type and content
-    if (typeof data !== "string") {
-      return NextResponse.json(
-        { error: "Invalid data format: data must be a string" },
-        { status: 400 }
-      );
-    }
-
-    // Check data length to prevent abuse
-    if (data.length > 10000) {
-      return NextResponse.json(
-        {
-          error:
-            "Invalid data: content exceeds maximum length (10000 characters)"
-        },
-        { status: 400 }
-      );
-    }
-
-    // Check for empty content after trimming
-    if (data.trim().length === 0) {
-      return NextResponse.json(
-        { error: "Invalid data: content cannot be empty" },
-        { status: 400 }
-      );
-    }
-
-    // Validate creativity if provided
-    if (creativity !== undefined) {
-      if (typeof creativity !== "number") {
-        return NextResponse.json(
-          { error: "Invalid creativity format: must be a number" },
-          { status: 400 }
-        );
-      }
-
-      if (creativity < 0 || creativity > 1) {
-        return NextResponse.json(
-          { error: "Invalid creativity value: must be between 0 and 1" },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Validate systemInput if provided
-    if (userSystemInput !== undefined) {
-      if (typeof userSystemInput !== "string") {
-        return NextResponse.json(
-          { error: "Invalid systemInput format: must be a string" },
-          { status: 400 }
-        );
-      }
-
-      // Check for potential prompt injection or malicious input
-      if (userSystemInput.length > 20000) {
-        return NextResponse.json(
-          {
-            error:
-              "Invalid systemInput: exceeds maximum length (20000 characters)"
-          },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Validate model if provided (optional enhancement)
-    if (model !== undefined) {
-      if (typeof model !== "string") {
-        return NextResponse.json(
-          { error: "Invalid model format: must be a string" },
-          { status: 400 }
-        );
-      }
-
-      // Validate against allowed models if needed
-      const allowedModels = ["gpt-4", "gpt-3.5-turbo", "claude-3"]; // Example
-      if (!allowedModels.includes(model)) {
-        return NextResponse.json(
-          {
-            error: `Invalid model: must be one of ${allowedModels.join(", ")}`
-          },
-          { status: 400 }
-        );
-      }
-    } // Use the specific CV writing assistant prompt as the system input if no custom systemInput provided
+    // Use the specific CV writing assistant prompt as the system input if no custom systemInput provided
     const systemInput = userSystemInput || CV_WRITING_ASSISTANT_PROMPT;
 
     // Set up request timeout with AbortController
@@ -280,18 +114,20 @@ export async function POST(req: NextRequest) {
         throw new Error("Invalid response format from AI service");
       }
 
-      // Log successful API calls (optional)
-      console.log(`AI API call successful: ${new Date().toISOString()}`);
 
-      // Return the AI response
-      return NextResponse.json({ response: aiResponse });
+
+      // Return the AI response with compression
+      return createOptimizedResponse({ response: aiResponse }, { maxAge: 0 });
     } catch (error) {
       // Make sure to clear the timeout if there was an error
       clearTimeout(timeoutId);
       throw error;
     }
   } catch (error: any) {
-    console.error("AI endpoint error:", error);
+    logger.error("AI endpoint error", error, {
+      endpoint: "/api/ai",
+      errorType: error.name,
+    });
 
     // Provide more specific error messages based on error types
     if (error.message?.includes("OPENROUTER_KEY")) {

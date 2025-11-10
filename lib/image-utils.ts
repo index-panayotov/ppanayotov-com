@@ -2,6 +2,8 @@
  * Utility functions for handling profile images
  */
 
+import { PLACEHOLDER_PRESETS } from './placeholder';
+
 /**
  * Get the appropriate image URL based on context (web or PDF)
  * Priority order for uploaded images:
@@ -14,23 +16,28 @@
  */
 export function getProfileImageUrl(
   profile: {
-    profileImageUrl: string;
+    profileImageUrl?: string;
     profileImageWebUrl?: string;
     profileImagePdfUrl?: string;
   },
   context: "web" | "pdf" = "web"
 ): string {
   // Priority 1: Use context-specific optimized image if available
-  if (context === "web" && profile.profileImageWebUrl) {
-    return profile.profileImageWebUrl;
+  const webUrl = profile.profileImageWebUrl?.trim();
+  if (context === "web" && webUrl) {
+    return webUrl;
   }
 
-  if (context === "pdf" && profile.profileImagePdfUrl) {
-    return profile.profileImagePdfUrl;
+  const pdfUrl = profile.profileImagePdfUrl?.trim();
+  if (context === "pdf" && pdfUrl) {
+    return pdfUrl;
   }
 
   // Priority 2: Fallback to main profile image URL
-  return profile.profileImageUrl || "";
+  const mainUrl = profile.profileImageUrl?.trim();
+
+  // Priority 3: Return placeholder if no valid image exists
+  return mainUrl || PLACEHOLDER_PRESETS.profile;
 }
 
 /**

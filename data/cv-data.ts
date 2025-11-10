@@ -2,10 +2,19 @@ import { ExperienceEntry } from "@/types";
 
 export const experiences: ExperienceEntry[] = [
   {
+    "title": "Software Engineering Manager",
+    "company": "DSK Bank",
+    "dateRange": "Oct 2025 - Present",
+    "description": "Led and mentored multiple fully remote cross-functional engineering\nteams (7-9 members) composed of developers, QA, mobile engineers,\ndesigners, and product owners.\nProvided daily technical leadership and strategic direction, proactively\nremoving impediments to ensure the consistent and timely delivery of\nsoftware.\nMaintained deep technical context by actively participating in\narchitecture reviews, pull request (PR) reviews, and high-level technical\nstrategy discussions.\nCollaborated closely with Product Owners and stakeholders to define\nrequirements, shape product roadmaps, and strategically balance\nfeature development with technical debt.\nChampioned modern CI/CD practices, including automated testing and\ngradual rollouts, to streamline the release process and improve\ndeployment frequency.\nManaged the end-to-end development lifecycle for both large-scale\nenterprise systems and mobile applications, from initial configuration to\nproduction deployment.\nDeveloped engineers through regular 1:1s, actionable coaching, and clear\ncareer development conversations that helped them grow their skills and\nadvance in their careers.\nPlayed a key role in team growth by conducting technical interviews and\nestablishing structured mentorship programs to effectively onboard new\nengineers.\nOrchestrated resource allocation, capacity planning, and workload\nassignments to optimize team capacity and align with project roadmaps\nand business priorities.",
+    "tags": [
+      "Software Engineering Manager"
+    ],
+    "location": "Sofia, Bulgaria"
+  },
+  {
     "title": "Delivery Manager",
     "company": "MentorMate",
-    "dateRange": "November 2020 - Present",
-    "location": "Sofia, Sofia City, Bulgaria",
+    "dateRange": "November 2020 - October 2025",
     "description": "In my role as a Delivery Manager, I lead the successful execution of large-scale software projects by combining technical expertise with a strong focus on client relationships and team dynamics. Trusted by clients to organize, guide, and empower cross-functional teams, I ensure the delivery of high-quality solutions that meet both business and user needs.\n\nAlthough I don't have direct reports, I regularly take on people management responsibilities—mentoring team members, fostering collaboration, and supporting professional growth. My top priority is delivering tangible results while maintaining a high level of client satisfaction, leveraging both strategic thinking and interpersonal skills to drive project success.",
     "tags": [
       "Solution Architecture",
@@ -44,7 +53,8 @@ export const experiences: ExperienceEntry[] = [
       "Postman API",
       "Coding Standards",
       "Deployment Management"
-    ]
+    ],
+    "location": "Sofia, Sofia City, Bulgaria"
   },
   {
     "title": "Senior Software Developer",

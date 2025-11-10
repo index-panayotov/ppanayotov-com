@@ -1,17 +1,17 @@
+# PPanayotov.com - Professional CV Website
+# Robots.txt Configuration
+
 User-agent: *
-Allow: /
 
-# Sitemap
-Sitemap: https://www.ppanayotov.com/sitemap.xml
-
-# Crawl-delay
-Crawl-delay: 1
-
-# Disallow admin areas
+# Block admin panel and API routes from indexing
 Disallow: /admin/
+Disallow: /admin
 Disallow: /api/admin/
+Disallow: /api/admin
+Disallow: /_next/
+Disallow: /uploads/
 
-# Allow important pages
+# Allow public content
 Allow: /
 Allow: /*.css
 Allow: /*.js
@@ -20,4 +20,10 @@ Allow: /*.jpeg
 Allow: /*.png
 Allow: /*.webp
 Allow: /*.svg
-Allow: /*.pdf
+Allow: /manifest
+
+# Sitemap location
+Sitemap: https://www.ppanayotov.com/sitemap.xml
+
+# Crawl delay to prevent aggressive crawling
+Crawl-delay: 1

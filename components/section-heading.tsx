@@ -1,8 +1,5 @@
-interface SectionHeadingProps {
-  id?: string
-  title: string
-  subtitle?: string
-}
+import { memo } from 'react';
+import type { SectionHeadingProps } from '@/types';
 
 /**
  * Renders a section heading with a decorative gradient underline and an optional subtitle.
@@ -16,7 +13,7 @@ interface SectionHeadingProps {
  * @param subtitle - Optional supporting line rendered below the title; hidden in print output.
  * @returns A React element representing the styled section heading block.
  */
-export function SectionHeading({ id, title, subtitle }: SectionHeadingProps) {
+export const SectionHeading = memo(function SectionHeading({ id, title, subtitle }: SectionHeadingProps) {
   return (
     <div className="mb-6 print:mb-3">
       <h2 id={id} className="text-2xl font-bold mb-2 print:text-lg text-slate-800 relative">
@@ -28,4 +25,4 @@ export function SectionHeading({ id, title, subtitle }: SectionHeadingProps) {
       )}
     </div>
   )
-}
+});

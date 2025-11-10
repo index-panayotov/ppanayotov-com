@@ -5,30 +5,27 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { RiRobot2Fill } from "react-icons/ri";
-import { toast } from "@/components/ui/use-toast";
-import { SystemSettings } from "@/services/SystemSettings";
-import editorJsConfig from "@/data/editorjs-config";
-import dynamic from "next/dynamic";
+import { toast } from "@/hooks/use-toast";
 
-// Import EditorJS wrapper with no SSR
-const EditorJsWrapper = dynamic(
-  () => import("@/components/admin/editorjs-wrapper"),
-  {
-    ssr: false
-  }
-);
+import MarkdownEditor from "@/components/admin/markdown-editor";
+import { apiClient } from "@/lib/api-client";
+import { SystemSettings } from "@/lib/schemas";
+import { logger } from "@/lib/logger";
+
 
 interface AIEnhancedTextareaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   onValueChange?: (value: string) => void;
   fieldName?: string;
+  systemSettings: SystemSettings;
 }
 
 export const AIEnhancedTextarea = React.forwardRef<
   HTMLTextAreaElement,
   AIEnhancedTextareaProps
->(({ className, onValueChange, fieldName, value, onChange, ...props }, ref) => {
+>(({ className, onValueChange, fieldName, value, onChange, systemSettings, ...props }, ref) => {
   const [isLoading, setIsLoading] = useState(false);
+
   const handleAIClick = async () => {
     if (!value) {
       toast({
@@ -41,54 +38,16 @@ export const AIEnhancedTextarea = React.forwardRef<
 
     setIsLoading(true);
 
-    // Set up AbortController with timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-    }, 30000); // 30-second timeout
-
     try {
-      const response = await fetch("/api/ai", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          systemInput: `You are a professional content enhancer specializing in CV and resume content. 
+      const data = await apiClient.post<{ response: string }>("/api/ai", {
+        systemInput: `You are a professional content enhancer specializing in CV and resume content.
 Your task is to improve the provided ${fieldName ||
             "text"} to make it more professional, concise, and impactful.
 Keep the same meaning but enhance the wording and structure. Format appropriately with bullet points if it's a list of accomplishments.
 Respond with ONLY the improved text without any explanations or additional text.`,
-          data: String(value),
-          creativity: 0.3
-        }),
-        signal: controller.signal
+        data: String(value),
+        creativity: 0.3
       });
-
-      // Clear the timeout since the request completed
-      clearTimeout(timeoutId);
-
-      // Handle non-OK responses before attempting to parse JSON
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => "");
-        throw new Error(
-          errorText ||
-            `Server responded with ${response.status}: ${response.statusText}`
-        );
-      }
-
-      // Parse JSON with error handling
-      let data;
-      try {
-        data = await response.json();
-      } catch (parseError) {
-        throw new Error("Failed to parse server response");
-      }
-
-      // Validate that the response contains the expected data
-      if (!data || typeof data.response !== "string") {
-        throw new Error("Invalid response format from AI service");
-      }
 
       // Call the parent's onChange handler with a synthetic event
       if (onChange) {
@@ -99,7 +58,10 @@ Respond with ONLY the improved text without any explanations or additional text.
           }
         } as React.ChangeEvent<HTMLTextAreaElement>;
 
-        onChange(syntheticEvent);
+        // Use setTimeout to prevent state collision
+        setTimeout(() => {
+          onChange(syntheticEvent);
+        }, 0);
       }
 
       // Also call the onValueChange callback if provided
@@ -112,31 +74,13 @@ Respond with ONLY the improved text without any explanations or additional text.
         description: "AI has enhanced your content."
       });
     } catch (error) {
-      console.error("AI Enhancement error:", error);
-
-      // Clear the timeout to prevent memory leaks
-      clearTimeout(timeoutId);
-
-      // Handle specific error types
-      let errorMessage = "Failed to enhance content with AI";
-
-      if (error instanceof DOMException && error.name === "AbortError") {
-        errorMessage = "Request timed out. Please try again later.";
-      } else if (error instanceof Error) {
-        if (
-          error.message.includes("NetworkError") ||
-          error.message.includes("network")
-        ) {
-          errorMessage =
-            "Network error. Please check your connection and try again.";
-        } else {
-          errorMessage = error.message;
-        }
-      }
+      logger.error('AI Enhancement error', error as Error, {
+        component: 'AIEnhancedTextarea'
+      });
 
       toast({
         title: "Enhancement failed",
-        description: errorMessage,
+        description: error instanceof Error ? error.message : "Failed to enhance content with AI",
         variant: "destructive"
       });
     } finally {
@@ -145,12 +89,29 @@ Respond with ONLY the improved text without any explanations or additional text.
   };
   return (
     <div className="relative">
-      {SystemSettings.get("useWysiwyg")
-        ? <EditorJsWrapper
-            value={value}
-            onChange={onChange}
-            config={editorJsConfig}
-          />
+      {systemSettings.useWysiwyg
+        ? <div className="pb-10">
+            <MarkdownEditor
+              value={String(value || '')}
+              onChange={(val) => {
+                if (onChange) {
+                  const syntheticEvent = {
+                    target: {
+                      value: val,
+                      name: props.name
+                    }
+                  } as React.ChangeEvent<HTMLTextAreaElement>;
+                  onChange(syntheticEvent);
+                }
+                if (onValueChange) {
+                  onValueChange(val);
+                }
+              }}
+              placeholder={props.placeholder as string}
+              height={300}
+              className="markdown-editor-wrapper"
+            />
+          </div>
         : <Textarea
             className={`${className} pr-12 pb-10 resize-none`}
             value={value}
@@ -162,7 +123,7 @@ Respond with ONLY the improved text without any explanations or additional text.
         type="button"
         variant="ghost"
         size="icon"
-        className="absolute top-2 right-2 bg-background hover:bg-gray-100"
+        className="absolute top-2 right-2 bg-background hover:bg-slate-100 z-10"
         onClick={handleAIClick}
         disabled={isLoading}
         aria-label={

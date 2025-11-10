@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { RiRobot2Fill } from "react-icons/ri";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
+import { apiClient } from "@/lib/api-client";
+import { logger } from "@/lib/logger";
 
 interface AIEnhancedInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -31,53 +33,15 @@ export const AIEnhancedInput = React.forwardRef<
 
     setIsLoading(true);
 
-    // Set up AbortController with timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-    }, 30000); // 30-second timeout
-
     try {
-      const response = await fetch("/api/ai", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          systemInput: `You are a professional content enhancer specializing in CV and resume content. 
+      const data = await apiClient.post<{ response: string }>("/api/ai", {
+        systemInput: `You are a professional content enhancer specializing in CV and resume content.
 Your task is to improve the provided ${fieldName ||
             "text"} to make it more professional, concise, and impactful.
 Keep the same meaning but enhance the wording. Respond with ONLY the improved text without any explanations or additional text.`,
-          data: String(value),
-          creativity: 0.3
-        }),
-        signal: controller.signal
+        data: String(value),
+        creativity: 0.3
       });
-
-      // Clear the timeout since the request completed
-      clearTimeout(timeoutId);
-
-      // Handle non-OK responses before attempting to parse JSON
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => "");
-        throw new Error(
-          errorText ||
-            `Server responded with ${response.status}: ${response.statusText}`
-        );
-      }
-
-      // Parse JSON with error handling
-      let data;
-      try {
-        data = await response.json();
-      } catch (parseError) {
-        throw new Error("Failed to parse server response");
-      }
-
-      // Validate that the response contains the expected data
-      if (!data || typeof data.response !== "string") {
-        throw new Error("Invalid response format from AI service");
-      }
 
       // Call the parent's onChange handler with a synthetic event
       if (onChange) {
@@ -88,7 +52,10 @@ Keep the same meaning but enhance the wording. Respond with ONLY the improved te
           }
         } as React.ChangeEvent<HTMLInputElement>;
 
-        onChange(syntheticEvent);
+        // Use setTimeout to prevent state collision
+        setTimeout(() => {
+          onChange(syntheticEvent);
+        }, 0);
       }
 
       // Also call the onValueChange callback if provided
@@ -101,31 +68,13 @@ Keep the same meaning but enhance the wording. Respond with ONLY the improved te
         description: "AI has enhanced your content."
       });
     } catch (error) {
-      console.error("AI Enhancement error:", error);
-
-      // Clear the timeout to prevent memory leaks
-      clearTimeout(timeoutId);
-
-      // Handle specific error types
-      let errorMessage = "Failed to enhance content with AI";
-
-      if (error instanceof DOMException && error.name === "AbortError") {
-        errorMessage = "Request timed out. Please try again later.";
-      } else if (error instanceof Error) {
-        if (
-          error.message.includes("NetworkError") ||
-          error.message.includes("network")
-        ) {
-          errorMessage =
-            "Network error. Please check your connection and try again.";
-        } else {
-          errorMessage = error.message;
-        }
-      }
+      logger.error('AI Enhancement error', error as Error, {
+        component: 'AIEnhancedInput'
+      });
 
       toast({
         title: "Enhancement failed",
-        description: errorMessage,
+        description: error instanceof Error ? error.message : "Failed to enhance content with AI",
         variant: "destructive"
       });
     } finally {

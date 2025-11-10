@@ -13,26 +13,162 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Extracts plain text content from a WYSIWYG data structure or returns the input if it is already a string.
- *
- * If the input is an EditorJS-style object or array of blocks, only the text from "paragraph" blocks is included. HTML tags within the text are preserved.
- *
- * @param input - A string or a WYSIWYG data structure (such as EditorJS output).
- * @returns The extracted plain text, or the original string if input is already plain text.
+ * Safely convert various input types to a consistent string format
  */
-export function extractPlainText(input: any): string {
-  if (typeof input === "string") return input;
-  // EditorJS: { blocks: [...] } or just an array of blocks
-  const blocks: any[] = Array.isArray(input)
-    ? input
-    : input && Array.isArray(input.blocks)
-    ? input.blocks
-    : [];
-  return blocks
-    .filter(
-      (block: any) =>
-        block.type === "paragraph" && block.data && block.data.text
-    )
-    .map((block: any) => block.data.text)
-    .join("\n"); // Keep HTML tags if present
+export function normalizeToString(input: unknown): string {
+  if (typeof input === "string") {
+    return input.trim();
+  }
+
+  if (typeof input === "number") {
+    return input.toString();
+  }
+
+  if (typeof input === "boolean") {
+    return input.toString();
+  }
+
+  if (Array.isArray(input)) {
+    return input.map(normalizeToString).join(", ");
+  }
+
+  if (input === null || input === undefined) {
+    return "";
+  }
+
+  // For objects, try to stringify but fallback to empty string
+  try {
+    return JSON.stringify(input);
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Safely extract a string value from an object property
+ */
+export function safeGetString(
+  obj: Record<string, unknown> | null | undefined,
+  key: string,
+  defaultValue = ""
+): string {
+  if (!obj || typeof obj !== "object") {
+    return defaultValue;
+  }
+
+  const value = obj[key];
+
+  if (typeof value === "string") {
+    return value;
+  }
+
+  return defaultValue;
+}
+
+/**
+ * Safely extract a number value from an object property
+ */
+export function safeGetNumber(
+  obj: Record<string, unknown> | null | undefined,
+  key: string,
+  defaultValue = 0
+): number {
+  if (!obj || typeof obj !== "object") {
+    return defaultValue;
+  }
+
+  const value = obj[key];
+
+  if (typeof value === "number" && !isNaN(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const parsed = parseFloat(value);
+    return isNaN(parsed) ? defaultValue : parsed;
+  }
+
+  return defaultValue;
+}
+
+/**
+ * Safely extract a boolean value from an object property
+ */
+export function safeGetBoolean(
+  obj: Record<string, unknown> | null | undefined,
+  key: string,
+  defaultValue = false
+): boolean {
+  if (!obj || typeof obj !== "object") {
+    return defaultValue;
+  }
+
+  const value = obj[key];
+
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    return value.toLowerCase() === "true";
+  }
+
+  if (typeof value === "number") {
+    return value !== 0;
+  }
+
+  return defaultValue;
+}
+
+/**
+ * Safely extract error message from various error types
+ */
+
+import { TemplateId } from "@/app/templates/types";
+
+/**
+ * Returns Tailwind CSS classes for the main container based on the selected template.
+ * This helps in applying consistent theme-specific backgrounds and text colors.
+ */
+export function getThemeClasses(templateId: TemplateId): string {
+  switch (templateId) {
+    case "professional":
+      return "min-h-screen bg-white text-slate-800 dark:bg-gray-900 dark:text-slate-200";
+    case "modern":
+      return "min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white";
+    case "classic":
+    default:
+      return "min-h-screen bg-gradient-to-br from-slate-50 via-slate-50/80 to-slate-100/50 text-slate-800";
+  }
+}
+
+/**
+ * Returns Tailwind CSS classes for the blog header based on the selected template.
+ */
+export function getBlogHeaderClasses(templateId: TemplateId): string {
+  switch (templateId) {
+    case "professional":
+      return "bg-white text-slate-800 dark:bg-gray-900 dark:text-slate-200";
+    case "modern":
+      return "bg-gradient-to-r from-blue-600 to-purple-700 text-white";
+    case "classic":
+    default:
+      return "bg-gradient-to-r from-slate-700 to-slate-800 text-white";
+  }
+}
+
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
+    return error.message;
+  }
+
+  return 'An unknown error occurred';
 }

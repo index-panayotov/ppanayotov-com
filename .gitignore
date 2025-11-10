@@ -27,3 +27,9 @@ yarn-error.log*
 next-env.d.ts
 .aider*
 public/uploads/
+
+# stories and documentation
+_stories/
+
+# Claude settings
+.claude/settings.local.json
