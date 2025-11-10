@@ -103,7 +103,13 @@ export function withDevOnlyAndErrorHandler<T = any>(
  * Generate TypeScript file content for blog-posts.ts
  * Eliminates 3 duplicate template strings in blog route
  *
- * @param blogPosts - Array of blog post metadata
+ * SECURITY: Always validate blogPosts with BlogPostSchema before calling this function
+ * JSON.stringify() provides some protection, but schema validation ensures:
+ * - No unexpected properties
+ * - Correct data types
+ * - Required fields present
+ *
+ * @param blogPosts - Array of blog post metadata (MUST be pre-validated with BlogPostSchema)
  * @returns Formatted TypeScript file content
  */
 export function generateBlogPostsFileContent(blogPosts: BlogPost[]): string {
@@ -129,8 +135,19 @@ export const blogPosts: BlogPost[] = ${JSON.stringify(blogPosts, null, 2)};
  * Generate TypeScript file content for data files
  * Eliminates repetitive if/else chains in admin route
  *
+ * SECURITY: Always validate data with appropriate Zod schema before calling this function
+ * - cv-data.ts: Validate with ExperienceEntrySchema
+ * - user-profile.ts: Validate with UserProfileSchema
+ * - system_settings.ts: Validate with SystemSettingsSchema
+ * - topSkills.ts: Validate as string array
+ *
+ * JSON.stringify() escapes special characters, but validation prevents:
+ * - Prototype pollution attacks
+ * - Unexpected object properties
+ * - Type confusion attacks
+ *
  * @param fileName - Name of the data file (e.g., 'cv-data.ts', 'user-profile.ts')
- * @param data - Data to serialize
+ * @param data - Data to serialize (MUST be pre-validated with appropriate schema)
  * @returns Formatted TypeScript file content
  */
 export function generateDataFileContent(fileName: string, data: any): string {

@@ -22,18 +22,10 @@ export function useAdminData() {
         setLoading(true);
         setError(null);
 
-        // Check authentication. Do NOT redirect from inside a hook - allow
-        // the AuthCheck component to manage navigation and UI. If not
-        // authenticated, set an error so the UI can respond predictably.
-        let isAuthenticated = false;
-        if (typeof document !== 'undefined') {
-          isAuthenticated = document.cookie.includes('admin_authenticated=true');
-        }
-        if (!isAuthenticated) {
-          setError('Not authenticated');
-          setLoading(false);
-          return;
-        }
+        // SECURITY: Authentication is now handled by server-side middleware
+        // If the user has reached this point, they are authenticated
+        // (middleware would have redirected them to /admin/login otherwise)
+        // No need to check cookies client-side
 
         const adminData = await loadAdminData();
         setData(adminData);

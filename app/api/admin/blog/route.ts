@@ -7,6 +7,7 @@ import { calculateReadingTime } from '@/lib/markdown-utils';
 import { logger } from '@/lib/logger';
 import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
 import { withDevOnly, generateBlogPostsFileContent, getBlogAuthor } from '@/lib/api-utils';
+import { validateSlug } from '@/lib/security/slug-validator';
 
 /**
  * GET - List all blog posts
@@ -116,10 +117,21 @@ export const PUT = withDevOnly(async (request: NextRequest) => {
 export const DELETE = withDevOnly(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url);
-    const slug = searchParams.get('slug');
+    const slugParam = searchParams.get('slug');
 
-    if (!slug) {
+    if (!slugParam) {
       return createTypedErrorResponse(API_ERROR_CODES.BAD_REQUEST, 'Slug parameter is required');
+    }
+
+    // SECURITY: Validate slug to prevent path traversal attacks
+    let slug: string;
+    try {
+      slug = validateSlug(slugParam);
+    } catch (error) {
+      return createTypedErrorResponse(
+        API_ERROR_CODES.BAD_REQUEST,
+        error instanceof Error ? error.message : 'Invalid slug format'
+      );
     }
 
     // Load existing blog posts

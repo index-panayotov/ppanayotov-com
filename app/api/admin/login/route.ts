@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import {
   AdminLoginApiRequestSchema,
   AdminLoginApiResponse,
@@ -83,7 +84,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (password === adminPassword) {
+    // SECURITY: Use constant-time comparison to prevent timing attacks
+    // Hash both passwords before comparing to ensure equal-length comparison
+    const adminPasswordHash = crypto.createHash('sha256').update(adminPassword).digest();
+    const providedPasswordHash = crypto.createHash('sha256').update(password).digest();
+
+    // crypto.timingSafeEqual prevents timing-based password guessing
+    const passwordsMatch = crypto.timingSafeEqual(adminPasswordHash, providedPasswordHash);
+
+    if (passwordsMatch) {
       // Successful login - reset rate limit counter
       resetRateLimit(`login:${clientIP}`);
 
@@ -95,10 +104,24 @@ export async function POST(request: NextRequest) {
       const response: AdminLoginApiResponse = {
         success: true,
         token: 'authenticated', // Simple token for client-side auth state
-        expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+        expiresAt: Date.now() + (60 * 60 * 1000) // 1 hour
       };
 
-      return createTypedSuccessResponse(response, 'Login successful');
+      // SECURITY: Set HttpOnly, Secure, SameSite cookie to prevent:
+      // - XSS attacks (HttpOnly prevents JavaScript access)
+      // - MITM attacks (Secure requires HTTPS in production)
+      // - CSRF attacks (SameSite strict mode)
+      const nextResponse = createTypedSuccessResponse(response, 'Login successful');
+
+      nextResponse.cookies.set('admin_authenticated', 'true', {
+        httpOnly: true, // Prevents JavaScript access
+        secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+        sameSite: 'strict', // CSRF protection
+        maxAge: 60 * 60, // 1 hour (in seconds)
+        path: '/'
+      });
+
+      return nextResponse;
     } else {
       // Failed login - rate limit counter already incremented
       logger.warn('Failed admin login attempt', {

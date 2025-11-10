@@ -10,6 +10,7 @@
 import fs from 'fs';
 import path from 'path';
 import { getErrorMessage } from './utils';
+import { validateSlug } from './security/slug-validator';
 
 /**
  * Configuration for extracting data from different file types
@@ -174,17 +175,20 @@ export function loadBlogPosts() {
  * @returns Object with metadata and markdown content
  */
 export function loadBlogPost(slug: string): { metadata: any, content: string } {
+  // SECURITY: Validate slug to prevent path traversal attacks
+  const validatedSlug = validateSlug(slug);
+
   const blogPosts = loadBlogPosts();
-  const metadata = blogPosts.find((post: any) => post.slug === slug);
+  const metadata = blogPosts.find((post: any) => post.slug === validatedSlug);
 
   if (!metadata) {
-    throw new Error(`Blog post not found: ${slug}`);
+    throw new Error(`Blog post not found: ${validatedSlug}`);
   }
 
-  const mdPath = path.join(process.cwd(), 'data', 'blog', `${slug}.md`);
+  const mdPath = path.join(process.cwd(), 'data', 'blog', `${validatedSlug}.md`);
 
   if (!fs.existsSync(mdPath)) {
-    throw new Error(`Blog post markdown file not found: ${slug}.md`);
+    throw new Error(`Blog post markdown file not found: ${validatedSlug}.md`);
   }
 
   const content = fs.readFileSync(mdPath, 'utf-8');

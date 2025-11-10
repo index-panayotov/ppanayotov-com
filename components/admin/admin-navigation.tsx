@@ -71,9 +71,20 @@ export function AdminNavigation({
     }
   ];
 
-  const handleLogout = () => {
-    document.cookie = 'admin_authenticated=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    router.push('/admin/login');
+  const handleLogout = async () => {
+    // SECURITY: Call logout API to clear HttpOnly cookie server-side
+    // Client-side JavaScript cannot delete HttpOnly cookies
+    try {
+      await fetch('/api/admin/logout', {
+        method: 'POST',
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Redirect to login page regardless of API response
+      // (middleware will enforce authentication on next visit)
+      router.push('/admin/login');
+    }
   };
 
   if (!isClient) {

@@ -34,8 +34,8 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        // Set a cookie to indicate authentication
-        document.cookie = 'admin_authenticated=true; path=/; max-age=3600'; // 1 hour expiry
+        // SECURITY: Cookie is now set by the server with HttpOnly flag
+        // No need to set it client-side - it will be automatically included in requests
 
         toast({
           title: 'Success',

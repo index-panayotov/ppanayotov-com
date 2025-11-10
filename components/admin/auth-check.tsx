@@ -14,10 +14,9 @@ export function AuthCheck({ children, requireAuth = true }: AuthCheckProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isDev, setIsDev] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuth = () => {
       try {
         // Check if in development mode (for production restrictions)
         const isDevMode = process.env.NODE_ENV !== 'production' ||
@@ -29,28 +28,18 @@ export function AuthCheck({ children, requireAuth = true }: AuthCheckProps) {
           return;
         }
 
-        if (!requireAuth) {
-          setIsAuthenticated(true);
-          return;
-        }
-
-        // Check authentication cookie
-        const hasAuthCookie = document.cookie.includes('admin_authenticated=true');
-
-        if (!hasAuthCookie) {
-          router.push('/admin/login');
-          return;
-        }
-
+        // SECURITY: Authentication is now handled by server-side middleware
+        // The middleware checks the HttpOnly cookie and redirects if not authenticated
+        // This component only needs to check development mode
+        // If we've reached this point, middleware has already verified authentication
         setIsAuthenticated(true);
       } catch (err) {
-
         setError('Authentication check failed');
       }
     };
 
     checkAuth();
-  }, [router, requireAuth]);
+  }, [requireAuth]);
 
   // Loading state
   if (isAuthenticated === null) {

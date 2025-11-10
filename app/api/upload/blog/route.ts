@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
+import { validateSlug } from '@/lib/security/slug-validator';
+import { withDevOnly } from '@/lib/api-utils';
 
 /**
  * Image file signatures (magic numbers) for validation
@@ -46,19 +48,32 @@ function isValidImageFile(buffer: Buffer): boolean {
  * POST - Upload blog image/file
  * Supports images and small files up to 5MB
  * Validates image files using magic number verification
+ *
+ * SECURITY: Protected by withDevOnly authentication wrapper
  */
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const slug = formData.get('slug') as string; // Blog post slug for organizing uploads
+    const slugParam = formData.get('slug') as string; // Blog post slug for organizing uploads
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    if (!slug) {
+    if (!slugParam) {
       return NextResponse.json({ error: 'Blog post slug is required' }, { status: 400 });
+    }
+
+    // SECURITY: Validate slug to prevent path traversal attacks
+    let slug: string;
+    try {
+      slug = validateSlug(slugParam);
+    } catch (error) {
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : 'Invalid slug format' },
+        { status: 400 }
+      );
     }
 
     // Validate file size (max 5MB)
@@ -140,10 +155,15 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// Export POST handler wrapped with authentication
+export const POST = withDevOnly(handlePOST);
+
 /**
  * DELETE - Delete blog file
+ *
+ * SECURITY: Protected by withDevOnly authentication wrapper
  */
-export async function DELETE(request: NextRequest) {
+async function handleDELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const url = searchParams.get('url');
@@ -177,3 +197,6 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+
+// Export DELETE handler wrapped with authentication
+export const DELETE = withDevOnly(handleDELETE);
