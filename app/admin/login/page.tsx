@@ -1,21 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 
-
-
 export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -35,26 +30,18 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        // SECURITY: Cookie is now set by the server with HttpOnly flag
-        // No need to set it client-side - it will be automatically included in requests
-
         toast({
           title: 'Success',
           description: 'You have been logged in successfully',
           className: 'bg-green-50 border-green-200 text-green-800',
         });
 
-        // Redirect to original destination or dashboard
-        // Using window.location.href ensures cookie is saved before next request (fixes race condition)
-        const from = searchParams.get('from') || '/admin/dashboard';
-        window.location.href = from;
+        window.location.href = '/admin/dashboard';
       } else {
-
         setError(data.error?.message || 'Invalid password');
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-
       setError(`An error occurred: ${errorMsg}. Please try again.`);
     } finally {
       setLoading(false);
@@ -64,7 +51,6 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <div className="w-full max-w-md">
-        {/* Logo/Brand Section */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
