@@ -1,18 +1,8 @@
 "use client";
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo } from 'react';
 import { logger } from '@/lib/logger';
-
-interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
-}
-
-interface State {
-  hasError: boolean;
-  error?: Error;
-}
+import type { ErrorBoundaryProps, ErrorBoundaryState } from '@/types';
 
 /**
  * Error Boundary Component
@@ -27,13 +17,13 @@ interface State {
  * - Better user experience
  * - Error logging for debugging
  */
-export class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     // Update state so the next render will show the fallback UI
     return { hasError: true, error };
   }

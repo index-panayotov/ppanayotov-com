@@ -82,8 +82,8 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
     if (saving) return;
 
     try {
-      // Update current experience with form data
-      setCurrentExperience({
+      // Build complete experience object from form data
+      const experienceToSave = {
         title: data.title,
         company: data.company,
         dateRange: data.dateRange,
@@ -91,9 +91,10 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
         tags: data.tags,
         ...(data.location && { location: data.location }),
         ...(currentExperience?._index !== undefined && { _index: currentExperience._index })
-      });
-      // Call save function
-      await saveExperience();
+      };
+
+      // Pass data directly to save function - no state dependency
+      await saveExperience(experienceToSave);
       setNewSkill('');
       setOpen(false);
     } catch (error) {

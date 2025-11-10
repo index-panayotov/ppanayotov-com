@@ -208,7 +208,6 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
               <SectionHeading title="Experience" subtitle="Professional work history and achievements" />
               <OptimizedExperienceList
                 experiences={experiences}
-                showImages={false}
                 sortBy="date"
               />
             </section>

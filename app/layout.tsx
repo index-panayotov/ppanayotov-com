@@ -6,8 +6,6 @@ import { userProfile } from "@/data/user-profile"
 import systemSettings from "@/data/system_settings"
 import { GoogleTagManager } from '@next/third-parties/google'
 import { StructuredData } from "@/components/structured-data"
-import AnalyticsWrapper from "@/components/analytics-wrapper"
-
 
 import { ErrorBoundary } from "@/components/error-boundary"
 
@@ -88,8 +86,6 @@ export default function RootLayout({
         <ErrorBoundary>
           {children}
         </ErrorBoundary>
-        <AnalyticsWrapper />
-
       </body>
     </html>
   )

@@ -1,71 +1,33 @@
 /**
- * Optimized Experience List Component
+ * Experience List Component
  *
- * Performance-optimized experience listing with:
- * - React.memo for preventing unnecessary re-renders
- * - useMemo for expensive computations
- * - useCallback for stable event handlers
- * - Virtualization for large lists
- * - Efficient sorting and filtering
+ * Simple experience listing with filtering and sorting
  */
 
-import React, { memo, useMemo, useCallback, useState } from 'react';
-import type { ExperienceEntry } from '@/types';
-import { OptimizedImage } from '@/components/ui/optimized-image';
-import { logger } from '@/lib/logger';
+import React from 'react';
 import { MarkdownRenderer } from '@/components/markdown-renderer';
-
-interface ExperienceListProps {
-  experiences: ExperienceEntry[];
-  onExperienceClick?: (id: string) => void;
-  maxItems?: number;
-  showImages?: boolean;
-  sortBy?: 'date' | 'title' | 'company';
-  filterBy?: string;
-}
-
-interface ExperienceItemProps {
-  experience: ExperienceEntry;
-  onClick?: (id: string) => void;
-  showImage?: boolean;
-  index: number;
-}
+import type { ExperienceListProps, ExperienceItemProps } from '@/types';
 
 /**
- * Memoized individual experience item component
- * Only re-renders when experience data or onClick handler changes
+ * Individual experience item component
  */
-const ExperienceItem = memo<ExperienceItemProps>(({
+const ExperienceItem = ({
   experience,
   onClick,
-  showImage = false,
   index
-}) => {
-  const handleClick = useCallback(() => {
+}: ExperienceItemProps) => {
+  const handleClick = () => {
     if (experience.id && onClick) {
       onClick(experience.id);
     }
-  }, [experience.id, onClick]);
+  };
 
-  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
+  const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       handleClick();
     }
-  }, [handleClick]);
-
-  // Memoize tag rendering to prevent recreation on each render
-  const tagElements = useMemo(() => {
-    return experience.tags?.map((tag, tagIndex) => (
-      <span
-        key={tag}
-        className="cv-skill-tag text-xs"
-        style={{ animationDelay: `${(index * 100) + (tagIndex * 50)}ms` }}
-      >
-        {tag}
-      </span>
-    ));
-  }, [experience.tags, index]);
+  };
 
   return (
     <div
@@ -78,20 +40,6 @@ const ExperienceItem = memo<ExperienceItemProps>(({
       style={{ animationDelay: `${index * 100}ms` }}
     >
       <div className="flex items-start gap-4">
-        {/* Company logo/image if available */}
-        {showImage && experience.companyLogo && (
-          <div className="flex-shrink-0">
-            <OptimizedImage
-              src={experience.companyLogo}
-              alt={`${experience.company} logo`}
-              width={48}
-              height={48}
-              className="rounded-lg"
-              sizes="48px"
-            />
-          </div>
-        )}
-
         {/* Experience content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-2">
@@ -119,97 +67,69 @@ const ExperienceItem = memo<ExperienceItemProps>(({
           {experience.description && (
             <MarkdownRenderer
               content={experience.description}
-              className="text-sm text-slate-600 mb-3 line-clamp-3 leading-relaxed"
+              className="text-sm text-slate-600 mb-3 leading-relaxed"
             />
           )}
 
           {/* Tags */}
           {experience.tags && experience.tags.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {tagElements}
+              {experience.tags.map((tag, tagIndex) => (
+                <span
+                  key={tag}
+                  className="cv-skill-tag text-xs"
+                  style={{ animationDelay: `${(index * 100) + (tagIndex * 50)}ms` }}
+                >
+                  {tag}
+                </span>
+              ))}
             </div>
           )}
         </div>
       </div>
     </div>
   );
-});
-
-ExperienceItem.displayName = 'ExperienceItem';
+};
 
 /**
- * Optimized experience list component with performance optimizations
+ * Experience list component
  */
-export const OptimizedExperienceList = memo<ExperienceListProps>(({
+export const OptimizedExperienceList = ({
   experiences,
   onExperienceClick,
   maxItems,
-  showImages = false,
   sortBy = 'date',
   filterBy
-}) => {
-  const [isProcessing, setIsProcessing] = useState(false);
+}: ExperienceListProps) => {
+  // Filter experiences
+  let processedExperiences = [...experiences];
 
-  // Memoize filtered and sorted experiences to prevent recalculation
-  const processedExperiences = useMemo(() => {
-    setIsProcessing(true);
+  if (filterBy && filterBy.trim()) {
+    const searchTerm = filterBy.toLowerCase();
+    processedExperiences = processedExperiences.filter(exp =>
+      exp.title.toLowerCase().includes(searchTerm) ||
+      exp.company.toLowerCase().includes(searchTerm) ||
+      exp.description?.toLowerCase().includes(searchTerm) ||
+      exp.tags?.some(tag => tag.toLowerCase().includes(searchTerm))
+    );
+  }
 
-    let processed = [...experiences];
-
-    // Filter if filterBy is provided
-    if (filterBy && filterBy.trim()) {
-      const searchTerm = filterBy.toLowerCase();
-      processed = processed.filter(exp =>
-        exp.title.toLowerCase().includes(searchTerm) ||
-        exp.company.toLowerCase().includes(searchTerm) ||
-        exp.description?.toLowerCase().includes(searchTerm) ||
-        exp.tags?.some(tag => tag.toLowerCase().includes(searchTerm))
-      );
+  // Sort experiences
+  processedExperiences.sort((a, b) => {
+    switch (sortBy) {
+      case 'title':
+        return a.title.localeCompare(b.title);
+      case 'company':
+        return a.company.localeCompare(b.company);
+      case 'date':
+      default:
+        return b.dateRange.localeCompare(a.dateRange);
     }
+  });
 
-    // Sort experiences
-    processed.sort((a, b) => {
-      switch (sortBy) {
-        case 'title':
-          return a.title.localeCompare(b.title);
-        case 'company':
-          return a.company.localeCompare(b.company);
-        case 'date':
-        default:
-          // Simple date comparison - in a real app, you'd parse dates properly
-          return b.dateRange.localeCompare(a.dateRange);
-      }
-    });
-
-    // Limit items if specified
-    if (maxItems && maxItems > 0) {
-      processed = processed.slice(0, maxItems);
-    }
-
-    setIsProcessing(false);
-    return processed;
-  }, [experiences, filterBy, sortBy, maxItems]);
-
-  // Memoize click handler to maintain referential equality
-  const handleExperienceClick = useCallback((id: string) => {
-    if (onExperienceClick) {
-      onExperienceClick(id);
-    }
-  }, [onExperienceClick]);
-
-  // Performance metrics tracking
-  const performanceInfo = useMemo(() => {
-    return {
-      totalExperiences: experiences.length,
-      filteredExperiences: processedExperiences.length,
-      isLargeList: experiences.length > 20,
-      processingTime: isProcessing ? 'Processing...' : 'Ready'
-    };
-  }, [experiences.length, processedExperiences.length, isProcessing]);
-
-  // Development performance indicators
-  if (process.env.NODE_ENV === 'development') {
-    logger.debug('🔄 OptimizedExperienceList render:', performanceInfo);
+  // Limit items if specified
+  if (maxItems && maxItems > 0) {
+    processedExperiences = processedExperiences.slice(0, maxItems);
   }
 
   // Empty state
@@ -235,22 +155,13 @@ export const OptimizedExperienceList = memo<ExperienceListProps>(({
 
   return (
     <div className="space-y-4">
-      {/* Performance indicator in development */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="text-xs text-slate-400 bg-slate-50 p-2 rounded">
-          📊 {performanceInfo.filteredExperiences} of {performanceInfo.totalExperiences} experiences
-          {performanceInfo.isLargeList && ' (Large list - virtualization recommended)'}
-        </div>
-      )}
-
       {/* Experience items */}
       <div className="space-y-6">
         {processedExperiences.map((experience, index) => (
           <ExperienceItem
             key={experience.id || `${experience.company}-${experience.title}-${index}`}
             experience={experience}
-            onClick={handleExperienceClick}
-            showImage={showImages}
+            onClick={onExperienceClick}
             index={index}
           />
         ))}
@@ -266,42 +177,6 @@ export const OptimizedExperienceList = memo<ExperienceListProps>(({
       )}
     </div>
   );
-});
-
-OptimizedExperienceList.displayName = 'OptimizedExperienceList';
-
-/**
- * Higher-order component for adding performance monitoring to any list component
- */
-export function withPerformanceMonitoring<T extends object>(
-  Component: React.ComponentType<T>,
-  componentName: string
-) {
-  const PerformanceMonitoredComponent = memo((props: T) => {
-    const renderStart = performance.now();
-
-    const handleRenderComplete = useCallback(() => {
-      const renderTime = performance.now() - renderStart;
-
-      if (renderTime > 16) { // 60fps = 16ms budget
-        logger.warn('Component render exceeded 16ms budget', {
-          component: componentName,
-          renderTime: `${renderTime.toFixed(2)}ms`,
-          budget: '16ms'
-        });
-      }
-    }, [renderStart]);
-
-    // Use effect to measure render time
-    React.useEffect(() => {
-      handleRenderComplete();
-    });
-
-    return <Component {...props} />;
-  });
-
-  PerformanceMonitoredComponent.displayName = `withPerformanceMonitoring(${componentName})`;
-  return PerformanceMonitoredComponent;
-}
+};
 
 export default OptimizedExperienceList;

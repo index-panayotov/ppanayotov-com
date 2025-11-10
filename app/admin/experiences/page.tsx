@@ -50,16 +50,16 @@ export default function ExperiencesPage() {
     setDialogOpen(true);
   };
 
-  const saveExperience = async () => {
-    if (!currentExperience || !data) return;
+  const saveExperience = async (experienceData: ExperienceEntry & { _index?: number }) => {
+    if (!experienceData || !data) return;
 
     try {
       const experiences = [...data.experiences];
-      const experienceToSave = { ...currentExperience }; // Shallow copy
+      const experienceToSave = { ...experienceData }; // Shallow copy
       delete experienceToSave._index; // Delete _index
 
-      if (currentExperience._index !== undefined) {
-        experiences[currentExperience._index] = experienceToSave; // Use the copy
+      if (experienceData._index !== undefined) {
+        experiences[experienceData._index] = experienceToSave; // Use the copy
       } else {
         experiences.push(experienceToSave); // Use the copy
       }

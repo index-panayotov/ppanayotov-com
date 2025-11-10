@@ -3,13 +3,7 @@
 import { SkillTag } from "./skill-tag"
 import { useState, useMemo, useCallback, memo } from "react"
 import { FiChevronDown, FiChevronUp } from "react-icons/fi"
-
-interface SkillCategoryProps {
-  title: string
-  skills: string[]
-  isExpanded?: boolean
-  variant?: 'grid' | 'list'
-}
+import type { SkillCategoryProps } from "@/types"
 
 /**
  * Collapsible skill group UI that displays a title and a set of skill tags, with a print-friendly fallback.

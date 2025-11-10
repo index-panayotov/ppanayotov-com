@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,6 +15,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -43,8 +44,10 @@ export default function LoginPage() {
           className: 'bg-green-50 border-green-200 text-green-800',
         });
 
-        // Redirect to admin dashboard
-        router.push('/admin');
+        // Redirect to original destination or dashboard
+        // Using window.location.href ensures cookie is saved before next request (fixes race condition)
+        const from = searchParams.get('from') || '/admin/dashboard';
+        window.location.href = from;
       } else {
 
         setError(data.error?.message || 'Invalid password');

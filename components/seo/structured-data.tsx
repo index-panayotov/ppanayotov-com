@@ -1,12 +1,9 @@
 import Script from 'next/script';
-
-interface StructuredDataProps {
-  readonly data: object;
-}
+import type { StructuredDataProps, MultipleStructuredDataProps } from '@/types';
 
 /**
  * StructuredData component for injecting JSON-LD structured data
- * 
+ *
  * Uses Next.js Script component to properly inject structured data
  * into the document head for SEO optimization.
  */
@@ -20,10 +17,6 @@ export function StructuredData({ data }: StructuredDataProps) {
       }}
     />
   );
-}
-
-interface MultipleStructuredDataProps {
-  readonly dataArray: readonly object[];
 }
 
 /**

@@ -1,10 +1,5 @@
 import { memo } from 'react';
-
-interface SectionHeadingProps {
-  id?: string
-  title: string
-  subtitle?: string
-}
+import type { SectionHeadingProps } from '@/types';
 
 /**
  * Renders a section heading with a decorative gradient underline and an optional subtitle.

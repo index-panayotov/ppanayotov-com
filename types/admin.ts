@@ -70,7 +70,7 @@ export interface ExperienceDialogProps {
   setCurrentExperience: (exp: (ExperienceEntry & { _index?: number }) | null) => void;
   newSkill: string;
   setNewSkill: (skill: string) => void;
-  saveExperience: () => Promise<void>;
+  saveExperience: (experienceData: ExperienceEntry & { _index?: number }) => Promise<void>;
   saving?: boolean;
   systemSettings: SystemSettings;
 }

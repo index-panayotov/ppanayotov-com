@@ -1,9 +1,5 @@
 import { memo } from 'react';
-
-interface SkillTagProps {
-  name: string;
-  variant?: 'default' | 'featured';
-}
+import type { SkillTagProps } from '@/types';
 
 /**
  * Render a skill label that uses styled markup for screen and plain text for print.

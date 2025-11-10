@@ -2,12 +2,8 @@
 
 import { FiMail, FiLinkedin, FiPhone } from "react-icons/fi";
 import { SectionHeading } from "@/components/section-heading";
-import { UserProfile } from "@/lib/schemas";
 import { getSocialIcon } from "@/lib/social-platforms";
-
-interface ContactSectionProps {
-    profileData: UserProfile;
-}
+import type { ContactSectionProps } from "@/types";
 
 export function ContactSection({ profileData }: ContactSectionProps) {
     const linkedinLink = profileData.socialLinks?.find(link =>

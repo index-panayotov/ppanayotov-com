@@ -6,11 +6,7 @@ import { useEffect } from "react"
 import { FiPrinter, FiX } from "react-icons/fi"
 import { useHorizontalSwipe } from "@/hooks/use-touch-gestures"
 import systemSettings from "@/data/system_settings"
-
-interface MobileMenuProps {
-  isOpen: boolean
-  onClose: () => void
-}
+import type { MobileMenuProps } from "@/types"
 
 /**
  * Mobile-only full-screen navigation menu with touch gesture support.

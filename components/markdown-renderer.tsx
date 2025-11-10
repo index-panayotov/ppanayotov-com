@@ -2,11 +2,7 @@
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-
-interface MarkdownRendererProps {
-  content: string;
-  className?: string;
-}
+import type { MarkdownRendererProps } from '@/types';
 
 /**
  * Markdown Renderer Component

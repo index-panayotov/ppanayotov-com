@@ -1,36 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LoadingSkeleton } from './loading-skeleton';
-
-interface LazySectionProps {
-  children: ReactNode;
-  /**
-   * Root margin for IntersectionObserver
-   * Default: '200px' - loads 200px before section enters viewport
-   */
-  rootMargin?: string;
-  /**
-   * Show loading skeleton while loading
-   */
-  showSkeleton?: boolean;
-  /**
-   * Custom skeleton component
-   */
-  skeleton?: ReactNode;
-  /**
-   * Minimum height while loading to prevent layout shift
-   */
-  minHeight?: string;
-  /**
-   * Optional className for the wrapper
-   */
-  className?: string;
-  /**
-   * Callback when section becomes visible
-   */
-  onVisible?: () => void;
-}
+import type { LazySectionProps } from '@/types';
 
 /**
  * Lazy Section Component

@@ -1,9 +1,10 @@
 'use client';
 
-import Image, { ImageProps } from 'next/image';
+import Image from 'next/image';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { PLACEHOLDER_PRESETS } from '@/lib/placeholder';
+import type { OptimizedImageProps } from '@/types';
 
 /**
  * OptimizedImage Component
@@ -15,19 +16,6 @@ import { PLACEHOLDER_PRESETS } from '@/lib/placeholder';
  * - Performance monitoring
  * - Error handling with fallbacks
  */
-
-interface OptimizedImageProps extends Omit<ImageProps, 'src' | 'alt'> {
-  src: string;
-  alt: string;
-  fallbackSrc?: string;
-  className?: string;
-  containerClassName?: string;
-  priority?: boolean;
-  quality?: number;
-  sizes?: string;
-  onLoadingComplete?: () => void;
-  onError?: () => void;
-}
 
 export function OptimizedImage({
   src,

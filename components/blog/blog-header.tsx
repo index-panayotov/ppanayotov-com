@@ -5,14 +5,7 @@ import { useState, useCallback } from "react";
 import { FiMail, FiLinkedin, FiMenu, FiX, FiPhone, FiMapPin } from "react-icons/fi";
 import { MobileMenu } from "@/components/mobile-menu";
 import { getSocialIcon } from "@/lib/social-platforms";
-import { TemplateId } from "@/app/templates/types";
-import { UserProfile, SystemSettings } from "@/lib/schemas";
-
-interface BlogHeaderProps {
-  profileData: UserProfile;
-  systemSettings: SystemSettings;
-  selectedTemplate: TemplateId;
-}
+import type { BlogHeaderProps } from "@/types";
 
 export function BlogHeader({
   profileData,

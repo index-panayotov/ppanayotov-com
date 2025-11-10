@@ -4,15 +4,7 @@ import { useState, useEffect, useMemo, useCallback, memo } from "react"
 import { FiPlus, FiMinus } from "react-icons/fi"
 import { SkillTag } from "./skill-tag"
 import DOMPurify from 'isomorphic-dompurify';
-
-interface ExperienceEntryProps {
-  title: string
-  company: string
-  dateRange: string
-  location?: string
-  description?: string | string[]
-  tags?: string[]
-}
+import type { ExperienceEntryProps } from "@/types"
 
 /**
  * Render a single work experience entry including title, company, dates, optional location, description, and skill tags.

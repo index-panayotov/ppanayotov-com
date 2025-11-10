@@ -1,12 +1,7 @@
 "use client"
 
 import { useState, useEffect, memo } from "react"
-
-interface TypingEffectProps {
-  text: string
-  speed?: number
-  className?: string
-}
+import type { TypingEffectProps } from "@/types"
 
 /**
  * Animated typing React client component that reveals `text` one character at a time.

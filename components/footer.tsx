@@ -1,12 +1,6 @@
 "use client";
 
-import { TemplateId } from "@/app/templates/types";
-import { UserProfile } from "@/lib/schemas";
-
-interface FooterProps {
-  profileData: UserProfile;
-  selectedTemplate: TemplateId;
-}
+import type { FooterProps } from "@/types";
 
 export function Footer({ profileData, selectedTemplate }: FooterProps) {
   switch (selectedTemplate) {

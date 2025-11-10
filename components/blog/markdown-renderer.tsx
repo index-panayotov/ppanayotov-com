@@ -6,10 +6,7 @@ import rehypeRaw from 'rehype-raw';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import { ComponentPropsWithoutRef } from 'react';
 import { useTheme } from 'next-themes';
-
-interface MarkdownRendererProps {
-  content: string;
-}
+import type { BlogMarkdownRendererProps } from '@/types';
 
 /**
  * Sanitization Schema for Blog Content
@@ -74,7 +71,7 @@ const sanitizeSchema = {
   ],
 };
 
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
+const MarkdownRenderer: React.FC<BlogMarkdownRendererProps> = ({ content }) => {
   const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === 'dark';
 
