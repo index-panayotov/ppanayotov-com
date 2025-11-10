@@ -78,7 +78,14 @@ export interface TypingEffectProps {
   speed?: number;
   className?: string;
 }
-
+export interface BlogLayoutProps {
+  children: ReactNode;
+}
+export interface BlogPostPageProps {
+  params: {
+    slug: string;
+  };
+}
 export interface SkillTagProps {
   name: string;
   variant?: 'default' | 'featured';
