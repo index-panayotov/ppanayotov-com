@@ -70,6 +70,7 @@ export default function BlogLayout({ children }: BlogLayoutProps) {
         <div className="container mx-auto px-4 max-w-4xl">
             {systemSettings.showContacts && <ContactSection profileData={profileData} />}
         </div>
+        
         <Footer
             profileData={profileData}
             selectedTemplate={systemSettings.selectedTemplate}

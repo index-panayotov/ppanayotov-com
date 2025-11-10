@@ -85,7 +85,7 @@ export interface SkillTagProps {
 }
 
 export interface MarkdownRendererProps {
-  content: string;
+  content?: string;
   className?: string;
 }
 

@@ -18,9 +18,8 @@ import { getProfileImageUrl } from "@/lib/image-utils";
 
 
 import { getSocialIcon } from "@/lib/social-platforms";
-import { initPerformanceMonitoring } from "@/lib/performance-monitoring";
-import { logger } from "@/lib/logger";
 import { TemplateProps } from "./types";
+import { Footer } from "@/components/footer";
 
 /**
  * Classic Template - Animated, modern design with typing effects
@@ -33,15 +32,6 @@ import { TemplateProps } from "./types";
  */
 export default function ClassicTemplate({ experiences, topSkills, profileData, systemSettings }: TemplateProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Initialize performance monitoring on client side
-  useEffect(() => {
-    initPerformanceMonitoring();
-    if (process.env.NODE_ENV === 'production') {
-      logger.info('📊 Performance monitoring active');
-    }
-  }, []);
-
 
 
   // Memoized helper function to get social media platform icon
@@ -404,22 +394,10 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
         </div>
       </main>
 
-      <footer className="bg-slate-900 text-slate-300 py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-sm">© {new Date().getFullYear()} {profileData.name}. All rights reserved.</p>
-          <p className="text-xs text-slate-400 mt-2">
-            Powered by{" "}
-            <a
-              href="https://github.com/index-panayotov/ppanayotov-com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-400 hover:text-blue-300 transition-colors"
-            >
-              ppanayotov-com
-            </a>
-          </p>
-        </div>
-      </footer>
+      <Footer  
+        profileData={profileData}
+        selectedTemplate={systemSettings.selectedTemplate}
+      />
     </div>
   );
 }

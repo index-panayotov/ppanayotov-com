@@ -1,20 +1,13 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { loadBlogPost, loadBlogPosts, loadUserProfile, loadSystemSettings } from '@/lib/data-loader';
-import { BlogPost } from '@/lib/schemas';
+import { loadBlogPost, loadBlogPosts } from '@/lib/data-loader';
 import MarkdownRenderer from '@/components/blog/markdown-renderer';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar, User, Clock, Tag } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { ArrowLeft} from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { getBlogHeaderClasses } from '@/lib/utils';
+import {BlogPostPageProps} from '@/types';
 
-interface BlogPostPageProps {
-  params: Promise<{
-    slug: string;
-  }>;
-}
 
 // Enable ISR with 1-hour revalidation for automatic content updates
 export const revalidate = 3600;
