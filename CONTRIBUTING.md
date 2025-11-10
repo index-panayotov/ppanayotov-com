@@ -95,7 +95,8 @@ This is a **database-less Next.js personal CV website** with a secure admin pane
 │   ├── markdown-utils.ts # Markdown/EditorJS conversion
 │   ├── env.ts            # Environment variable validation
 │   ├── logger.ts         # Structured logging
-│   ├── rate-limit.ts     # API rate limiting
+│   ├── seo/              # SEO utilities (meta generation, structured data)
+│   ├── security/         # Security utilities (slug validation)
 │   └── __tests__/        # Utility function tests
 │
 ├── services/             # External API integrations
@@ -143,10 +144,10 @@ This is a **database-less Next.js personal CV website** with a secure admin pane
    - Update `README.md` if user-facing
    - Document API routes and data structures
 
-3. **Write tests:**
-   - Add tests for new utility functions
+3. **Manual testing:**
+   - Test new functionality thoroughly
    - Test security-critical code (validation, sanitization)
-   - Maintain 70% coverage threshold
+   - Testing framework planned for future implementation
 
 4. **Update sitemap:**
    - Modify `/app/sitemap.xml/route.ts` for new public sections
@@ -322,10 +323,10 @@ Since automated testing has been removed, thorough manual testing is essential:
    - Verify animations and interactions
 
 3. **Security Testing**:
-   - Test rate limiting on API routes
    - Verify environment validation fails correctly
    - Test image upload validation (try uploading .exe, .pdf, etc.)
    - Verify admin authentication
+   - Test slug validation for blog posts
 
 4. **Performance Testing**:
    - Run Lighthouse audit (aim for 90+ scores)
@@ -338,7 +339,7 @@ Since automated testing has been removed, thorough manual testing is essential:
 - **TypeScript**: No `any` types, proper interfaces defined
 - **Error Handling**: Try-catch blocks, proper error messages
 - **Logging**: Use `logger` instead of `console.log`
-- **Security**: Input validation, sanitization, rate limiting
+- **Security**: Input validation, sanitization, authentication
 - **Performance**: Lazy loading, optimized images, efficient queries
 - **Accessibility**: ARIA labels, semantic HTML, keyboard navigation
 
@@ -464,9 +465,9 @@ Brief description of changes
 
 2. **Security First:**
    - Environment validation at startup
-   - Rate limiting on API routes
    - Magic number validation for uploads
    - Input sanitization (Zod schemas)
+   - Slug validation for path traversal prevention
 
 3. **Performance Optimization:**
    - Lazy loading components
@@ -482,10 +483,10 @@ Brief description of changes
 
 ### When to Use Specific Tools
 
-- **Rate Limiting:** Apply to any API route that costs money or resources
 - **Logging:** Use `logger` instead of `console.log` for all production code
 - **Validation:** Always use Zod schemas for form inputs and API requests
 - **AI Enhancement:** Only for content improvement, not for user data
+- **Slug Validation:** Always validate user-provided slugs to prevent path traversal
 
 ## Questions?
 

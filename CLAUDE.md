@@ -270,6 +270,43 @@ const urls = [
 - **Conditional Rendering**: LinkedIn only shows if data exists (no fallbacks)
 - **Structured Data**: Updated schema.org implementation to use conditional values
 
+### Critical Security Fixes (2025-11-10)
+**Authentication & Authorization Hardening:**
+- **Timing-Safe Password Comparison**: Implemented `crypto.timingSafeEqual()` to prevent timing attacks in admin login
+  - SHA-256 hash comparison ensures constant-time validation
+  - Prevents character-by-character password guessing via timing measurements
+  - Location: `app/api/admin/login/route.ts:87-93`
+
+- **Secure HttpOnly Cookies**: Server-side cookie management with security flags
+  - HttpOnly flag prevents XSS cookie theft (JavaScript cannot access)
+  - Secure flag enforces HTTPS in production environments
+  - SameSite strict mode prevents CSRF attacks
+  - Dedicated logout endpoint (`/api/admin/logout`) for proper cleanup
+  - Location: `app/api/admin/login/route.ts:116-122`, `app/api/admin/logout/route.ts`
+
+- **Server-Side Authentication Middleware**: Moved from client-side to middleware
+  - Middleware validates HttpOnly cookies on all `/admin/*` routes
+  - Automatic redirect to login for unauthenticated users
+  - Removed insecure client-side cookie reading
+  - Location: `middleware.ts:13-25`
+
+**Path Traversal Prevention:**
+- **Centralized Slug Validation**: Created security utility to prevent directory traversal
+  - Validates blog slugs with strict regex: `/^[a-z0-9]+(?:-[a-z0-9]+)*$/`
+  - Rejects `..`, `/`, `\` characters that could enable path traversal
+  - Applied to all blog CRUD operations and file uploads
+  - Location: `lib/security/slug-validator.ts`
+  - Used in: `lib/data-loader.ts:177`, `app/api/upload/blog/route.ts:28`, `app/api/admin/blog/route.ts:DELETE`
+
+**Rate Limiting Removal:**
+- **Complete Removal**: Deleted all rate limiting functionality per user request
+  - Removed `lib/rate-limit.ts` file
+  - Cleaned up all references in `app/api/admin/login/route.ts`
+  - Updated documentation across README, CONTRIBUTING, TODO files
+  - Simplified error messages (no more "X attempts remaining")
+
+⚠️ **SECURITY NOTE**: Admin login now lacks brute force protection. Consider implementing alternative protection mechanisms (e.g., CSRF tokens, IP allowlisting) for production deployments.
+
 ## Current Project Status & Configuration
 
 ### System Settings Configuration
@@ -294,7 +331,9 @@ const systemSettings = {
     themeColor: "#0f172a",
     orientation: "portrait-primary",
     categories: [],
-    icons: []
+    icons: []  // NOTE: PWA icons must be generated manually and added here
+               // No automatic icon generation system exists
+               // public/icons/ directory does not exist by default
   }
 };
 ```
@@ -586,6 +625,12 @@ The admin panel has been restructured from a single monolithic page into separat
 - **COMPLETELY REMOVED** - do not re-implement without user request
 - **NO** print-related CSS classes (`print:*`)
 - **WEB-ONLY** focus for all components and styling
+
+**Rate Limiting:**
+- **INTENTIONALLY REMOVED** - per user requirement
+- **NO** rate limiting logic exists in codebase
+- **NO** brute force protection on admin login
+- Consider implementing alternative security (CSRF tokens, IP allowlisting) for production
 
 ### When Working with Data
 - Always backup existing data before modifications

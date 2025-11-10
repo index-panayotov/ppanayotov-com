@@ -9,7 +9,7 @@
 - **Multi-Template CV System** ✨ NEW
   Choose from 3 professionally designed templates to match your industry:
   - **Classic**: Animated design with typing effects, perfect for tech and creative roles
-  - **Professional**: ATS-optimized, print-friendly layout for traditional industries
+  - **Professional**: ATS-optimized, clean layout for traditional industries
   - **Modern**: Bold, trendy design with glassmorphism for creative portfolios
   Switch templates instantly via configuration - no code changes needed.
 
@@ -37,7 +37,6 @@
 - **Production-Ready Infrastructure**
   - **Structured Logging**: Multi-level logging with metadata for debugging production issues
   - **Type-Safe Environment**: Validated configuration with Zod for fail-fast startup
-  - **API Rate Limiting**: Per-IP tracking with standard HTTP headers to prevent abuse
   - **Security**: Magic number validation for image uploads prevents file spoofing
   - **PWA Support**: Configurable Progressive Web App with offline capabilities
 
@@ -50,7 +49,7 @@
 
 Planned features under development:
 
-- [x] Add image upload support with optimization for web and PDF
+- [x] Add image upload support with optimization for web display
 - [x] Add AI assistance to improve and polish CV text
 - [x] Add settings file
 - [x] Add schema.org for the home page
@@ -152,9 +151,8 @@ npm run start   # Optional: run in production mode locally
 ### Deploying to Vercel (Recommended)
 
 **Prerequisites:**
-1. **Generate PWA Icons**: Follow instructions in `/public/icons/GENERATE_ICONS.md` to create required icon files
-2. **Test Locally**: Run `npm run build && npm run start` to ensure production build works
-3. **(Optional) Commit Profile Images**: If using custom profile images, commit them to git or use external hosting
+1. **Test Locally**: Run `npm run build && npm run start` to ensure production build works
+2. **(Optional) Commit Profile Images**: If using custom profile images, commit them to git or use external hosting
 
 **Deployment Steps:**
 
@@ -197,18 +195,17 @@ npm run start   # Optional: run in production mode locally
 
 ### Post-Deployment Checklist
 
-- [ ] PWA icons generated and committed
 - [ ] Environment variables set in Vercel
 - [ ] Production build tested locally
 - [ ] Live site loads correctly
-- [ ] PWA installation works (test on mobile)
+- [ ] PWA installation works (test on mobile - requires icons configured in system_settings.ts)
 - [ ] Admin panel blocked (or secured if enabled)
 - [ ] Lighthouse score > 90 (Performance, Accessibility, SEO)
 
 ### Deployment Troubleshooting
 
 **Issue**: "PWA won't install"
-- **Fix**: Ensure all icon files exist in `/public/icons/`
+- **Fix**: Ensure icons array is properly configured in `data/system_settings.ts` with valid icon paths
 
 **Issue**: "Admin panel shows in production"
 - **Fix**: Remove `NEXT_PUBLIC_ENABLE_ADMIN` environment variable
@@ -269,7 +266,7 @@ The project includes a comprehensive image upload feature with optimization for 
 - **External URL Support**: Option to use images hosted elsewhere
 - **Validation**: File type and size validation to prevent issues
 
-> **Note**: PDF export optimization is temporarily disabled while print functionality is being redesigned for better ATS compatibility and professional appearance.
+> **Note**: Print/PDF functionality has been permanently removed. The CV is designed for web presentation only.
 
 ## 🧠 AI Enhancement Features
 
@@ -319,16 +316,6 @@ NODE_ENV=development
 All environment variables are validated at startup using Zod. If any required variable is missing or invalid, the application will fail to start with clear error messages indicating what needs to be fixed.
 
 ## 🛡️ Security & Production Features
-
-### Rate Limiting
-All API routes are protected with rate limiting to prevent abuse:
-- **AI API** (`/api/ai`): 5 requests/minute
-- **Profile Upload** (`/api/upload`): 10 uploads/minute
-- **Blog Upload** (`/api/upload/blog`): 10 uploads/minute
-- **Admin Data** (`/api/admin`): 30 GET requests/minute, 20 POST requests/minute
-- **Autoskills** (`/api/admin/autoskills`): 20 requests/minute
-
-Rate limits include standard HTTP headers (`X-RateLimit-*`, `Retry-After`) for proper client handling.
 
 ### Structured Logging
 Production-ready logging system with four levels:

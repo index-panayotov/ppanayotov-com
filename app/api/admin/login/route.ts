@@ -8,50 +8,12 @@ import {
 import { API_ERROR_CODES } from '@/lib/api-response';
 import { createTypedSuccessResponse, createTypedErrorResponse } from '@/lib/api-response';
 import { ApiErrorCode } from '@/types/core';
-import { checkRateLimit, resetRateLimit, getClientIP, RateLimitPresets } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 
 /**
- * Type-safe admin login handler with Zod validation and rate limiting
+ * Type-safe admin login handler with Zod validation
  */
 export async function POST(request: NextRequest) {
-  // Extract client IP for rate limiting
-  const clientIP = getClientIP(request);
-
-  // Check rate limit (5 attempts per 15 minutes)
-  const rateLimitResult = checkRateLimit(
-    `login:${clientIP}`,
-    RateLimitPresets.LOGIN.maxAttempts,
-    RateLimitPresets.LOGIN.windowMs
-  );
-
-  if (!rateLimitResult.success) {
-    logger.warn('Rate limit exceeded for login attempt', {
-      ip: clientIP,
-      resetAt: new Date(rateLimitResult.resetAt).toISOString(),
-      retryAfter: rateLimitResult.retryAfter
-    });
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: 'RATE_LIMIT_EXCEEDED',
-          message: `Too many login attempts. Please try again in ${Math.ceil(rateLimitResult.retryAfter! / 1000 / 60)} minutes.`
-        }
-      },
-      {
-        status: 429,
-        headers: {
-          'Retry-After': String(Math.ceil(rateLimitResult.retryAfter! / 1000)),
-          'X-RateLimit-Limit': String(RateLimitPresets.LOGIN.maxAttempts),
-          'X-RateLimit-Remaining': '0',
-          'X-RateLimit-Reset': String(Math.ceil(rateLimitResult.resetAt / 1000))
-        }
-      }
-    );
-  }
-
   // Validate request body against schema
   const validation = await validateRequestBody(request, AdminLoginApiRequestSchema);
 
@@ -79,7 +41,7 @@ export async function POST(request: NextRequest) {
     if (!adminPassword) {
       console.error('[Admin Login] ADMIN_PASSWORD not configured in environment');
       return createTypedErrorResponse(
-        API_ERROR_CODES.INTERNAL_ERROR,
+        API_ERROR_CODES.INTERNAL_SERVER_ERROR,
         'Admin password not configured'
       );
     }
@@ -92,12 +54,13 @@ export async function POST(request: NextRequest) {
     // crypto.timingSafeEqual prevents timing-based password guessing
     const passwordsMatch = crypto.timingSafeEqual(adminPasswordHash, providedPasswordHash);
 
-    if (passwordsMatch) {
-      // Successful login - reset rate limit counter
-      resetRateLimit(`login:${clientIP}`);
 
+    console.log('Passwords match:', passwordsMatch);
+    console.log('Admin Password Hash:', adminPasswordHash.toString('hex'));
+    console.log('Provided Password Hash:', providedPasswordHash.toString('hex'));
+
+    if (passwordsMatch) {
       logger.info('Successful admin login', {
-        ip: clientIP,
         timestamp: new Date().toISOString()
       });
 
@@ -123,22 +86,19 @@ export async function POST(request: NextRequest) {
 
       return nextResponse;
     } else {
-      // Failed login - rate limit counter already incremented
       logger.warn('Failed admin login attempt', {
-        ip: clientIP,
-        remainingAttempts: rateLimitResult.remaining,
         timestamp: new Date().toISOString()
       });
 
       return createTypedErrorResponse(
         API_ERROR_CODES.UNAUTHORIZED,
-        `Invalid password. ${rateLimitResult.remaining} attempts remaining.`
+        'Invalid password'
       );
     }
   } catch (error) {
     console.error('Login error:', error);
     return createTypedErrorResponse(
-      API_ERROR_CODES.INTERNAL_ERROR,
+      API_ERROR_CODES.INTERNAL_SERVER_ERROR,
       'An error occurred during login'
     );
   }

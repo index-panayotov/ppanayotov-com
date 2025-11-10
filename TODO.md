@@ -2,7 +2,7 @@
 
 This document tracks outstanding issues, recommended improvements, and technical debt for the ppanayotov-com CV website project.
 
-**Last Updated:** 2025-10-20
+**Last Updated:** 2025-11-10
 **Status Legend:** 🔴 High Priority | 🟡 Medium Priority | 🟢 Low Priority | ⏱️ Estimated Effort
 
 ---
@@ -15,11 +15,6 @@ This document tracks outstanding issues, recommended improvements, and technical
   - Configured strict allowed tags/attributes policy
   - Prevents malicious script injection via EditorJS content
 - ✅ **FIXED npm dependency vulnerabilities** - Patched tar-fs and brace-expansion
-- ✅ **IMPLEMENTED RATE LIMITING** for admin login (`lib/rate-limit.ts`)
-  - 5 failed attempts = 15-minute lockout
-  - IP-based tracking with automatic cleanup
-  - Detailed logging of login attempts
-  - HTTP 429 responses with Retry-After headers
 
 ### Admin Panel Bug Fixes
 - ✅ Fixed incorrect props passed to `AdminNavigation` in `blog/new/page.tsx`
@@ -40,42 +35,61 @@ This document tracks outstanding issues, recommended improvements, and technical
 ### Development Infrastructure
 - ✅ Created `.coderabbit.yaml` configuration for automated code reviews
 - ✅ Comprehensive security audit completed
-- ✅ Created reusable rate limiting utilities (`lib/rate-limit.ts`)
+
+## ✅ Recently Completed (2025-11-10)
+
+### Critical Security Fixes - Authentication & Path Traversal
+- ✅ **IMPLEMENTED TIMING-SAFE PASSWORD COMPARISON** in `app/api/admin/login/route.ts`
+  - Uses `crypto.timingSafeEqual()` to prevent timing attacks
+  - SHA-256 hash comparison for constant-time validation
+  - Prevents character-by-character password guessing via timing measurements
+
+- ✅ **IMPLEMENTED SECURE HTTPONLY COOKIES** in `app/api/admin/login/route.ts`
+  - HttpOnly flag prevents XSS cookie theft
+  - Secure flag enforces HTTPS in production
+  - SameSite strict mode prevents CSRF attacks
+  - Server-side cookie management via dedicated logout endpoint
+
+- ✅ **FIXED PATH TRAVERSAL VULNERABILITY** in blog file operations
+  - Created centralized slug validator (`lib/security/slug-validator.ts`)
+  - Validates slugs with regex: `/^[a-z0-9]+(?:-[a-z0-9]+)*$/`
+  - Rejects `..`, `/`, `\` characters to prevent directory traversal
+  - Applied to all blog CRUD operations and file uploads
+
+- ✅ **IMPLEMENTED SERVER-SIDE AUTHENTICATION** via `middleware.ts`
+  - Middleware validates HttpOnly cookies on all `/admin/*` routes
+  - Removes client-side authentication checks
+  - Automatic redirect to login for unauthenticated users
+
+- ✅ **REMOVED RATE LIMITING SYSTEM** (per user request)
+  - Deleted `lib/rate-limit.ts` and all rate limiting logic
+  - Updated documentation across all files
+  - Simplified login error messages
 
 ---
 
 ## 🔴 High Priority Issues
 
-### 1. Production Admin Panel Security (PARTIALLY COMPLETED)
+### 1. Production Admin Panel Security (MOSTLY COMPLETED)
 **Priority:** 🔴 Critical
-**Effort:** ⏱️ 2-4 hours
+**Effort:** ⏱️ 1-2 hours (for remaining items)
 **Category:** Security
 
-**Issue:**
-Admin panel is currently accessible in production builds with multiple security concerns:
+**Completed Security Improvements:**
+- ✅ Timing-safe password comparison (`crypto.timingSafeEqual`)
+- ✅ HttpOnly, Secure, SameSite cookies implemented
+- ✅ Server-side authentication middleware (`middleware.ts`)
+- ✅ Structured logging for all admin actions
 
-1. **Weak Authentication:**
-   - Plain text password comparison (no hashing)
-   - Cookie-based auth without httpOnly/secure flags
-   - No session management or token refresh
+**Remaining Security Concerns:**
 
-2. **Missing Security Controls:**
-   - No rate limiting on login attempts (brute force vulnerability)
+1. **Missing Security Controls:**
    - No CSRF protection on API routes
-   - No audit logging for admin actions
-   - No IP-based restrictions
+   - No IP-based restrictions (optional enhancement)
 
-3. **Authentication Code Issues** (`app/api/admin/login/route.ts`):
-   ```typescript
-   // SECURITY ISSUE: Plain text comparison
-   if (password === adminPassword) {
-     // No hashing, no timing-safe comparison
-   }
-   ```
-
-**Completed:**
-- ✅ Added rate limiting (5 failed attempts = 15 min lockout)
-- ✅ Enhanced security documentation in .env.example
+2. **Authentication Improvements Needed:**
+   - No session management or token refresh
+   - No password hashing (currently compares hashed values but doesn't store hashed)
 
 **Remaining Tasks:**
 1. **Immediate (Before Production):**
@@ -98,24 +112,6 @@ Admin panel is currently accessible in production builds with multiple security 
 - `app/api/admin/login/route.ts`
 - `app/admin/**`
 - `app/api/admin/**`
-
-**Example Rate Limiting Implementation:**
-```typescript
-// lib/rate-limit.ts
-import { LRUCache } from 'lru-cache';
-
-const rateLimit = new LRUCache({
-  max: 500,
-  ttl: 60000, // 1 minute
-});
-
-export function checkRateLimit(ip: string): boolean {
-  const attempts = rateLimit.get(ip) || 0;
-  if (attempts >= 5) return false;
-  rateLimit.set(ip, attempts + 1);
-  return true;
-}
-```
 
 ---
 
@@ -184,12 +180,12 @@ npm install <package>@latest  # Manual major version updates
 ## 🟡 Medium Priority Issues
 
 ### 5. CSRF Protection for Admin Routes
-**Priority:** 🟡 Medium (was High - rate limiting partially addresses)
+**Priority:** 🟡 Medium
 **Effort:** ⏱️ 2-3 hours
 **Category:** Security
 
 **Issue:**
-Admin API routes lack CSRF (Cross-Site Request Forgery) protection. While rate limiting helps, CSRF tokens would provide additional security.
+Admin API routes lack CSRF (Cross-Site Request Forgery) protection. CSRF tokens would provide additional security for state-changing operations.
 
 **Recommendations:**
 - Implement CSRF tokens for all state-changing operations (POST, PUT, DELETE)
@@ -425,7 +421,6 @@ Site is English-only. Supporting multiple languages could broaden audience.
 
 ### Sprint 1: Critical Security (This Week)
 3. Fix admin panel production security (#2)
-   - Add rate limiting
    - Implement CSRF protection
    - Add environment-based route disabling
 4. Add environment variable validation (#3)
