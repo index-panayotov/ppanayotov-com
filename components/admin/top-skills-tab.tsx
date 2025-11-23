@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { AIEnhancedInput } from "./ai-enhanced-input";
 import { Card, CardContent } from "@/components/ui/card";
 import { X, ArrowUp, ArrowDown } from "lucide-react";
-import { TopSkillsTabProps } from "@/types/admin-components";
+import { TopSkillsTabProps } from "@/types/admin-pages";
 
 /**
  * Displays and manages a list of top professional skills with visual editing interface.

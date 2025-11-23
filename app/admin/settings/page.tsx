@@ -25,6 +25,7 @@ export default function SettingsPage() {
         saving={saving}
         handleSave={handleSave}
         systemSettings={data?.systemSettings || {
+          siteUrl: "https://ppanayotov.com",
           blogEnable: false,
           useWysiwyg: true,
           showContacts: true,

@@ -410,7 +410,6 @@ const systemSettings = {
   description: string,       // SEO description (50-160 chars recommended)
   publishedDate: string,     // Publication date (YYYY-MM-DD)
   updatedDate?: string,      // Last updated date
-  author: string,            // Author name
   tags: string[],            // Post tags/categories
   featuredImage?: string,    // Featured image URL
   published: boolean,        // Visibility status
@@ -457,7 +456,7 @@ import { env } from '@/lib/env';
 - **Error Tracking**: Dedicated error logging with stack trace preservation
 ```typescript
 import { logger } from '@/lib/logger';
-logger.info('Blog post created', { slug: 'my-post', author: 'John' });
+logger.info('Blog post created', { slug: 'my-post' });
 logger.error('Upload failed', error, { fileSize: 5242880 });
 ```
 
@@ -475,12 +474,6 @@ logger.error('Upload failed', error, { fileSize: 5242880 });
 - **Performance**: 1-hour cache headers for optimal delivery
 - **Discovery**: RSS link in blog header with Lucide icon
 - **Auto-Generated**: Pulls from blog-posts.ts data automatically
-
-**Blog Author Auto-Population**:
-- **Smart Defaults**: Automatically populates blog author from user-profile.ts
-- **No Hardcoded Values**: Eliminates "Your Name" placeholder
-- **Fallback Strategy**: Uses "Anonymous" if profile not found
-- **Logged Operations**: All auto-population events logged for debugging
 
 **Enhanced Documentation**:
 - **Comprehensive .env.example**: 67-line documented configuration file with security warnings

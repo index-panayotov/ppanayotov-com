@@ -4,7 +4,7 @@
 
 import { ExperienceEntry } from "@/types";
 import {
-  LanguageEntry,
+  Language,
   EducationEntry,
   Certification,
   SocialLink,
@@ -26,7 +26,7 @@ export interface ExperienceEntryWithIndex extends ExperienceEntry {
   _index?: number;
 }
 
-export interface LanguageEntryWithIndex extends LanguageEntry {
+export interface LanguageEntryWithIndex extends Language {
   _index?: number;
 }
 

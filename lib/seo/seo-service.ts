@@ -6,7 +6,7 @@ import { StructuredDataGenerator } from './structured-data-generator';
 /**
  * SEO optimization options
  */
-interface SEOOptions {
+export interface SEOOptions {
   readonly includeStructuredData?: boolean;
   readonly includeTwitterCards?: boolean;
   readonly includeOpenGraph?: boolean;
@@ -18,7 +18,7 @@ interface SEOOptions {
 /**
  * Complete SEO package including metadata and structured data
  */
-interface SEOPackage {
+export interface SEOPackage {
   readonly metadata: Metadata;
   readonly structuredDataScripts: readonly string[];
   readonly canonicalUrl: string;

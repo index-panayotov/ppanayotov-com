@@ -14,7 +14,8 @@ import {
   Brain
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { AdminDashboardProps, DashboardStats, QuickAction } from "@/types/admin";
+import { DashboardStats, QuickAction } from "@/types/admin";
+import { AdminDashboardProps } from "@/types/admin-pages";
 
 export function AdminDashboard({ experiences, topSkills, profileData }: AdminDashboardProps) {
   const router = useRouter();

@@ -2,11 +2,11 @@ import { NextRequest } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { BlogPostSchema } from '@/lib/schemas';
-import { loadBlogPosts, loadUserProfile } from '@/lib/data-loader';
+import { loadBlogPosts } from '@/lib/data-loader';
 import { calculateReadingTime } from '@/lib/markdown-utils';
 import { logger } from '@/lib/logger';
 import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
-import { withDevOnly, generateBlogPostsFileContent, getBlogAuthor } from '@/lib/api-utils';
+import { withDevOnly, generateBlogPostsFileContent } from '@/lib/api-utils';
 import { validateSlug } from '@/lib/security/slug-validator';
 
 /**
@@ -29,10 +29,6 @@ export const POST = withDevOnly(async (request: NextRequest) => {
   try {
     const body = await request.json();
     const { metadata, content } = body;
-
-    // Auto-populate author from user profile
-    const userProfile = loadUserProfile();
-    metadata.author = getBlogAuthor(userProfile);
 
     // Validate metadata
     const validatedMetadata = BlogPostSchema.parse(metadata);

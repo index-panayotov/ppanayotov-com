@@ -1,19 +1,9 @@
 import { ReactNode } from "react";
 import { LucideIcon } from "lucide-react";
-import {
-  SystemSettings,
-  UserProfile,
-  Language,
-  EducationEntry as Education,
-  Certification,
-  ExperienceEntry
-} from "@/lib/schemas";
+import { UserProfile, ExperienceEntry } from "@/lib/schemas";
 
 /**
  * Admin panel specific types and interfaces
- *
- * Note: Core data types (UserProfile, Language, Education, Certification, LanguageProficiency)
- * are imported from @/lib/schemas to avoid duplication and ensure consistency.
  */
 
 // Navigation and sidebar types
@@ -45,58 +35,6 @@ export interface QuickAction {
   icon: LucideIcon;
   action: () => void;
   color: string;
-}
-
-
-
-export interface AdminDashboardProps {
-  experiences: ExperienceEntry[];
-  topSkills: string[];
-  profileData: UserProfile;
-}
-
-// Experience management types - imported from schemas for consistency
-export type { ExperienceEntry } from "@/lib/schemas";
-
-// Admin component prop types
-// Note: TopSkillsTabProps, ProfileDataTabProps, and ExperiencesTabProps are now
-// defined in @/types/admin-components.ts to avoid duplication
-
-// Dialog and form types
-export interface ExperienceDialogProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  currentExperience: (ExperienceEntry & { _index?: number }) | null;
-  setCurrentExperience: (exp: (ExperienceEntry & { _index?: number }) | null) => void;
-  newSkill: string;
-  setNewSkill: (skill: string) => void;
-  saveExperience: (experienceData: ExperienceEntry & { _index?: number }) => Promise<void>;
-  saving?: boolean;
-  systemSettings: SystemSettings;
-}
-
-export interface LanguageDialogProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  currentLanguage: (Language & { _index?: number }) | null;
-  setCurrentLanguage: (lang: (Language & { _index?: number }) | null) => void;
-  saveLanguage: () => void;
-}
-
-export interface EducationDialogProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  currentEducation: (Education & { _index?: number }) | null;
-  setCurrentEducation: (edu: (Education & { _index?: number }) | null) => void;
-  saveEducation: () => void;
-}
-
-export interface CertificationDialogProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  currentCertification: (Certification & { _index?: number }) | null;
-  setCurrentCertification: (cert: (Certification & { _index?: number }) | null) => void;
-  saveCertification: () => void;
 }
 
 // Theme types

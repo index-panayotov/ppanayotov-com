@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { ProfileDataTabProps } from '@/types/admin-components';
+import { ProfileDataTabProps } from '@/types/admin-pages';
 import ImageUpload from '@/components/admin/image-upload';
 
 /**

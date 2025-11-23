@@ -32,8 +32,6 @@ export const metadata = {
     "Project Delivery",
     "Software Architecture"
   ].join(", "),
-  authors: [{ name: userProfile.name }],
-  creator: userProfile.name,
   openGraph: {
     title: `${userProfile.name} - ${userProfile.title}`,
     description: `Professional CV of ${userProfile.name}, an experienced ${userProfile.title}`,

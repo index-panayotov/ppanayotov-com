@@ -86,10 +86,9 @@ export const GET = withDevOnly(async (request: NextRequest) => {
   } catch (error) {
     logger.error('Admin GET handler failed', error as Error, { action });
     return createTypedErrorResponse(
-      API_ERROR_CODES.INTERNAL_ERROR,
-      'Failed to retrieve admin data'
-    );
-  }
+            API_ERROR_CODES.INTERNAL_SERVER_ERROR,
+            error instanceof Error ? error.message : 'Failed to update data'
+          );  }
 });
 
 /**
@@ -142,14 +141,8 @@ export const POST = withDevOnly(async (request: NextRequest) => {
   } catch (error) {
     logger.error('Failed to save data', error as Error, { file });
     return createTypedErrorResponse(
-      API_ERROR_CODES.INTERNAL_ERROR,
-      `Failed to save data to ${file}`,
-      [{
-        field: 'file',
-        message: `Error writing to ${file}`,
-        code: 'FILE_WRITE_ERROR',
-        value: file
-      }]
+      API_ERROR_CODES.INTERNAL_SERVER_ERROR,
+      error instanceof Error ? error.message : 'Failed to delete data'
     );
   }
 });

@@ -18,7 +18,10 @@ export const addExperience = (
     dateRange: "",
     location: "",
     description: "",
-    tags: []
+    tags: [],
+    isCurrentRole: false,
+    achievements: [],
+    technologies: []
   };
   setCurrentExperience(newExperience);
   setDialogOpen(true);

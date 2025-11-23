@@ -5,7 +5,7 @@
 import {
   UserProfile,
   LanguageProficiency,
-  LanguageEntry,
+  Language,
   EducationEntry,
   Certification
 } from "@/lib/schemas";
@@ -45,7 +45,7 @@ export const addLanguage = (
 };
 
 export const editLanguage = (
-  lang: LanguageEntry,
+  lang: Language,
   index: number,
   setCurrentLanguage: (language: LanguageEntryWithIndex | null) => void,
   setLanguageDialogOpen: (open: boolean) => void

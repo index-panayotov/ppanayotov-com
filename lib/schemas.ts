@@ -235,7 +235,6 @@ export const BlogPostSchema = z.object({
     .default(''),
   publishedDate: z.string().min(1, 'Published date is required'),
   updatedDate: OptionalStringSchema,
-  author: NonEmptyStringSchema,
   tags: z.array(z.string()).default([]),
   featuredImage: OptionalStringSchema,
   published: z.boolean().default(false),

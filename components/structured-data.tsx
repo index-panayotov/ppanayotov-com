@@ -19,16 +19,16 @@ export function StructuredData() {
     "name": userProfile.name,
     "jobTitle": userProfile.title,
     "url": "https://www.ppanayotov.com",
-    "image": userProfile.profileImage,
+    "image": userProfile.profileImageUrl,
     "address": {
       "@type": "PostalAddress",
       "addressLocality": userProfile.location
     },
     "email": `mailto:${userProfile.email}`,
     "telephone": userProfile.phone,
-    "sameAs": userProfile.linkedin ? [
-      `https://${userProfile.linkedin.replace(/^https?:\/\//i, '')}`
-    ] : [],
+    "sameAs": userProfile.socialLinks
+      .filter(link => link.platform === 'LinkedIn' || link.url.toLowerCase().includes('linkedin.com'))
+      .map(link => link.url.startsWith('http') ? link.url : `https://${link.url}`),
     "knowsAbout": Array.from(new Set(experiences.flatMap(exp => exp.tags))).slice(0, 10),
     "alumniOf": userProfile.education.map(edu => ({
       "@type": "EducationalOrganization",

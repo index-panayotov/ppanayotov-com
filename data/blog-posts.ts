@@ -9,7 +9,7 @@ import { BlogPost } from "@/lib/schemas";
  * Each blog post requires:
  * - A unique slug (used in URL and filename)
  * - A corresponding .md file at /data/blog/{slug}.md
- * - Metadata including title, description, dates, author, tags
+ * - Metadata including title, description, dates, tags
  */
 
 export const blogPosts: BlogPost[] = [];

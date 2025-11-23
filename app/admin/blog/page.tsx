@@ -186,28 +186,12 @@ export default function BlogPage() {
                           <span className="text-slate-400">(updated {post.updatedDate})</span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4" />
-                        <span>{post.author}</span>
-                      </div>
                       {post.readingTime && (
                         <div className="flex items-center gap-2">
                           <span>📖 {post.readingTime} min read</span>
                         </div>
                       )}
                     </div>
-                    {post.tags && post.tags.length > 0 && (
-                      <div className="flex items-center gap-2 mt-3">
-                        <Tag className="h-4 w-4 text-slate-400" />
-                        <div className="flex flex-wrap gap-2">
-                          {post.tags.map((tag) => (
-                            <Badge key={tag} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </CardContent>
                 </Card>
               ))}

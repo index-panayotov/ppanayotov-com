@@ -1,20 +1,13 @@
 import { ReactNode, ErrorInfo } from 'react';
 import { ImageProps } from 'next/image';
-import { UserProfile, SystemSettings } from '@/lib/schemas';
+import { UserProfile, SystemSettings, ExperienceEntry } from '@/lib/schemas';
 import { TemplateId } from '@/app/templates/types';
+
+export type { UserProfile, SystemSettings, ExperienceEntry };
 
 // ============================================================================
 // Data Types
 // ============================================================================
-
-export interface ExperienceEntry {
-  title: string;
-  company: string;
-  dateRange: string;
-  location?: string;
-  description: string;
-  tags: string[];
-}
 
 export interface OpenRouterOptions {
   systemInput: string;

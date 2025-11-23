@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ValidationResult, ApiError } from '@/types/core';
 import { API_ERROR_CODES } from '@/lib/api-response';
+import { NonEmptyStringSchema, EmailSchema } from '@/lib/schemas';
 
 // Re-export all schemas from lib/schemas.ts for backward compatibility
 export * from '@/lib/schemas';

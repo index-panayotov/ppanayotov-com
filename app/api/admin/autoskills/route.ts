@@ -92,8 +92,8 @@ export const POST = withDevOnly(async (request: NextRequest) => {
       experienceCount: experiences.length
     });
     return createTypedErrorResponse(
-      API_ERROR_CODES.INTERNAL_ERROR,
-      "Failed to generate top skills"
+      API_ERROR_CODES.INTERNAL_SERVER_ERROR,
+      error instanceof Error ? error.message : "Internal server error"
     );
   }
 });

@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AIEnhancedInput } from '@/components/admin/ai-enhanced-input';
 import { SocialLink, SocialPlatform } from '@/lib/schemas';
+import { SocialLinkDialogProps } from '@/types/admin-components';
 import {
   getAvailablePlatforms,
   getPlatformDefinition,
@@ -23,15 +24,6 @@ import {
   validateSocialUrl,
   getSocialIcon
 } from '@/lib/social-platforms';
-
-interface SocialLinkDialogProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  currentSocialLink: (SocialLink & { _index?: number }) | null;
-  setCurrentSocialLink: (link: (SocialLink & { _index?: number }) | null) => void;
-  saveSocialLink: () => void;
-  saving?: boolean;
-}
 
 // Platform key mappings - centralized to avoid duplication
 const PLATFORM_MAP: Record<string, SocialPlatform> = {

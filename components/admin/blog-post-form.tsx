@@ -41,9 +41,6 @@ export default function BlogPostForm({ initialPost, mode }: BlogPostFormProps) {
   const [saving, setSaving] = useState(false);
   const isEditMode = mode === 'edit';
 
-  // Get author name from user profile
-  const authorName = userProfile.name || 'Anonymous';
-
   // Initialize form
   const form = useForm<BlogFormData>({
     resolver: zodResolver(BlogPostSchema.omit({ readingTime: true })),
@@ -53,7 +50,6 @@ export default function BlogPostForm({ initialPost, mode }: BlogPostFormProps) {
       description: '',
       publishedDate: new Date().toISOString().split('T')[0],
       updatedDate: '',
-      author: authorName,
       tags: [],
       featuredImage: '',
       published: false,
@@ -107,7 +103,6 @@ export default function BlogPostForm({ initialPost, mode }: BlogPostFormProps) {
             description: metadata.description || '',
             publishedDate: metadata.publishedDate,
             updatedDate: metadata.updatedDate || '',
-            author: metadata.author || authorName,
             tags: metadata.tags || [],
             featuredImage: metadata.featuredImage || '',
             published: metadata.published,
@@ -130,7 +125,7 @@ export default function BlogPostForm({ initialPost, mode }: BlogPostFormProps) {
     };
 
     loadPostContent();
-  }, [initialPost, isEditMode, reset, authorName, router]);
+  }, [initialPost, isEditMode, reset, router]);
 
   // Generate SEO description from content using AI
   const generateSeoDescription = async () => {
@@ -496,8 +491,8 @@ Respond with ONLY the meta description text, nothing else.`,
             <div className="space-y-2 bg-white p-6 rounded-lg border">
               <FormLabel>Featured Image (optional)</FormLabel>
               <ImageUpload
-                currentImageUrl={currentFeaturedImage}
-                currentWebUrl={currentFeaturedImage}
+                currentImageUrl={currentFeaturedImage || ''}
+                currentWebUrl={currentFeaturedImage || ''}
                 currentPdfUrl=""
                 onImageChange={handleImageUpload}
               />

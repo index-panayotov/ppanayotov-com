@@ -22,12 +22,15 @@ export type {
 } from './meta-generator';
 
 export type {
-  PersonStructuredData,
-  WebSiteStructuredData,
   OrganizationStructuredData,
   JobPostingStructuredData,
   BreadcrumbListStructuredData
 } from './structured-data-generator';
+
+export type {
+  PersonStructuredData,
+  WebSiteStructuredData
+} from '@/types/schemas';
 
 export type {
   SEOOptions,

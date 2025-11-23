@@ -6,6 +6,9 @@ export const experiences: ExperienceEntry[] = [
     "company": "DSK Bank",
     "dateRange": "Oct 2025 - Present",
     "description": "Led and mentored multiple fully remote cross-functional engineering\nteams (7-9 members) composed of developers, QA, mobile engineers,\ndesigners, and product owners.\nProvided daily technical leadership and strategic direction, proactively\nremoving impediments to ensure the consistent and timely delivery of\nsoftware.\nMaintained deep technical context by actively participating in\narchitecture reviews, pull request (PR) reviews, and high-level technical\nstrategy discussions.\nCollaborated closely with Product Owners and stakeholders to define\nrequirements, shape product roadmaps, and strategically balance\nfeature development with technical debt.\nChampioned modern CI/CD practices, including automated testing and\ngradual rollouts, to streamline the release process and improve\ndeployment frequency.\nManaged the end-to-end development lifecycle for both large-scale\nenterprise systems and mobile applications, from initial configuration to\nproduction deployment.\nDeveloped engineers through regular 1:1s, actionable coaching, and clear\ncareer development conversations that helped them grow their skills and\nadvance in their careers.\nPlayed a key role in team growth by conducting technical interviews and\nestablishing structured mentorship programs to effectively onboard new\nengineers.\nOrchestrated resource allocation, capacity planning, and workload\nassignments to optimize team capacity and align with project roadmaps\nand business priorities.",
+    "isCurrentRole": false,
+    "achievements": [],
+    "technologies": [],
     "tags": [
       "Software Engineering Manager"
     ],
@@ -16,6 +19,9 @@ export const experiences: ExperienceEntry[] = [
     "company": "MentorMate",
     "dateRange": "November 2020 - October 2025",
     "description": "In my role as a Delivery Manager, I lead the successful execution of large-scale software projects by combining technical expertise with a strong focus on client relationships and team dynamics. Trusted by clients to organize, guide, and empower cross-functional teams, I ensure the delivery of high-quality solutions that meet both business and user needs.\n\nAlthough I don't have direct reports, I regularly take on people management responsibilities—mentoring team members, fostering collaboration, and supporting professional growth. My top priority is delivering tangible results while maintaining a high level of client satisfaction, leveraging both strategic thinking and interpersonal skills to drive project success.",
+    "isCurrentRole": false,
+    "achievements": [],
+    "technologies": [],
     "tags": [
       "Solution Architecture",
       "Software Quality",
@@ -62,6 +68,9 @@ export const experiences: ExperienceEntry[] = [
     "dateRange": "February 2018 - November 2020",
     "location": "Sofia",
     "description": "As a Senior Software Developer, I served as a key technical expert, frequently relied upon for architectural decisions and hands-on development across a diverse range of projects and technologies. I played a central role in defining application architectures, establishing code review practices, and upholding high standards of software quality.\n\nIn addition to technical contributions, I worked closely with both teams and clients to guide them toward optimal technical solutions, effectively bridging the gap between business goals and engineering execution. This role required a balanced use of deep technical knowledge and strong communication and collaboration skills.",
+    "isCurrentRole": false,
+    "achievements": [],
+    "technologies": [],
     "tags": [
       "Solution Architecture",
       "Software Quality",
@@ -110,6 +119,9 @@ export const experiences: ExperienceEntry[] = [
     "company": "MentorMate",
     "dateRange": "June 2016 - February 2018",
     "description": "During this time, I worked primarily independently on moderately complex tasks, taking full ownership of features from concept to deployment. My focus extended beyond simply writing code—I was committed to building complete, reliable, and maintainable software solutions. I followed industry best practices in coding, testing, and documentation, and contributed to improving development workflows by introducing small process enhancements and automation where appropriate.\n\nThis role allowed me to deepen my understanding of the full software development lifecycle—from gathering requirements and designing technical solutions to implementation, testing, deployment, and post-release support. I became more confident in evaluating trade-offs, prioritizing features, and choosing the right tools and methodologies based on the problem at hand.\n\nAdditionally, I regularly collaborated with cross-functional teams, including QA, DevOps, and product stakeholders, to ensure alignment and deliver value consistently. This experience was a key stage in my growth as an engineer, as it helped me bridge the gap between theoretical knowledge and practical execution, and laid the groundwork for taking on more strategic roles in future projects.",
+    "isCurrentRole": false,
+    "achievements": [],
+    "technologies": [],
     "tags": [
       "Solution Architecture",
       "CSS",
@@ -148,6 +160,9 @@ export const experiences: ExperienceEntry[] = [
     "company": "IT-Cover",
     "dateRange": "December 2015 - June 2016",
     "description": "At IT-Cover, I contributed to a wide range of web development projects, including CRM systems, internal back-office tools, and customer-facing B2C websites. Operating in a fast-paced and dynamic environment, I worked across the full stack—handling everything from front-end interfaces to back-end logic and database design.\n\nThis role gave me the opportunity to engage in end-to-end development, collaborate closely with cross-functional teams, and deliver features that directly supported business operations and enhanced user experience. It was a hands-on, impactful experience that strengthened both my technical capabilities and my ability to deliver under tight deadlines.",
+    "isCurrentRole": false,
+    "achievements": [],
+    "technologies": [],
     "tags": [
       "Software Quality",
       "Team Collaboration",
@@ -176,6 +191,9 @@ export const experiences: ExperienceEntry[] = [
     "dateRange": "June 2015 - December 2015",
     "location": "Sofia",
     "description": "I joined CareerTown, an innovative startup developing a feature-rich HR job portal designed to streamline recruitment and job searching. As a member of the core development team, I contributed to both front-end and back-end development, helping to build scalable and user-friendly features that addressed complex business requirements.\n\nWorking in a fast-paced startup environment, I collaborated closely with product owners and designers to deliver high-impact functionality, ensuring the platform was robust, performant, and aligned with user needs. This experience enhanced my full-stack development skills and strengthened my ability to adapt quickly in an agile setting.",
+    "isCurrentRole": false,
+    "achievements": [],
+    "technologies": [],
     "tags": [
       "Software Quality",
       "Team Collaboration",
@@ -203,6 +221,9 @@ export const experiences: ExperienceEntry[] = [
     "dateRange": "July 2014 - June 2015",
     "location": "Sofia",
     "description": "I collaborated with clients of Signature Digital Agency, developing new web applications and maintaining existing ones to meet evolving business needs. My work primarily involved backend and frontend development using PHP, MySQL, PostgreSQL, nginx, Apache, and extJS.\n\nNotably, the BSBM project I contributed to later evolved into CareerTown, allowing me to continue working on the platform’s growth and functionality as part of the core development team.",
+    "isCurrentRole": false,
+    "achievements": [],
+    "technologies": [],
     "tags": [
       "Software Quality",
       "Team Collaboration",
@@ -227,6 +248,9 @@ export const experiences: ExperienceEntry[] = [
     "dateRange": "July 2013 - February 2014",
     "location": "Sofia",
     "description": "At Interactive Share, I contributed to a variety of web development projects while actively supporting client requirements. I prioritized delivering high-quality, maintainable code and worked closely with cross-functional teams to ensure project goals were met efficiently.\n\nIn addition to development, I gained experience supporting digital marketing campaigns, including Facebook advertising initiatives, helping to align technical solutions with marketing objectives and client expectations.",
+    "isCurrentRole": false,
+    "achievements": [],
+    "technologies": [],
     "tags": [
       "Software Quality",
       "Team Collaboration",
@@ -242,6 +266,9 @@ export const experiences: ExperienceEntry[] = [
     "company": "no company",
     "dateRange": "2006 - 2015",
     "description": "During this time, I worked as a freelancer, taking on a variety of projects. I gained hands-on experience in full-stack development, working with different clients, solving problems, and delivering value through clean, maintainable code.",
+    "isCurrentRole": false,
+    "achievements": [],
+    "technologies": [],
     "tags": [
       "Software Quality",
       "Grunt (Software)",

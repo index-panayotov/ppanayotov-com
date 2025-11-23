@@ -112,23 +112,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                         </time>
                       </div>
                     </div>
-                    {post.tags && post.tags.length > 0 && (
-                      <div className="flex items-center gap-2">
-                        <Tag className="h-4 w-4 text-slate-400" />
-                        <div className="flex flex-wrap gap-2">
-                          {post.tags.slice(0, 5).map((tag) => (
-                            <Badge key={tag} variant="secondary" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                          {post.tags.length > 5 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{post.tags.length - 5} more
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    )}
                   </CardContent>
                 </Card>
               </Link>

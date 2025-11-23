@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 
 import { Badge } from '@/components/ui/badge';
 
-import { ExperienceDialogProps } from '@/types/admin';
+import { ExperienceDialogProps } from '@/types/admin-components';
 
 import {
   Form,
@@ -89,6 +89,9 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
         dateRange: data.dateRange,
         description: data.description,
         tags: data.tags,
+        isCurrentRole: currentExperience?.isCurrentRole || false,
+        achievements: currentExperience?.achievements || [],
+        technologies: currentExperience?.technologies || [],
         ...(data.location && { location: data.location }),
         ...(currentExperience?._index !== undefined && { _index: currentExperience._index })
       };

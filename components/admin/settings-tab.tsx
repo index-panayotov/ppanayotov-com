@@ -9,18 +9,12 @@ import { Check, Eye, Palette, Settings as SettingsIcon, Globe, Code, BarChart3 }
 
 import { getAllTemplates } from "@/app/templates/template-registry";
 import { SystemSettings } from "@/lib/schemas";
+import { SettingsTabProps } from "@/types/admin-pages";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { logger } from "@/lib/logger";
-
-interface SettingsTabProps {
-  saving: boolean;
-  handleSave: (file: string, data: any) => Promise<void>;
-  systemSettings: SystemSettings;
-  setSystemSettings: (settings: SystemSettings) => void;
-}
 
 /**
  * Settings Tab - Manage system-wide settings

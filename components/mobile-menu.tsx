@@ -131,15 +131,6 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           >
             Contact
           </Link>
-          {systemSettings.showPrint && (
-            <button
-              onClick={handlePrint}
-              className="cv-button-primary mt-6 mx-auto min-h-[56px] px-6"
-            >
-              <FiPrinter size={18} className="mr-2" />
-              Print CV
-            </button>
-          )}
         </nav>
       </div>
     </div>
