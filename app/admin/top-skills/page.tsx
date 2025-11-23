@@ -17,6 +17,7 @@ const TopSkillsTab = dynamic(
 export default function TopSkillsPage() {
   const { data, loading, error, saving, handleSave, updateTopSkills } = useAdminData();
   const [newSkill, setNewSkill] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
 
   const addTopSkill = async () => {
@@ -68,7 +69,17 @@ export default function TopSkillsPage() {
   const generateAutomaticTopSkills = async () => {
     if (!data) return;
 
+    setIsGenerating(true);
     const previousTopSkills = data.topSkills;
+
+    // Collect all tags and technologies from experiences to send for analysis
+    const experienceTexts = data.experiences.flatMap(exp => [
+      ...(exp.tags || []),
+      ...(exp.technologies || [])
+    ]).filter(Boolean);
+
+    // Collect job descriptions for better context
+    const jobDescriptions = data.experiences.map(exp => exp.description).filter(Boolean) as string[];
 
     try {
       const response = await fetch('/api/admin/autoskills', {
@@ -76,7 +87,7 @@ export default function TopSkillsPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ experiences: data.experiences }),
+        body: JSON.stringify({ experienceTexts, jobDescriptions }),
       });
 
       if (!response.ok) {
@@ -90,10 +101,18 @@ export default function TopSkillsPage() {
       }
 
       const result = await response.json();
-      let skills = Array.isArray(result.skills) ? result.skills.map(String) : [];
+      
+      // Extract skills from response data (wrapped in 'data' property)
+      // and handle object structure { name, frequency, confidence }
+      const rawSkills = result.data?.skills || [];
+      let skills = Array.isArray(rawSkills) 
+        ? rawSkills.map((s: any) => typeof s === 'string' ? s : s.name) 
+        : [];
+
+      console.log("Extracted skills:", skills);
 
       // Ensure skills are unique and trimmed
-      skills = Array.from(new Set(skills.map(s => s.trim()))).filter(Boolean);
+      skills = Array.from(new Set(skills.map((s: string) => s.trim()))).filter(Boolean);
 
       // Persist to backend first
       await handleSave('topSkills', skills);
@@ -106,6 +125,8 @@ export default function TopSkillsPage() {
         action: 'generateAutomaticTopSkills'
       });
       // Keep UI unchanged on error (don't update state)
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -165,6 +186,7 @@ export default function TopSkillsPage() {
             generateAutomaticTopSkills={generateAutomaticTopSkills}
             newSkill={newSkill}
             setNewSkill={setNewSkill}
+            isGenerating={isGenerating}
           />
         </div>
       </div>

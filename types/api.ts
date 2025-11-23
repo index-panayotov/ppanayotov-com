@@ -157,6 +157,7 @@ export interface GenerateSkillsApiRequest {
 
 export const GenerateSkillsApiRequestSchema = z.object({
   experienceTexts: z.array(z.string()),
+  jobDescriptions: z.array(z.string()).optional(),
   maxSkills: z.number().int().min(1).max(50).optional().default(20)
 });
 

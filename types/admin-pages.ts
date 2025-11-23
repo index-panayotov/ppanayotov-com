@@ -51,6 +51,7 @@ export interface TopSkillsTabProps {
   generateAutomaticTopSkills: () => void;
   newSkill: string;
   setNewSkill: (skill: string) => void;
+  isGenerating?: boolean;
 }
 
 /**

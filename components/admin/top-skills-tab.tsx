@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { AIEnhancedInput } from "./ai-enhanced-input";
 import { Card, CardContent } from "@/components/ui/card";
-import { X, ArrowUp, ArrowDown } from "lucide-react";
+import { X, ArrowUp, ArrowDown, Loader2 } from "lucide-react";
 import { TopSkillsTabProps } from "@/types/admin-pages";
 
 /**
@@ -20,7 +20,8 @@ export default function TopSkillsTab({
   moveTopSkill,
   generateAutomaticTopSkills,
   newSkill,
-  setNewSkill
+  setNewSkill,
+  isGenerating = false
 }: TopSkillsTabProps) {
   return (
     <div className="space-y-6">
@@ -31,17 +32,29 @@ export default function TopSkillsTab({
             Manage featured skills displayed on your CV
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          {isGenerating && (
+             <span className="text-xs text-muted-foreground mr-2 animate-pulse">
+               AI Analysis in progress... (~10s)
+             </span>
+          )}
           <Button
             variant="outline"
             onClick={generateAutomaticTopSkills}
-            disabled={saving}
+            disabled={saving || isGenerating}
           >
-            Auto-Generate
+            {isGenerating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                AI Analyzing...
+              </>
+            ) : (
+              "Auto-Generate"
+            )}
           </Button>
           <Button
             onClick={() => handleSave("topSkills", topSkills)}
-            disabled={saving}
+            disabled={saving || isGenerating}
           >
             {saving ? "Saving..." : "Save Changes"}
           </Button>
