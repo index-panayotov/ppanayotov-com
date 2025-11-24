@@ -16,7 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { BlogPost, BlogPostSchema } from '@/lib/schemas';
 import { toast } from 'sonner';
-import { Loader2, Save, ArrowLeft, X } from 'lucide-react';
+import { Loader2, Save, ArrowLeft, X, Sparkles } from 'lucide-react';
 import { generateSlug, markdownToPlainText, truncateText } from '@/lib/markdown-utils';
 import MarkdownEditor from '@/components/admin/markdown-editor';
 import { apiClient } from '@/lib/api-client';
@@ -308,7 +308,7 @@ Respond with ONLY the title text.`,
                     <Input
                       {...field}
                       placeholder="Post Title"
-                      className="text-4xl font-bold border-none shadow-none px-0 py-6 h-auto placeholder:text-slate-300 focus-visible:ring-0 pr-32"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base text-foreground ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm undefined pr-2"
                     />
                   </FormControl>
                   <FormMessage />
