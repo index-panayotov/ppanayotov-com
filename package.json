@@ -36,6 +36,8 @@
     "@radix-ui/react-tabs": "1.1.2",
     "@radix-ui/react-toast": "^1.2.4",
     "@radix-ui/react-tooltip": "1.1.6",
+    "@toast-ui/editor": "^3.2.2",
+    "@toast-ui/react-editor": "^3.2.3",
     "@uiw/react-md-editor": "^4.0.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -63,12 +65,12 @@
   "devDependencies": {
     "@eslint/js": "^9.37.0",
     "@next/bundle-analyzer": "16.0.1",
-    "autoprefixer": "^10.4.20",
     "@types/node": "^22",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "@typescript-eslint/eslint-plugin": "^8.45.0",
     "@typescript-eslint/parser": "^8.45.0",
+    "autoprefixer": "^10.4.20",
     "postcss": "^8",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
