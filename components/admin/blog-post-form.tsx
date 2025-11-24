@@ -33,6 +33,7 @@ export default function BlogPostForm({ initialPost, mode }: BlogPostFormProps) {
   const [content, setContent] = useState<string>('');
   const [loadingContent, setLoadingContent] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [generatingTitle, setGeneratingTitle] = useState(false);
   const isEditMode = mode === 'edit';
 
   // Initialize form
@@ -110,6 +111,56 @@ export default function BlogPostForm({ initialPost, mode }: BlogPostFormProps) {
 
     loadPostContent();
   }, [initialPost, isEditMode, reset, router]);
+
+  // Generate Title from content using AI
+  const generateTitle = async () => {
+    if (!content || content.trim().length === 0) {
+      toast.error('No Content', {
+        description: 'Please add blog content first before generating a title',
+      });
+      return;
+    }
+
+    setGeneratingTitle(true);
+
+    try {
+      const plainText = markdownToPlainText(content);
+      const contentSample = truncateText(plainText, 1000);
+
+      const response = await apiClient.post<{ response: string }>('/api/ai', {
+        systemInput: `You are a professional blog editor.
+Your task is to create a catchy, engaging, and SEO-friendly title for a blog post based on the provided content.
+
+Requirements:
+- Maximum 60 characters
+- Engaging and click-worthy
+- accurately reflect the content
+- No quotation marks ("")
+- No "Title:" prefix
+
+Respond with ONLY the title text.`,
+        data: `Content Preview:\n${contentSample}`,
+        creativity: 0.4,
+      });
+
+      const generatedTitle = response.response?.trim() || '';
+      // Remove any accidental quotes if the AI added them
+      const cleanTitle = generatedTitle.replace(/^"|"$/g, '');
+
+      setValue('title', cleanTitle, { shouldValidate: true, shouldDirty: true });
+
+      toast.success('Title Generated', {
+        description: 'AI has suggested a title based on your content',
+      });
+    } catch (error) {
+      console.error('Title generation error:', error);
+      toast.error('Generation Failed', {
+        description: error instanceof Error ? error.message : 'Failed to generate title',
+      });
+    } finally {
+      setGeneratingTitle(false);
+    }
+  };
 
   // Handle form submission
   const onSubmit = async (data: BlogFormData) => {
@@ -234,12 +285,30 @@ export default function BlogPostForm({ initialPost, mode }: BlogPostFormProps) {
               control={control}
               name="title"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
+                  <div className="absolute right-0 top-0 z-10">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={generateTitle}
+                      disabled={generatingTitle || !content || content.trim().length === 0}
+                      className="text-slate-400 hover:text-blue-600 hover:bg-blue-50"
+                      title={!content || content.trim().length === 0 ? "Add content first to generate title" : "Generate catchy title from content"}
+                    >
+                      {generatingTitle ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Sparkles className="h-4 w-4 mr-2" />
+                      )}
+                      {generatingTitle ? 'Generating...' : 'Generate Title'}
+                    </Button>
+                  </div>
                   <FormControl>
                     <Input
                       {...field}
                       placeholder="Post Title"
-                      className="text-4xl font-bold border-none shadow-none px-0 py-6 h-auto placeholder:text-slate-300 focus-visible:ring-0"
+                      className="text-4xl font-bold border-none shadow-none px-0 py-6 h-auto placeholder:text-slate-300 focus-visible:ring-0 pr-32"
                     />
                   </FormControl>
                   <FormMessage />
