@@ -52,7 +52,7 @@ export async function loadAdminData(): Promise<AdminDataResponse> {
       blogEnable: false,
       useWysiwyg: true,
       showContacts: true,
-      gtagCode: "",
+      gtagCode: "gtagCode",
       gtagEnabled: false,
       selectedTemplate: "classic",
       pwa: {}

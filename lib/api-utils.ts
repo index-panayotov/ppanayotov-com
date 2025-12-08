@@ -75,7 +75,7 @@ export function withErrorHandler<T = any>(
       });
 
       return createTypedErrorResponse(
-        API_ERROR_CODES.INTERNAL_ERROR,
+        API_ERROR_CODES.INTERNAL_SERVER_ERROR,
         error instanceof Error ? error.message : 'An unexpected error occurred'
       ) as NextResponse<T>;
     }
@@ -124,7 +124,7 @@ export function generateBlogPostsFileContent(blogPosts: BlogPost[]): string {
  * Each blog post requires:
  * - A unique slug (used in URL and filename)
  * - A corresponding .md file at /data/blog/{slug}.md
- * - Metadata including title, description, dates, author, tags
+ * - Metadata including title, description, dates, tags
  */
 
 export const blogPosts: BlogPost[] = ${JSON.stringify(blogPosts, null, 2)};
@@ -146,8 +146,6 @@ export const blogPosts: BlogPost[] = ${JSON.stringify(blogPosts, null, 2)};
  * - Unexpected object properties
  * - Type confusion attacks
  *
- * @param fileName - Name of the data file (e.g., 'cv-data.ts', 'user-profile.ts')
- * @param data - Data to serialize (MUST be pre-validated with appropriate schema)
  * @returns Formatted TypeScript file content
  */
 export function generateDataFileContent(fileName: string, data: any): string {
@@ -179,6 +177,7 @@ export const userProfile: UserProfile = ${serialized};
         gtagCode: settings.gtagCode ?? '',
         gtagEnabled: settings.gtagEnabled ?? false,
         selectedTemplate: settings.selectedTemplate ?? 'classic',
+        siteUrl: settings.siteUrl ?? 'https://ppanayotov.com',
         pwa: {
           siteName: settings.pwa?.siteName ?? 'CV Website',
           shortName: settings.pwa?.shortName ?? 'CV',
@@ -204,15 +203,4 @@ export default systemSettings;
     default:
       throw new Error(`Unknown file type: ${fileName}`);
   }
-}
-
-/**
- * Auto-populate blog author from user profile
- * Consistent fallback strategy across blog operations
- *
- * @param userProfile - User profile data
- * @returns Author name or 'Anonymous' fallback
- */
-export function getBlogAuthor(userProfile: UserProfile): string {
-  return userProfile.name || 'Anonymous';
 }

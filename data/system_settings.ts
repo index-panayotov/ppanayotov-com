@@ -4,10 +4,11 @@
 const systemSettings = {
   "blogEnable": true,
   "useWysiwyg": true,
-  "showContacts": true,
-  "gtagCode": "",
-  "gtagEnabled": false,
+  "showContacts": false,
+  "gtagCode": "G-NR6KNX7RM6",
+  "gtagEnabled": true,
   "selectedTemplate": "classic",
+  "siteUrl": "https://ppanayotov.com",
   "pwa": {
     "siteName": "CV Website",
     "shortName": "CV",

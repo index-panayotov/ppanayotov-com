@@ -7,6 +7,7 @@ import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import { ComponentPropsWithoutRef } from 'react';
 import { useTheme } from 'next-themes';
 import type { BlogMarkdownRendererProps } from '@/types';
+import { MarkdownComponentProps } from '@/types/ui-components';
 
 /**
  * Sanitization Schema for Blog Content
@@ -52,6 +53,7 @@ const sanitizeSchema = {
     href: ['http', 'https'],
   },
   // Explicitly list allowed tag names for clarity
+  // Explicitly list allowed tag names for clarity
   tagNames: [
     ...(defaultSchema.tagNames || []),
     // Block elements
@@ -82,32 +84,32 @@ const MarkdownRenderer: React.FC<BlogMarkdownRendererProps> = ({ content }) => {
         rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
         components={{
           // Headings
-          h1: ({ node, ...props }: ComponentPropsWithoutRef<'h1'>) => (
+          h1: ({ node: _node, ...props }: MarkdownComponentProps<'h1'>) => (
             <h1 className="text-4xl font-bold mt-8 mb-4 text-slate-900" {...props} />
           ),
-          h2: ({ node, ...props }: ComponentPropsWithoutRef<'h2'>) => (
+          h2: ({ node: _node, ...props }: MarkdownComponentProps<'h2'>) => (
             <h2 className="text-3xl font-bold mt-8 mb-4 text-slate-900" {...props} />
           ),
-          h3: ({ node, ...props }: ComponentPropsWithoutRef<'h3'>) => (
+          h3: ({ node: _node, ...props }: MarkdownComponentProps<'h3'>) => (
             <h3 className="text-2xl font-semibold mt-6 mb-3 text-slate-800" {...props} />
           ),
-          h4: ({ node, ...props }: ComponentPropsWithoutRef<'h4'>) => (
+          h4: ({ node: _node, ...props }: MarkdownComponentProps<'h4'>) => (
             <h4 className="text-xl font-semibold mt-6 mb-3 text-slate-800" {...props} />
           ),
-          h5: ({ node, ...props }: ComponentPropsWithoutRef<'h5'>) => (
+          h5: ({ node: _node, ...props }: MarkdownComponentProps<'h5'>) => (
             <h5 className="text-lg font-semibold mt-4 mb-2 text-slate-700" {...props} />
           ),
-          h6: ({ node, ...props }: ComponentPropsWithoutRef<'h6'>) => (
+          h6: ({ node: _node, ...props }: MarkdownComponentProps<'h6'>) => (
             <h6 className="text-base font-semibold mt-4 mb-2 text-slate-700" {...props} />
           ),
 
           // Paragraphs
-          p: ({ node, ...props }: ComponentPropsWithoutRef<'p'>) => (
+          p: ({ node: _node, ...props }: MarkdownComponentProps<'p'>) => (
             <p className="my-4 text-slate-700 leading-relaxed" {...props} />
           ),
 
           // Links
-          a: ({ node, href, ...props }: ComponentPropsWithoutRef<'a'>) => {
+          a: ({ node: _node, href, ...props }: MarkdownComponentProps<'a'>) => {
             const normalizedHref = href?.trim().toLowerCase(); // Normalize href
             if (normalizedHref && (normalizedHref.startsWith('mailto:') || normalizedHref.startsWith('tel:'))) {
               return (
@@ -132,21 +134,21 @@ const MarkdownRenderer: React.FC<BlogMarkdownRendererProps> = ({ content }) => {
           },
 
           // Lists
-          ul: ({ node, ...props }: ComponentPropsWithoutRef<'ul'>) => (
+          ul: ({ node: _node, ...props }: MarkdownComponentProps<'ul'>) => (
             <ul className="my-4 ml-6 list-disc space-y-2 text-slate-700" {...props} />
           ),
-          ol: ({ node, ...props }: ComponentPropsWithoutRef<'ol'>) => (
+          ol: ({ node: _node, ...props }: MarkdownComponentProps<'ol'>) => (
             <ol className="my-4 ml-6 list-decimal space-y-2 text-slate-700" {...props} />
           ),
-          li: ({ node, ...props }: ComponentPropsWithoutRef<'li'>) => (
+          li: ({ node: _node, ...props }: MarkdownComponentProps<'li'>) => (
             <li className="leading-relaxed" {...props} />
           ),
 
           // Code blocks
-          pre: ({ node, ...props }: ComponentPropsWithoutRef<'pre'>) => (
+          pre: ({ node: _node, ...props }: MarkdownComponentProps<'pre'>) => (
             <pre className="my-6 overflow-x-auto rounded-lg bg-slate-900 p-4" {...props} />
           ),
-          code: ({ node, className, children, ...props }: ComponentPropsWithoutRef<'code'> & { inline?: boolean }) => {
+          code: ({ node: _node, className, children, ...props }: MarkdownComponentProps<'code'> & { inline?: boolean }) => {
             const isInline = !className;
             return isInline ? (
               <code
@@ -166,7 +168,7 @@ const MarkdownRenderer: React.FC<BlogMarkdownRendererProps> = ({ content }) => {
           },
 
           // Blockquotes
-          blockquote: ({ node, ...props }: ComponentPropsWithoutRef<'blockquote'>) => (
+          blockquote: ({ node: _node, ...props }: MarkdownComponentProps<'blockquote'>) => (
             <blockquote
               className="my-6 border-l-4 border-blue-500 bg-blue-50 pl-4 py-2 italic text-slate-700"
               {...props}
@@ -174,7 +176,7 @@ const MarkdownRenderer: React.FC<BlogMarkdownRendererProps> = ({ content }) => {
           ),
 
           // Images
-          img: ({ node, ...props }: ComponentPropsWithoutRef<'img'>) => (
+          img: ({ node: _node, ...props }: MarkdownComponentProps<'img'>) => (
             <img
               className="my-6 rounded-lg shadow-md max-w-full h-auto"
               {...props}
@@ -183,40 +185,40 @@ const MarkdownRenderer: React.FC<BlogMarkdownRendererProps> = ({ content }) => {
           ),
 
           // Horizontal rules
-          hr: ({ node, ...props }: ComponentPropsWithoutRef<'hr'>) => (
+          hr: ({ node: _node, ...props }: MarkdownComponentProps<'hr'>) => (
             <hr className="my-8 border-t-2 border-slate-200" {...props} />
           ),
 
           // Tables
-          table: ({ node, ...props }: ComponentPropsWithoutRef<'table'>) => (
+          table: ({ node: _node, ...props }: MarkdownComponentProps<'table'>) => (
             <div className="my-6 overflow-x-auto">
               <table className="min-w-full divide-y divide-slate-300" {...props} />
             </div>
           ),
-          thead: ({ node, ...props }: ComponentPropsWithoutRef<'thead'>) => (
+          thead: ({ node: _node, ...props }: MarkdownComponentProps<'thead'>) => (
             <thead className="bg-slate-100" {...props} />
           ),
-          tbody: ({ node, ...props }: ComponentPropsWithoutRef<'tbody'>) => (
+          tbody: ({ node: _node, ...props }: MarkdownComponentProps<'tbody'>) => (
             <tbody className="divide-y divide-slate-200 bg-white" {...props} />
           ),
-          tr: ({ node, ...props }: ComponentPropsWithoutRef<'tr'>) => (
+          tr: ({ node: _node, ...props }: MarkdownComponentProps<'tr'>) => (
             <tr {...props} />
           ),
-          th: ({ node, ...props }: ComponentPropsWithoutRef<'th'>) => (
+          th: ({ node: _node, ...props }: MarkdownComponentProps<'th'>) => (
             <th
               className="px-4 py-3 text-left text-sm font-semibold text-slate-900"
               {...props}
             />
           ),
-          td: ({ node, ...props }: ComponentPropsWithoutRef<'td'>) => (
+          td: ({ node: _node, ...props }: MarkdownComponentProps<'td'>) => (
             <td className="px-4 py-3 text-sm text-slate-700" {...props} />
           ),
 
           // Strong and emphasis
-          strong: ({ node, ...props }: ComponentPropsWithoutRef<'strong'>) => (
+          strong: ({ node: _node, ...props }: MarkdownComponentProps<'strong'>) => (
             <strong className="font-bold text-slate-900" {...props} />
           ),
-          em: ({ node, ...props }: ComponentPropsWithoutRef<'em'>) => (
+          em: ({ node: _node, ...props }: MarkdownComponentProps<'em'>) => (
             <em className="italic text-slate-800" {...props} />
           ),
         }}

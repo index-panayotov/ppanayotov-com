@@ -22,7 +22,7 @@ export default function EditBlogPostPage() {
       try {
         setLoading(true);
         setError(null);
-        const result = await apiClient.get(`/api/admin/blog/${slug}`);
+        const result = await apiClient.get(`/api/admin/blog/${slug}`) as any;
 
         if (result.error) {
           const errorMsg = result.error.message || 'Could not fetch the blog post';

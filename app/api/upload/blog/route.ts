@@ -156,7 +156,7 @@ async function handlePOST(request: NextRequest) {
 }
 
 // Export POST handler wrapped with authentication
-export const POST = withDevOnly(handlePOST);
+export const POST = withDevOnly(handlePOST as any);
 
 /**
  * DELETE - Delete blog file
@@ -199,4 +199,4 @@ async function handleDELETE(request: NextRequest) {
 }
 
 // Export DELETE handler wrapped with authentication
-export const DELETE = withDevOnly(handleDELETE);
+export const DELETE = withDevOnly(handleDELETE as any);

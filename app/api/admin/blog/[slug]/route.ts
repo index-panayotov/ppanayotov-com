@@ -8,24 +8,16 @@ import { withDevOnly } from '@/lib/api-utils';
  * GET - Fetch single blog post with content
  * Next.js 15: params is now async and must be awaited
  */
-export const GET = withDevOnly(async (
+export const GET = withDevOnly((async (
   request: NextRequest,
   context: { params: Promise<{ slug: string }> }
 ) => {
+  const { slug } = await context.params;
   try {
-    const { slug } = await context.params;
-
-    if (!slug) {
-      return createTypedErrorResponse(API_ERROR_CODES.BAD_REQUEST, 'Slug parameter is required');
-    }
-
-    const result = loadBlogPost(slug);
-    return createTypedSuccessResponse(result);
+    const post = loadBlogPost(slug);
+    return createTypedSuccessResponse(post);
   } catch (error) {
     logger.error('Error loading blog post', error as Error);
-    return createTypedErrorResponse(
-      API_ERROR_CODES.NOT_FOUND,
-      error instanceof Error ? error.message : 'Failed to load blog post'
-    );
+    return createTypedErrorResponse(API_ERROR_CODES.NOT_FOUND, 'Blog post not found');
   }
-});
+}) as any);

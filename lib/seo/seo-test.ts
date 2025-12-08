@@ -18,7 +18,7 @@ export function testSEOImplementation() {
   // Test 1: Generate portfolio SEO
   console.log('1. Testing Portfolio SEO Generation:');
   try {
-    const portfolioSEO = generatePortfolioSEO(userProfile, experiences);
+    const portfolioSEO = generatePortfolioSEO(userProfile as any, experiences);
     
     console.log('✅ Portfolio SEO generated successfully');
     console.log(`   Title: ${portfolioSEO.metadata.title}`);
@@ -51,7 +51,7 @@ export function testSEOImplementation() {
   
   sections.forEach(section => {
     try {
-      const sectionSEO = seoService.generateSectionSEO(section, userProfile, experiences);
+      const sectionSEO = seoService.generateSectionSEO(section, userProfile as any, experiences);
       console.log(`✅ ${section} SEO generated successfully`);
       console.log(`   Title: ${sectionSEO.metadata.title}`);
     } catch (error) {
@@ -62,7 +62,7 @@ export function testSEOImplementation() {
   // Test 3: Validate SEO content
   console.log('\n3. Testing SEO Content Validation:');
   try {
-    const validation = validateSEOContent(userProfile, experiences);
+    const validation = validateSEOContent(userProfile as any, experiences);
     
     if (validation.isValid) {
       console.log('✅ SEO content validation passed');
@@ -78,7 +78,7 @@ export function testSEOImplementation() {
   // Test 4: Test Open Graph image URL generation
   console.log('\n4. Testing Open Graph Image Generation:');
   try {
-    const ogImageUrl = seoService.generateOpenGraphImageUrl(userProfile, 'portfolio');
+    const ogImageUrl = seoService.generateOpenGraphImageUrl(userProfile as any, 'portfolio');
     console.log('✅ Open Graph image URL generated successfully');
     console.log(`   URL: ${ogImageUrl}`);
   } catch (error) {
@@ -88,7 +88,7 @@ export function testSEOImplementation() {
   // Test 5: Test sitemap entries
   console.log('\n5. Testing Sitemap Generation:');
   try {
-    const sitemapEntries = seoService.generateSitemapEntries(userProfile);
+    const sitemapEntries = seoService.generateSitemapEntries(userProfile as any);
     console.log('✅ Sitemap entries generated successfully');
     console.log(`   Entries count: ${sitemapEntries.length}`);
     sitemapEntries.forEach(entry => {

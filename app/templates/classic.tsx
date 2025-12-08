@@ -179,11 +179,9 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
         <div className="container mx-auto px-4 max-w-4xl">
           <LazySection rootMargin="100px" minHeight="300px">
             <section id="summary" className="cv-section" aria-labelledby="summary-heading">
-              <SectionHeading id="summary-heading" title="Summary" subtitle="Professional overview and core competencies" />
-              <MarkdownRenderer
-                content={profileData.summary}
-                className="text-slate-700 leading-relaxed"
-              />
+              <SectionHeading id="summary-heading" title="Summary" 
+              //subtitle="Professional overview and core competencies"
+               />
               <div className="mt-6">
                 <h3 className="text-lg font-semibold text-slate-800 mb-3">Top Skills</h3>
                 <div className="flex flex-wrap gap-2">

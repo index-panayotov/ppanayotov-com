@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 /**
  * Configuration for SEO meta generation
  */
-interface SEOConfig {
+export interface SEOConfig {
   readonly baseUrl: string;
   readonly siteName: string;
   readonly defaultImage: string;
@@ -14,7 +14,7 @@ interface SEOConfig {
 /**
  * Page-specific SEO data
  */
-interface PageSEOData {
+export interface PageSEOData {
   readonly title?: string;
   readonly description?: string;
   readonly keywords?: readonly string[];
@@ -28,7 +28,7 @@ interface PageSEOData {
 /**
  * Generated SEO metadata
  */
-interface GeneratedSEOMetadata {
+export interface GeneratedSEOMetadata {
   readonly title: string;
   readonly description: string;
   readonly keywords: readonly string[];

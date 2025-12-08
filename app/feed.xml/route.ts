@@ -48,22 +48,19 @@ export async function GET() {
     const siteUrl = systemSettings.siteUrl;
     const feedUrl = `${siteUrl}/feed.xml`;
     const blogUrl = `${siteUrl}/blog`;
-    const authorEmail = userProfile.email || 'noreply@example.com';
-    const authorName = userProfile.name;
+    const siteTitle = systemSettings.pwa?.siteName || 'Portfolio';
 
     const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>${escapeXml(authorName)} Blog</title>
+    <title>${escapeXml(siteTitle)} Blog</title>
     <link>${blogUrl}</link>
     <description>Insights on software development, technology trends, and lessons learned from building scalable applications</description>
     <language>en-us</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${feedUrl}" rel="self" type="application/rss+xml" />
     <generator>Next.js</generator>
-    <webMaster>${authorEmail} (${escapeXml(authorName)})</webMaster>
-    <managingEditor>${authorEmail} (${escapeXml(authorName)})</managingEditor>
-    <copyright>Copyright ${new Date().getFullYear()} ${escapeXml(authorName)}</copyright>
+    <copyright>Copyright ${new Date().getFullYear()} ${escapeXml(siteTitle)}</copyright>
     <category>Technology</category>
     <category>Software Development</category>
     <ttl>60</ttl>
@@ -78,7 +75,6 @@ ${publishedPosts.map(post => {
       <guid isPermaLink="true">${guid}</guid>
       <description>${escapeXml(post.description)}</description>
       <pubDate>${pubDate}</pubDate>
-      <author>${authorEmail} (${escapeXml(post.author)})</author>
 ${post.tags && post.tags.length > 0 ? post.tags.map(tag => `      <category>${escapeXml(tag)}</category>`).join('\n') : ''}
 ${post.featuredImage ? `      <enclosure url="${siteUrl}${post.featuredImage}" type="image/webp" />` : ''}
 ${post.readingTime ? `      <content:encoded><![CDATA[<p>Reading time: ${post.readingTime} minutes</p>]]></content:encoded>` : ''}

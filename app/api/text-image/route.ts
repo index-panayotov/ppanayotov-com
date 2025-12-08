@@ -53,12 +53,13 @@ export async function GET(req: NextRequest) {
     outCtx.fillText(text, padding, padding);
 
     const buffer = outCanvas.toBuffer("image/png");
-    return new NextResponse(buffer, {
+    return new NextResponse(buffer as any, {
       status: 200,
       headers: {
-        "Content-Type": "image/png",
-        "Cache-Control": "public, max-age=86400"
-      }
+        'Content-Type': 'image/png',
+        'Content-Length': buffer.length.toString(),
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
     });
   } catch (error) {
     console.error("Canvas library error:", error);

@@ -3,7 +3,7 @@ import type { UserProfile, ExperienceEntry, PersonStructuredData, WebSiteStructu
 /**
  * Organization structured data
  */
-interface OrganizationStructuredData {
+export interface OrganizationStructuredData {
   readonly "@context": "https://schema.org";
   readonly "@type": "Organization";
   readonly name: string;
@@ -15,7 +15,7 @@ interface OrganizationStructuredData {
 /**
  * JobPosting structured data for experience entries
  */
-interface JobPostingStructuredData {
+export interface JobPostingStructuredData {
   readonly "@context": "https://schema.org";
   readonly "@type": "JobPosting";
   readonly title: string;
@@ -32,7 +32,7 @@ interface JobPostingStructuredData {
 /**
  * BreadcrumbList structured data
  */
-interface BreadcrumbListStructuredData {
+export interface BreadcrumbListStructuredData {
   readonly "@context": "https://schema.org";
   readonly "@type": "BreadcrumbList";
   readonly itemListElement: readonly {

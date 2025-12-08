@@ -33,8 +33,6 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   return {
     title: metadata.title,
     description: metadata.description,
-    authors: [{ name: metadata.author }],
-    creator: metadata.author,
     keywords: metadata.tags.join(', '),
   };
 }

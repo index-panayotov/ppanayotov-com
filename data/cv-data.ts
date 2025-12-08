@@ -4,14 +4,22 @@ export const experiences: ExperienceEntry[] = [
   {
     "title": "Software Engineering Manager",
     "company": "DSK Bank",
-    "dateRange": "Oct 2025 - Present",
-    "description": "Led and mentored multiple fully remote cross-functional engineering\nteams (7-9 members) composed of developers, QA, mobile engineers,\ndesigners, and product owners.\nProvided daily technical leadership and strategic direction, proactively\nremoving impediments to ensure the consistent and timely delivery of\nsoftware.\nMaintained deep technical context by actively participating in\narchitecture reviews, pull request (PR) reviews, and high-level technical\nstrategy discussions.\nCollaborated closely with Product Owners and stakeholders to define\nrequirements, shape product roadmaps, and strategically balance\nfeature development with technical debt.\nChampioned modern CI/CD practices, including automated testing and\ngradual rollouts, to streamline the release process and improve\ndeployment frequency.\nManaged the end-to-end development lifecycle for both large-scale\nenterprise systems and mobile applications, from initial configuration to\nproduction deployment.\nDeveloped engineers through regular 1:1s, actionable coaching, and clear\ncareer development conversations that helped them grow their skills and\nadvance in their careers.\nPlayed a key role in team growth by conducting technical interviews and\nestablishing structured mentorship programs to effectively onboard new\nengineers.\nOrchestrated resource allocation, capacity planning, and workload\nassignments to optimize team capacity and align with project roadmaps\nand business priorities.",
+    "dateRange": "October 2025 - Present",
+    "description": "- Led and mentored fully remote, cross-functional engineering teams of 7-9 members, including developers, QA engineers, mobile developers, designers, and product owners.\n- Delivered daily technical leadership and strategic guidance, proactively resolving impediments to ensure consistent, on-time software delivery.\n- Maintained deep technical expertise through active participation in architecture reviews, pull request reviews, and high-level strategy discussions.\n- Partnered with Product Owners and stakeholders to define requirements, shape product roadmaps, and balance feature development with technical debt reduction.\n- Oversaw end-to-end development lifecycle for large-scale enterprise systems and mobile applications, from inception to production deployment.\n- Accelerated engineer growth via regular 1:1s, targeted coaching, and career development discussions, driving skill enhancement and promotions.\n- Drove team expansion by conducting technical interviews and implementing structured mentorship programs for seamless onboarding.\n- Optimized team capacity through strategic resource allocation, capacity planning, and workload distribution aligned with project roadmaps and business priorities.",
+    "tags": [
+      "Software Engineering Manager",
+      "Scrum",
+      "Agile",
+      "SAFe",
+      "Microservices",
+      "Coaching & Mentoring",
+      "Code Review",
+      "Deployment Management",
+      "Engineering Management"
+    ],
     "isCurrentRole": false,
     "achievements": [],
     "technologies": [],
-    "tags": [
-      "Software Engineering Manager"
-    ],
     "location": "Sofia, Bulgaria"
   },
   {
