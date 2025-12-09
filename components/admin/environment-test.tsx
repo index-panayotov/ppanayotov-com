@@ -49,7 +49,7 @@ export const EnvironmentTest: React.FC = () => {
             </div>
             
             <div className="p-4 border rounded-lg">
-              <h3 className="font-semibold mb-2">Build Time</h3>
+              <h3 className="font-semibold mb-2">Current Time</h3>
               <span className="text-sm text-gray-600">
                 {new Date().toLocaleString()}
               </span>

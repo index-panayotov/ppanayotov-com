@@ -54,11 +54,6 @@ export async function POST(request: NextRequest) {
     // crypto.timingSafeEqual prevents timing-based password guessing
     const passwordsMatch = crypto.timingSafeEqual(adminPasswordHash, providedPasswordHash);
 
-
-    console.log('Passwords match:', passwordsMatch);
-    console.log('Admin Password Hash:', adminPasswordHash.toString('hex'));
-    console.log('Provided Password Hash:', providedPasswordHash.toString('hex'));
-
     if (passwordsMatch) {
       logger.info('Successful admin login', {
         timestamp: new Date().toISOString()

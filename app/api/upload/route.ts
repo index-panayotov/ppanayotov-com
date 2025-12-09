@@ -1,10 +1,12 @@
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
 import { logger } from "@/lib/logger";
 import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
 import { withDevOnly } from "@/lib/api-utils";
+import { loadUserProfile, saveDataFile } from "@/lib/data-loader";
 
 /**
  * Image file signatures (magic numbers) for validation
@@ -118,7 +120,16 @@ export const POST = withDevOnly(async (request: NextRequest) => {
     const webUrl = `/uploads/${webFilename}`;
     const pdfUrl = `/uploads/${pdfFilename}`;
 
-    logger.info('Profile image uploaded successfully', {
+    // Update user profile JSON with new image paths
+    const userProfile = loadUserProfile();
+    userProfile.profileImageWebUrl = webUrl;
+    userProfile.profileImagePdfUrl = pdfUrl;
+    saveDataFile('user-profile.ts', userProfile);
+
+    // CRITICAL: Revalidate the homepage to bust the cache
+    revalidatePath('/');
+
+    logger.info('Profile image uploaded and saved to profile', {
       webUrl,
       pdfUrl,
       originalSize: file.size,
@@ -128,7 +139,7 @@ export const POST = withDevOnly(async (request: NextRequest) => {
     return createTypedSuccessResponse({
       webUrl,
       pdfUrl,
-      message: "Image uploaded and optimized successfully"
+      message: "Image uploaded and saved to profile successfully"
     });
   } catch (error) {
     logger.error('Image upload failed', error as Error, {

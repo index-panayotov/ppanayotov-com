@@ -116,7 +116,7 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
       setValue('tags', [...currentTags, newSkill.trim()], { shouldValidate: true });
       setNewSkill('');
     }
-  }, [newSkill, form, setValue]);
+  }, [newSkill, form, setValue, setNewSkill]);
 
   const removeFormTag = useCallback((tagToRemove: string) => {
     const currentTags = form.getValues('tags');

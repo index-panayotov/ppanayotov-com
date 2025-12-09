@@ -10,9 +10,12 @@ import { PLACEHOLDER_PRESETS } from './placeholder';
  * 1. Context-specific optimized image (profileImageWebUrl/profileImagePdfUrl)
  * 2. Main profile image URL (profileImageUrl) as fallback
  *
+ * Cache Busting: For local uploads, appends a timestamp query parameter
+ * to force browsers to reload the image after updates.
+ *
  * @param profile User profile object
  * @param context Context for which the image is needed ('web' | 'pdf')
- * @returns The best available image URL for the context
+ * @returns The best available image URL for the context (with cache busting)
  */
 export function getProfileImageUrl(
   profile: {
@@ -22,22 +25,37 @@ export function getProfileImageUrl(
   },
   context: "web" | "pdf" = "web"
 ): string {
+  let imageUrl: string | undefined;
+
   // Priority 1: Use context-specific optimized image if available
   const webUrl = profile.profileImageWebUrl?.trim();
   if (context === "web" && webUrl) {
-    return webUrl;
+    imageUrl = webUrl;
   }
 
   const pdfUrl = profile.profileImagePdfUrl?.trim();
-  if (context === "pdf" && pdfUrl) {
-    return pdfUrl;
+  if (!imageUrl && context === "pdf" && pdfUrl) {
+    imageUrl = pdfUrl;
   }
 
   // Priority 2: Fallback to main profile image URL
-  const mainUrl = profile.profileImageUrl?.trim();
+  if (!imageUrl) {
+    imageUrl = profile.profileImageUrl?.trim();
+  }
 
   // Priority 3: Return placeholder if no valid image exists
-  return mainUrl || PLACEHOLDER_PRESETS.profile;
+  if (!imageUrl) {
+    return PLACEHOLDER_PRESETS.profile;
+  }
+
+  // Add cache busting timestamp for local uploads to force browser refresh
+  // This ensures the new image appears immediately after upload
+  if (imageUrl.startsWith('/uploads/')) {
+    const timestamp = Date.now();
+    return `${imageUrl}?t=${timestamp}`;
+  }
+
+  return imageUrl;
 }
 
 /**
