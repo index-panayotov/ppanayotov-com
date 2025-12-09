@@ -13,7 +13,7 @@ const ProfileDataTab = dynamic(
 );
 
 export default function ProfileDataPage() {
-  const { data, loading, error, saving, handleSave, updateProfileData } = useAdminData();
+  const { data, loading, error, saving, saveProfileData, updateProfileData, saveProfileWithImage } = useAdminData();
 
 
   const handleProfileFieldChange = (field: string, value: string) => {
@@ -38,7 +38,8 @@ export default function ProfileDataPage() {
             profileData={data?.profileData ?? {} as any}
             setProfileData={updateProfileData}
             saving={saving}
-            handleSave={handleSave}
+            saveProfileData={saveProfileData}
+            saveProfileWithImage={saveProfileWithImage}
             handleProfileFieldChange={handleProfileFieldChange}
             systemSettings={data?.systemSettings ?? {} as any}
           />

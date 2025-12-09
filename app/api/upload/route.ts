@@ -120,10 +120,11 @@ export const POST = withDevOnly(async (request: NextRequest) => {
     const webUrl = `/uploads/${webFilename}`;
     const pdfUrl = `/uploads/${pdfFilename}`;
 
-    // Update user profile JSON with new image paths
+    // Update user profile JSON with new image paths and timestamp for cache busting
     const userProfile = loadUserProfile();
     userProfile.profileImageWebUrl = webUrl;
     userProfile.profileImagePdfUrl = pdfUrl;
+    userProfile.profileImageUpdatedAt = timestamp; // Use same timestamp as filename
     saveDataFile('user-profile.ts', userProfile);
 
     // CRITICAL: Revalidate the homepage to bust the cache
@@ -139,6 +140,7 @@ export const POST = withDevOnly(async (request: NextRequest) => {
     return createTypedSuccessResponse({
       webUrl,
       pdfUrl,
+      timestamp,
       message: "Image uploaded and saved to profile successfully"
     });
   } catch (error) {

@@ -1,5 +1,5 @@
 "use client";
-import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
+import { FiMail, FiPhone, FiMapPin, FiLinkedin } from "react-icons/fi";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { TemplateProps } from "./types";
 
@@ -28,21 +28,39 @@ export default function ProfessionalTemplate({ experiences, topSkills, profileDa
               <h2 className="text-xl md:text-2xl text-slate-300 mb-4">{profileData.title}</h2>
               <div className="flex flex-wrap gap-4 text-slate-300 text-sm">
                 {profileData.location && (
-                  <div className="flex items-center gap-2">
-                    <FiMapPin className="w-4 h-4" />
-                    <span>{profileData.location}</span>
+                  <div className="flex items-center gap-1">
+                    <FiMapPin className="w-4 h-4 flex-shrink-0" />
+                    <img
+                      src={`/api/text-image?fieldType=location&size=14&color=%23cbd5e1&bg=transparent`}
+                      alt="Location (protected from bots)"
+                      className="inline-block h-[14px] object-contain"
+                      draggable={false}
+                      loading="eager"
+                    />
                   </div>
                 )}
                 {profileData.email && (
-                  <div className="flex items-center gap-2">
-                    <FiMail className="w-4 h-4" />
-                    <span>{profileData.email}</span>
+                  <div className="flex items-center gap-1">
+                    <FiMail className="w-4 h-4 flex-shrink-0" />
+                    <img
+                      src={`/api/text-image?fieldType=email&size=14&color=%23cbd5e1&bg=transparent`}
+                      alt="Email address (protected from bots)"
+                      className="inline-block h-[14px] object-contain"
+                      draggable={false}
+                      loading="eager"
+                    />
                   </div>
                 )}
                 {profileData.phone && (
-                  <div className="flex items-center gap-2">
-                    <FiPhone className="w-4 h-4" />
-                    <span>{profileData.phone}</span>
+                  <div className="flex items-center gap-1">
+                    <FiPhone className="w-4 h-4 flex-shrink-0" />
+                    <img
+                      src={`/api/text-image?fieldType=phone&size=14&color=%23cbd5e1&bg=transparent`}
+                      alt="Phone number (protected from bots)"
+                      className="inline-block h-[14px] object-contain"
+                      draggable={false}
+                      loading="eager"
+                    />
                   </div>
                 )}
               </div>
@@ -189,6 +207,82 @@ export default function ProfessionalTemplate({ experiences, topSkills, profileDa
                 </div>
               ))}
             </div>
+          </section>
+        )}
+
+        {/* Contact Section */}
+        {systemSettings.showContacts && (
+          <section className="mb-12" aria-labelledby="contact-heading">
+            <h2 id="contact-heading" className="text-2xl font-bold text-slate-800 border-b-2 border-slate-800 pb-2 mb-4">
+              Contact
+            </h2>
+            {(() => {
+              const linkedinLink = profileData.socialLinks?.find(link =>
+                link.platform === 'LinkedIn' && link.visible
+              );
+              const hasLinkedIn = !!linkedinLink;
+              const contactCount = 2 + (hasLinkedIn ? 1 : 0);
+              const gridClass = contactCount === 3
+                ? "grid grid-cols-1 md:grid-cols-3 gap-4"
+                : "grid grid-cols-1 md:grid-cols-2 gap-4";
+
+              return (
+                <div className={gridClass}>
+                  <div className="flex items-center gap-4 p-4 border border-slate-200 rounded">
+                    <div className="p-3 bg-blue-100 rounded">
+                      <FiMail className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-800 text-sm">Email</h3>
+                      <div className="flex items-center" style={{ minHeight: '24px' }}>
+                        <img
+                          src={`/api/text-image?fieldType=email&size=14&color=%23475569&bg=transparent`}
+                          alt="Email address (protected from bots)"
+                          draggable={false}
+                          loading="eager"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 p-4 border border-slate-200 rounded">
+                    <div className="p-3 bg-green-100 rounded">
+                      <FiPhone className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-800 text-sm">Phone</h3>
+                      <div className="flex items-center" style={{ minHeight: '24px' }}>
+                        <img
+                          src={`/api/text-image?fieldType=phone&size=14&color=%23475569&bg=transparent`}
+                          alt="Phone number (protected from bots)"
+                          draggable={false}
+                          loading="eager"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {hasLinkedIn && (
+                    <div className="flex items-center gap-4 p-4 border border-slate-200 rounded">
+                      <div className="p-3 bg-indigo-100 rounded">
+                        <FiLinkedin className="w-5 h-5 text-indigo-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-slate-800 text-sm">LinkedIn</h3>
+                        <a
+                          href={linkedinLink.url.startsWith('http') ? linkedinLink.url : `https://${linkedinLink.url}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-indigo-600 hover:text-indigo-700 transition-colors text-sm"
+                        >
+                          {linkedinLink.url.replace(/^https?:\/\//i, '')}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </section>
         )}
       </main>

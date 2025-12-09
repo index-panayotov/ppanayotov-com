@@ -1,5 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { userProfile } from "@/data/user-profile";
+import sharp from "sharp";
+
+/**
+ * XML escape function to prevent injection in SVG text
+ */
+function escapeXml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -8,52 +21,68 @@ export async function GET(req: NextRequest) {
   const color = searchParams.get("color") || "#222";
   const bg = searchParams.get("bg") || "transparent";
 
-  if (!fieldType || (fieldType !== "phone" && fieldType !== "email")) {
+  if (!fieldType || !["phone", "email", "location"].includes(fieldType)) {
     return new NextResponse(
-      "Please specify fieldType parameter as either 'phone' or 'email'",
+      "Please specify fieldType parameter as 'phone', 'email', or 'location'",
       { status: 400 }
     );
   }
 
-  // Dynamic import of canvas only when needed (avoids build-time issues)
+  // Get the specific field value from user profile
+  let text: string | undefined;
+  switch (fieldType) {
+    case "phone":
+      text = userProfile.phone;
+      break;
+    case "email":
+      text = userProfile.email;
+      break;
+    case "location":
+      text = userProfile.location;
+      break;
+  }
+
+  if (!text) {
+    return new NextResponse(
+      `No ${fieldType} found in user profile`,
+      { status: 404 }
+    );
+  }
+
   try {
-    const { createCanvas } = await import("canvas");
+    // Estimate dimensions (approximately 0.6 chars per fontSize unit for width)
+    // Minimal padding for tight alignment with icons
+    const paddingX = 2;
+    const paddingY = 2;
+    const charWidth = fontSize * 0.6;
+    const width = Math.ceil(text.length * charWidth + paddingX * 2);
+    const height = Math.ceil(fontSize * 1.2 + paddingY * 2);
 
-    // Get the specific field value from user profile
-    const text = fieldType === "phone" ? userProfile.phone : userProfile.email;
+    // Build SVG with text
+    const bgRect = bg !== "transparent"
+      ? `<rect width="${width}" height="${height}" fill="${bg}"/>`
+      : "";
 
-    if (!text) {
-      return new NextResponse(
-        `No ${fieldType} found in user profile`,
-        { status: 404 }
-      );
-    }
+    // Position text with proper baseline alignment
+    const textY = Math.ceil(fontSize + paddingY);
 
-    // Use system fonts for reliable rendering (avoids Pango warnings)
-    const fontFamily = "sans-serif";
+    const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+  ${bgRect}
+  <text
+    x="${paddingX}"
+    y="${textY}"
+    font-size="${fontSize}"
+    fill="${color}"
+    font-family="sans-serif"
+  >${escapeXml(text)}</text>
+</svg>`;
 
-    // Estimate width
-    const canvas = createCanvas(1, 1);
-    const ctx = canvas.getContext("2d");
-    ctx.font = `${fontSize}px ${fontFamily}`;
-    const textWidth = ctx.measureText(text).width;
-    const padding = 12;
-    const width = Math.ceil(textWidth + padding * 2);
-    const height = fontSize + padding * 2;
+    // Convert SVG to PNG using Sharp
+    const buffer = await sharp(Buffer.from(svg))
+      .png()
+      .toBuffer();
 
-    const outCanvas = createCanvas(width, height);
-    const outCtx = outCanvas.getContext("2d");
-    if (bg !== "transparent") {
-      outCtx.fillStyle = bg;
-      outCtx.fillRect(0, 0, width, height);
-    }
-    outCtx.font = `${fontSize}px ${fontFamily}`;
-    outCtx.fillStyle = color;
-    outCtx.textBaseline = "top";
-    outCtx.fillText(text, padding, padding);
-
-    const buffer = outCanvas.toBuffer("image/png");
-    return new NextResponse(buffer as any, {
+    return new NextResponse(buffer, {
       status: 200,
       headers: {
         'Content-Type': 'image/png',
@@ -62,9 +91,9 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Canvas library error:", error);
+    console.error("Sharp text-to-image error:", error);
     return new NextResponse(
-      "Text-to-image generation unavailable (canvas library not available)",
+      "Text-to-image generation failed",
       { status: 503 }
     );
   }

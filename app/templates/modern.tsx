@@ -1,5 +1,5 @@
 "use client";
-import { FiMail, FiPhone, FiMapPin, FiExternalLink } from "react-icons/fi";
+import { FiMail, FiPhone, FiMapPin, FiExternalLink, FiLinkedin } from "react-icons/fi";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { TemplateProps } from "./types";
 
@@ -36,24 +36,42 @@ export default function ModernTemplate({ experiences, topSkills, profileData, sy
               </h1>
               <h2 className="text-2xl md:text-4xl font-bold text-slate-300 mb-6">{profileData.title}</h2>
 
-              {/* Contact Info */}
+              {/* Contact Info - Bot Protected */}
               <div className="flex flex-wrap gap-4 text-slate-400 text-sm mb-6">
                 {profileData.location && (
                   <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-lg rounded-lg border border-white/10">
-                    <FiMapPin className="w-4 h-4 text-cyan-400" />
-                    <span>{profileData.location}</span>
+                    <FiMapPin className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+                    <img
+                      src={`/api/text-image?fieldType=location&size=14&color=%2394a3b8&bg=transparent`}
+                      alt="Location (protected from bots)"
+                      className="inline-block h-[14px] object-contain"
+                      draggable={false}
+                      loading="eager"
+                    />
                   </div>
                 )}
                 {profileData.email && (
                   <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-lg rounded-lg border border-white/10">
-                    <FiMail className="w-4 h-4 text-purple-400" />
-                    <span>{profileData.email}</span>
+                    <FiMail className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                    <img
+                      src={`/api/text-image?fieldType=email&size=14&color=%2394a3b8&bg=transparent`}
+                      alt="Email address (protected from bots)"
+                      className="inline-block h-[14px] object-contain"
+                      draggable={false}
+                      loading="eager"
+                    />
                   </div>
                 )}
                 {profileData.phone && (
                   <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-lg rounded-lg border border-white/10">
-                    <FiPhone className="w-4 h-4 text-pink-400" />
-                    <span>{profileData.phone}</span>
+                    <FiPhone className="w-4 h-4 text-pink-400 flex-shrink-0" />
+                    <img
+                      src={`/api/text-image?fieldType=phone&size=14&color=%2394a3b8&bg=transparent`}
+                      alt="Phone number (protected from bots)"
+                      className="inline-block h-[14px] object-contain"
+                      draggable={false}
+                      loading="eager"
+                    />
                   </div>
                 )}
               </div>
@@ -224,6 +242,88 @@ export default function ModernTemplate({ experiences, topSkills, profileData, sy
                 </div>
               ))}
             </div>
+          </section>
+        )}
+
+        {/* Contact Section */}
+        {systemSettings.showContacts && (
+          <section className="mb-16" aria-labelledby="contact-heading">
+            <h2 id="contact-heading" className="text-3xl font-black mb-8 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Get In Touch
+            </h2>
+            {(() => {
+              const linkedinLink = profileData.socialLinks?.find(link =>
+                link.platform === 'LinkedIn' && link.visible
+              );
+              const hasLinkedIn = !!linkedinLink;
+              const contactCount = 2 + (hasLinkedIn ? 1 : 0);
+              const gridClass = contactCount === 3
+                ? "grid grid-cols-1 md:grid-cols-3 gap-6"
+                : "grid grid-cols-1 md:grid-cols-2 gap-6";
+
+              return (
+                <div className={gridClass}>
+                  <div className="p-6 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 hover:border-cyan-400/50 transition-all duration-300">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl">
+                        <FiMail className="w-6 h-6 text-cyan-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white text-sm mb-1">Email</h3>
+                        <div className="flex items-center" style={{ minHeight: '20px' }}>
+                          <img
+                            src={`/api/text-image?fieldType=email&size=14&color=%2394a3b8&bg=transparent`}
+                            alt="Email address (protected from bots)"
+                            draggable={false}
+                            loading="eager"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-6 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 hover:border-purple-400/50 transition-all duration-300">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl">
+                        <FiPhone className="w-6 h-6 text-purple-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white text-sm mb-1">Phone</h3>
+                        <div className="flex items-center" style={{ minHeight: '20px' }}>
+                          <img
+                            src={`/api/text-image?fieldType=phone&size=14&color=%2394a3b8&bg=transparent`}
+                            alt="Phone number (protected from bots)"
+                            draggable={false}
+                            loading="eager"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {hasLinkedIn && (
+                    <div className="p-6 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 hover:border-pink-400/50 transition-all duration-300">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-gradient-to-br from-pink-500/20 to-cyan-500/20 rounded-xl">
+                          <FiLinkedin className="w-6 h-6 text-pink-400" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-white text-sm mb-1">LinkedIn</h3>
+                          <a
+                            href={linkedinLink.url.startsWith('http') ? linkedinLink.url : `https://${linkedinLink.url}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-pink-400 hover:text-pink-300 transition-colors text-sm"
+                          >
+                            {linkedinLink.url.replace(/^https?:\/\//i, '')}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </section>
         )}
       </main>

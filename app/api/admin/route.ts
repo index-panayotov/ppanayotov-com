@@ -116,11 +116,56 @@ const REVALIDATION_PATHS: Record<string, string[]> = {
 };
 
 /**
+ * Fields that should be preserved if incoming value is empty/missing
+ * These are typically set by separate upload processes
+ */
+const PRESERVED_FIELDS: Record<string, string[]> = {
+  'user-profile.ts': [
+    'profileImageUrl',
+    'profileImageWebUrl',
+    'profileImagePdfUrl',
+    'profileImageUpdatedAt',
+  ],
+};
+
+/**
+ * Merge incoming data with existing data, preserving specified fields
+ * if they are empty or missing in the incoming data.
+ */
+function mergeWithPreservedFields(
+  existingData: Record<string, unknown>,
+  incomingData: Record<string, unknown>,
+  fieldsToPreserve: string[]
+): Record<string, unknown> {
+  const mergedData = { ...incomingData };
+
+  for (const field of fieldsToPreserve) {
+    const incomingValue = incomingData[field];
+    const existingValue = existingData[field];
+
+    // Preserve existing value if incoming is empty, null, undefined, or missing
+    if (
+      incomingValue === undefined ||
+      incomingValue === null ||
+      incomingValue === '' ||
+      (typeof incomingValue === 'number' && isNaN(incomingValue))
+    ) {
+      if (existingValue !== undefined && existingValue !== null && existingValue !== '') {
+        mergedData[field] = existingValue;
+      }
+    }
+  }
+
+  return mergedData;
+}
+
+/**
  * Type-safe POST handler for updating data files
  *
- * ARCHITECTURE: Writes to JSON files for runtime persistence
- * - TypeScript files are build-time defaults only
- * - JSON files are the source of truth at runtime
+ * ARCHITECTURE: Read-Merge-Write strategy
+ * - Reads existing data first
+ * - Merges incoming data with existing, preserving image URLs and other upload-set fields
+ * - Writes merged data to JSON file
  * - Cache revalidation ensures immediate updates on frontend
  */
 export const POST = withDevOnly(async (request: NextRequest) => {
@@ -155,8 +200,31 @@ export const POST = withDevOnly(async (request: NextRequest) => {
   }
 
   try {
+    let finalData = data;
+
+    // For files with preserved fields, implement read-merge-write
+    const fieldsToPreserve = PRESERVED_FIELDS[file];
+    if (fieldsToPreserve && fieldsToPreserve.length > 0) {
+      // Read existing data
+      const existingData = loadUserProfile() as Record<string, unknown>;
+
+      // Merge incoming with existing, preserving image fields
+      finalData = mergeWithPreservedFields(
+        existingData,
+        data as Record<string, unknown>,
+        fieldsToPreserve
+      );
+
+      logger.info('Merged data with preserved fields', {
+        file,
+        preservedFields: fieldsToPreserve,
+        profileImageWebUrl: (finalData as Record<string, unknown>).profileImageWebUrl,
+        profileImagePdfUrl: (finalData as Record<string, unknown>).profileImagePdfUrl,
+      });
+    }
+
     // Save to JSON file (runtime data storage)
-    saveDataFile(file, data);
+    saveDataFile(file, finalData);
     logger.info('Data file updated successfully', { file, timestamp: Date.now() });
 
     // Revalidate affected paths to bust the cache

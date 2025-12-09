@@ -45,7 +45,8 @@ export default function ProfileDataTab({
   profileData,
   setProfileData,
   saving,
-  handleSave,
+  saveProfileData,
+  saveProfileWithImage,
   systemSettings,
   handleProfileFieldChange
 }: ProfileDataTabProps) {
@@ -60,9 +61,7 @@ export default function ProfileDataTab({
         </div>
         <div className="flex gap-2">
           <Button
-            onClick={() => {
-              handleSave('user-profile.ts', profileData);
-            }}
+            onClick={() => saveProfileData()}
             disabled={saving}
           >
             {saving ? 'Saving...' : 'Save Profile Data'}
@@ -131,14 +130,26 @@ export default function ProfileDataTab({
               <ImageUpload
                 currentImageUrl={profileData.profileImageUrl || ''}
                 currentWebUrl={profileData.profileImageWebUrl}
-                currentPdfUrl={profileData.profileImagePdfUrl}                onImageChange={(imageUrl, webUrl, pdfUrl) => {
-                  // Update all image fields in a single state update
-                  setProfileData({
-                    ...profileData,
+                currentPdfUrl={profileData.profileImagePdfUrl}
+                onImageChange={(imageUrl, webUrl, pdfUrl, timestamp) => {
+                  // Update local state for UI preview
+                  setProfileData(prevData => ({
+                    ...prevData,
                     profileImageUrl: imageUrl,
                     profileImageWebUrl: webUrl || '',
-                    profileImagePdfUrl: pdfUrl || ''
-                  });
+                    profileImagePdfUrl: pdfUrl || '',
+                    ...(timestamp !== undefined && { profileImageUpdatedAt: timestamp })
+                  }));
+
+                  // AUTO-SAVE: If we have actual URLs (upload, not removal), save immediately
+                  if (webUrl) {
+                    saveProfileWithImage({
+                      profileImageUrl: imageUrl,
+                      profileImageWebUrl: webUrl,
+                      profileImagePdfUrl: pdfUrl || '',
+                      profileImageUpdatedAt: timestamp,
+                    });
+                  }
                 }}
               />
                 <div className="space-y-2">

@@ -90,6 +90,9 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
     visibleInHero: boolean;
   } | null>(null);
 
+  // Track previous open state to detect open/close transitions
+  const prevOpenRef = useRef(false);
+
   // Stable state updater functions using useCallback
   const updateField = useCallback((field: keyof SocialLink, value: string | boolean | number) => {
     setCurrentSocialLink(prev => {
@@ -131,9 +134,11 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
     visibleInHero: currentSocialLink?.visibleInHero || false
   }), [currentSocialLink]);
 
-  // Capture initial snapshot when dialog opens
+  // Capture initial snapshot only when dialog transitions from closed to open
+  // This prevents edits from overwriting the snapshot
   useEffect(() => {
-    if (open) {
+    if (open && !prevOpenRef.current) {
+      // Dialog just opened - capture the initial state
       initialLinkRef.current = {
         platform: currentSocialLink?.platform || 'Custom',
         url: currentSocialLink?.url || '',
@@ -142,7 +147,15 @@ const SocialLinkDialog: React.FC<SocialLinkDialogProps> = ({
         visibleInHero: currentSocialLink?.visibleInHero || false
       };
     }
-  }, [open, currentSocialLink]);
+
+    if (!open && prevOpenRef.current) {
+      // Dialog just closed - reset for next open
+      initialLinkRef.current = null;
+    }
+
+    // Update previous open state
+    prevOpenRef.current = open;
+  }, [open]); // Only depend on open, not currentSocialLink
 
   // Debounced validation using the new platform system
   useEffect(() => {

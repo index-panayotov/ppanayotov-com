@@ -10,8 +10,9 @@ import { PLACEHOLDER_PRESETS } from './placeholder';
  * 1. Context-specific optimized image (profileImageWebUrl/profileImagePdfUrl)
  * 2. Main profile image URL (profileImageUrl) as fallback
  *
- * Cache Busting: For local uploads, appends a timestamp query parameter
- * to force browsers to reload the image after updates.
+ * Cache Busting: For local uploads, appends a stored timestamp query parameter
+ * to force browsers to reload the image after updates. Uses the timestamp from
+ * when the image was uploaded to avoid hydration mismatches.
  *
  * @param profile User profile object
  * @param context Context for which the image is needed ('web' | 'pdf')
@@ -22,6 +23,7 @@ export function getProfileImageUrl(
     profileImageUrl?: string;
     profileImageWebUrl?: string;
     profileImagePdfUrl?: string;
+    profileImageUpdatedAt?: number;
   },
   context: "web" | "pdf" = "web"
 ): string {
@@ -48,13 +50,8 @@ export function getProfileImageUrl(
     return PLACEHOLDER_PRESETS.profile;
   }
 
-  // Add cache busting timestamp for local uploads to force browser refresh
-  // This ensures the new image appears immediately after upload
-  if (imageUrl.startsWith('/uploads/')) {
-    const timestamp = Date.now();
-    return `${imageUrl}?t=${timestamp}`;
-  }
-
+  // No query string needed - the filename already contains a unique timestamp
+  // (e.g., profile-1765315525337-web.webp) which provides cache busting
   return imageUrl;
 }
 

@@ -255,6 +255,7 @@ export const UserProfileSchema = z.object({
   profileImageUrl: z.string().optional(),
   profileImageWebUrl: z.string().optional(),
   profileImagePdfUrl: z.string().optional(),
+  profileImageUpdatedAt: z.number().optional(), // Timestamp for cache busting
 
   // Summary (optional markdown string)
   summary: z.string().optional(),

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { loadAdminData, saveAdminData, AdminData, AdminDataTypes } from '@/lib/admin-data-loader';
@@ -14,6 +14,14 @@ export function useAdminData() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const router = useRouter();
+
+  // Ref always has the latest data - no stale closure issues
+  const dataRef = useRef<AdminData | null>(null);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
 
   // Load data on mount
   useEffect(() => {
@@ -89,12 +97,101 @@ export function useAdminData() {
     setData(prev => prev ? { ...prev, topSkills } : null);
   }, []);
 
-  const updateProfileData = useCallback((profileData: UserProfile) => {
-    setData(prev => prev ? { ...prev, profileData } : null);
+  const updateProfileData = useCallback((
+    profileDataOrUpdater: UserProfile | ((prev: UserProfile) => UserProfile)
+  ) => {
+    setData(prev => {
+      if (!prev) return null;
+      const newProfileData = typeof profileDataOrUpdater === 'function'
+        ? profileDataOrUpdater(prev.profileData)
+        : profileDataOrUpdater;
+      return { ...prev, profileData: newProfileData };
+    });
   }, []);
 
   const updateSystemSettings = useCallback((systemSettings: SystemSettings) => {
     setData(prev => prev ? { ...prev, systemSettings } : null);
+  }, []);
+
+  // Specialized save function that reads from current state
+  // This avoids stale closure issues where the caller passes old data
+  const saveProfileData = useCallback(async () => {
+    // Use a ref-like pattern: read current state via setState callback
+    return new Promise<void>((resolve, reject) => {
+      setData(currentData => {
+        if (!currentData) {
+          reject(new Error('No data to save'));
+          return currentData;
+        }
+
+        // Perform the save with the CURRENT state
+        setSaving(true);
+        saveAdminData('user-profile.ts', currentData.profileData)
+          .then(() => {
+            toast.success('Success', {
+              description: 'Profile data saved successfully',
+            });
+            resolve();
+          })
+          .catch((err) => {
+            const errorMsg = err instanceof Error ? err.message : 'Failed to save';
+            toast.error('Error', {
+              description: errorMsg,
+            });
+            reject(err);
+          })
+          .finally(() => {
+            setSaving(false);
+          });
+
+        // Return unchanged state (we're just reading it)
+        return currentData;
+      });
+    });
+  }, []);
+
+  // Save profile with explicit image data - uses ref for latest data
+  const saveProfileWithImage = useCallback(async (imageData: {
+    profileImageUrl: string;
+    profileImageWebUrl: string;
+    profileImagePdfUrl: string;
+    profileImageUpdatedAt?: number;
+  }) => {
+    const currentData = dataRef.current;
+    if (!currentData) {
+      console.error('No data available');
+      return;
+    }
+
+    // Merge current profile with new image data
+    const updatedProfile: UserProfile = {
+      ...currentData.profileData,
+      ...imageData,
+    };
+
+    console.log('=== AUTO-SAVE AFTER UPLOAD ===');
+    console.log('New profile data:', updatedProfile);
+    console.log('profileImageWebUrl:', updatedProfile.profileImageWebUrl);
+    console.log('profileImagePdfUrl:', updatedProfile.profileImagePdfUrl);
+
+    // Save directly
+    setSaving(true);
+    try {
+      await saveAdminData('user-profile.ts', updatedProfile);
+
+      // Update local state to match
+      setData(prev => prev ? { ...prev, profileData: updatedProfile } : null);
+
+      toast.success('Success', {
+        description: 'Profile image saved successfully',
+      });
+    } catch (err) {
+      toast.error('Error', {
+        description: err instanceof Error ? err.message : 'Failed to save',
+      });
+    } finally {
+      setSaving(false);
+    }
   }, []);
 
   return {
@@ -107,5 +204,7 @@ export function useAdminData() {
     updateTopSkills,
     updateProfileData,
     updateSystemSettings,
+    saveProfileData,
+    saveProfileWithImage,
   };
 }

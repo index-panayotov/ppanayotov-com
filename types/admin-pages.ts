@@ -18,9 +18,15 @@ export interface AdminDashboardProps {
  */
 export interface ProfileDataTabProps {
   profileData: UserProfile;
-  setProfileData: (data: UserProfile) => void;
+  setProfileData: (data: UserProfile | ((prev: UserProfile) => UserProfile)) => void;
   saving: boolean;
-  handleSave: (file: string, data: UserProfile) => Promise<void>;
+  saveProfileData: () => Promise<void>;
+  saveProfileWithImage: (imageData: {
+    profileImageUrl: string;
+    profileImageWebUrl: string;
+    profileImagePdfUrl: string;
+    profileImageUpdatedAt?: number;
+  }) => Promise<void>;
   handleProfileFieldChange: (field: string, value: string) => void;
   systemSettings: SystemSettings;
 }

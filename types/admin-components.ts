@@ -61,7 +61,7 @@ export interface ImageUploadProps {
   currentImageUrl: string;
   currentWebUrl?: string;
   currentPdfUrl?: string;
-  onImageChange: (imageUrl: string, webUrl?: string, pdfUrl?: string) => void;
+  onImageChange: (imageUrl: string, webUrl?: string, pdfUrl?: string, timestamp?: number) => void;
 }
 
 export interface ImageUploadResponse {

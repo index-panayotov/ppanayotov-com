@@ -488,6 +488,45 @@ Brief description of changes
 - **AI Enhancement:** Only for content improvement, not for user data
 - **Slug Validation:** Always validate user-provided slugs to prevent path traversal
 
+## Claude Code Configuration
+
+This project supports [Claude Code](https://claude.ai/code) for AI-assisted development.
+
+### Settings Policy
+
+- **`.claude/settings.local.json`** - Local-only, git-ignored
+  - Contains user-specific permission preferences
+  - Each developer configures their own allowed commands
+  - Never commit this file to the repository
+
+- **`.claude/settings.json`** - Shared settings (if created)
+  - Would contain team-wide defaults
+  - Currently not used; all settings are local
+
+### Recommended Local Permissions
+
+When using Claude Code, you may want to allow these safe operations:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(npm run lint)",
+      "Bash(npm run build)",
+      "Bash(git status)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)"
+    ]
+  }
+}
+```
+
+**Security Notes:**
+- Avoid broad wildcards like `Bash(npm install:*)` - install packages manually
+- Avoid `Bash(sed:*)` or `Bash(cat:*)` - use Claude's built-in file tools instead
+- Review each permission request before allowing
+
 ## Questions?
 
 For questions about contributing, please:
@@ -495,4 +534,4 @@ For questions about contributing, please:
 2. Review existing code patterns
 3. Open a GitHub issue for clarification
 
-Thank you for contributing! 🎉
+Thank you for contributing!

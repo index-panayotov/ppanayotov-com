@@ -1,10 +1,10 @@
 {
   "blogEnable": true,
   "useWysiwyg": true,
-  "showContacts": false,
+  "showContacts": true,
   "gtagCode": "G-NR6KNX7RM6",
   "gtagEnabled": true,
-  "selectedTemplate": "classic",
+  "selectedTemplate": "professional",
   "siteUrl": "https://ppanayotov.com",
   "pwa": {
     "siteName": "CV Website",

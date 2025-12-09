@@ -49,8 +49,9 @@ export default function ImageUpload({
       const formData = new FormData();
       formData.append('file', file);
 
-      const result = await apiClient.upload<{ webUrl: string; pdfUrl: string }>('/api/upload', formData);
-      onImageChange(result.webUrl, result.webUrl, result.pdfUrl);
+      const response = await apiClient.upload<{ success: boolean; data: { webUrl: string; pdfUrl: string; timestamp: number } }>('/api/upload', formData);
+      const { webUrl, pdfUrl, timestamp } = response.data;
+      onImageChange(webUrl, webUrl, pdfUrl, timestamp);
       
       toast({
         title: "Success",
@@ -114,7 +115,7 @@ export default function ImageUpload({
 
   const handleExternalUrlSubmit = () => {
     if (externalUrl) {
-      onImageChange(externalUrl, '', '');
+      onImageChange(externalUrl, '', '', undefined);
       toast({
         title: "Success",
         description: "External image URL set successfully",
@@ -137,7 +138,7 @@ export default function ImageUpload({
         });
       }
     }
-    onImageChange('', '', '');
+    onImageChange('', '', '', undefined);
     setExternalUrl('');
     toast({
       title: "Success",
