@@ -1,70 +1,67 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { AIEnhancedInput } from "./ai-enhanced-input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { X, ArrowUp, ArrowDown } from "lucide-react";
-import { TopSkillsTabProps } from "@/types/admin-components";
+import { X, ArrowUp, ArrowDown, Loader2 } from "lucide-react";
+import { TopSkillsTabProps } from "@/types/admin-pages";
 
 /**
- * Displays and manages a list of top professional skills with both visual and JSON editing modes.
+ * Displays and manages a list of top professional skills with visual editing interface.
  *
- * Provides an interface for adding, removing, reordering, and saving top skills, as well as automatically generating skill suggestions. Users can switch between a visual editor and direct JSON editing.
+ * Provides an interface for adding, removing, reordering, and saving top skills, as well as automatically generating skill suggestions.
  */
 export default function TopSkillsTab({
   topSkills,
-  setTopSkills,
-  editMode,
-  setEditMode,
   saving,
   handleSave,
-  handleTopSkillsChange,
   addTopSkill,
   removeTopSkill,
   moveTopSkill,
   generateAutomaticTopSkills,
   newSkill,
-  setNewSkill
+  setNewSkill,
+  isGenerating = false
 }: TopSkillsTabProps) {
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Edit Top Skills</h2>
-        <div className="flex gap-2">
+    <div className="space-y-6">
+      {/* Action Buttons */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-slate-600">
+            Manage featured skills displayed on your CV
+          </p>
+        </div>
+        <div className="flex gap-2 items-center">
+          {isGenerating && (
+             <span className="text-xs text-muted-foreground mr-2 animate-pulse">
+               AI Analysis in progress... (~10s)
+             </span>
+          )}
           <Button
             variant="outline"
-            onClick={() =>
-              setEditMode(editMode === "visual" ? "json" : "visual")}
-          >
-            Switch to {editMode === "visual" ? "JSON" : "Visual"} Editor
-          </Button>
-          <Button
-            variant="default"
             onClick={generateAutomaticTopSkills}
-            disabled={saving}
+            disabled={saving || isGenerating}
           >
-            Automatic Top Skills
+            {isGenerating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                AI Analyzing...
+              </>
+            ) : (
+              "Auto-Generate"
+            )}
           </Button>
           <Button
-            onClick={() => handleSave("topSkills.ts", topSkills)}
-            disabled={saving}
+            onClick={() => handleSave("topSkills", topSkills)}
+            disabled={saving || isGenerating}
           >
-            {saving ? "Saving..." : "Save Top Skills"}
+            {saving ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </div>
 
-      {editMode === "json"
-        ? <Textarea
-            className="font-mono h-[70vh]"
-            value={JSON.stringify(topSkills, null, 2)}
-            onChange={handleTopSkillsChange}
-          />
-        : <div className="space-y-4">
+      <div className="space-y-4">
             <div className="flex gap-2">
               {" "}<AIEnhancedInput
                 placeholder="Add new skill"
@@ -117,7 +114,7 @@ export default function TopSkillsTab({
                 </div>
               </CardContent>
             </Card>
-          </div>}
+           </div>
     </div>
   );
 }

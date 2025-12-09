@@ -1,35 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
+
 import { AIEnhancedInput } from '@/components/admin/ai-enhanced-input';
 import { AIEnhancedTextarea } from '@/components/admin/ai-enhanced-textarea';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import { adminClassNames } from './design-system';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ArrowUp, ArrowDown, Edit, Trash2, Plus } from 'lucide-react';
-import { ProfileDataTabProps } from '@/types/admin-components';
+import { ProfileDataTabProps } from '@/types/admin-pages';
 import ImageUpload from '@/components/admin/image-upload';
 
 /**
- * Renders a user profile editing interface with both visual and JSON editing modes.
+ * Renders a user profile editing interface with visual editing forms.
  *
- * Provides structured forms for editing basic profile information, languages, education, and certifications, as well as a JSON editor for advanced editing. Supports adding, editing, deleting, and reordering list items, and allows profile image uploads. All data changes and persistence actions are delegated to handler functions provided via props.
+ * Provides structured forms for editing basic profile information, languages, education, and certifications. Supports adding, editing, deleting, and reordering list items, and allows profile image uploads. All data changes and persistence actions are delegated to handler functions provided via props.
  *
  * @param profileData - The current user profile data to display and edit.
  * @param setProfileData - Updates the profile data state.
- * @param editMode - The current editing mode, either "visual" or "json".
- * @param setEditMode - Changes the editing mode.
  * @param saving - Indicates whether a save operation is in progress.
  * @param handleSave - Invoked to persist the profile data.
- * @param handleProfileDataChange - Handles changes in the JSON editor.
  * @param handleProfileFieldChange - Handles changes to individual profile fields in the visual editor.
  * @param addLanguage - Adds a new language entry.
  * @param editLanguage - Edits an existing language entry.
@@ -49,38 +44,24 @@ import ImageUpload from '@/components/admin/image-upload';
 export default function ProfileDataTab({
   profileData,
   setProfileData,
-  editMode,
-  setEditMode,
   saving,
-  handleSave,
-  handleProfileDataChange,
-  handleProfileFieldChange,
-  addLanguage,
-  editLanguage,
-  deleteLanguage,
-  moveLanguage,
-  addEducation,
-  editEducation,
-  deleteEducation,
-  moveEducation,
-  addCertification,
-  editCertification,
-  deleteCertification,
-  moveCertification
+  saveProfileData,
+  saveProfileWithImage,
+  systemSettings,
+  handleProfileFieldChange
 }: ProfileDataTabProps) {
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Edit Profile Data</h2>
+    <div className="space-y-6">
+      {/* Action Buttons */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-slate-600">
+            Update your personal information and profile summary
+          </p>
+        </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={() => setEditMode(editMode === 'visual' ? 'json' : 'visual')}
-          >
-            Switch to {editMode === 'visual' ? 'JSON' : 'Visual'} Editor
-          </Button>
-          <Button 
-            onClick={() => handleSave('user-profile.ts', profileData)}
+          <Button
+            onClick={() => saveProfileData()}
             disabled={saving}
           >
             {saving ? 'Saving...' : 'Save Profile Data'}
@@ -88,14 +69,7 @@ export default function ProfileDataTab({
         </div>
       </div>
 
-      {editMode === 'json' ? (
-        <Textarea 
-          className="font-mono h-[70vh]"
-          value={JSON.stringify(profileData, null, 2)}
-          onChange={handleProfileDataChange}
-        />
-      ) : (
-        <div className="space-y-4">
+      <div className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
@@ -141,221 +115,61 @@ export default function ProfileDataTab({
                   />
                 </div>
               </div>
-                <div className="grid grid-cols-2 gap-4">                <div className="space-y-2">
-                  <label htmlFor="linkedin" className="text-sm font-medium">LinkedIn</label>
-                  <AIEnhancedInput 
-                    id="linkedin" 
-                    fieldName="LinkedIn URL"
-                    value={profileData.linkedin || ''} 
-                    onChange={(e) => handleProfileFieldChange('linkedin', e.target.value)}
-                  />
-                </div>
                 <div className="space-y-2">
                   <label htmlFor="phone" className="text-sm font-medium">Phone</label>
-                  <AIEnhancedInput 
-                    id="phone" 
+                  <AIEnhancedInput
+                    id="phone"
                     fieldName="phone"
                     type="tel"
-                    value={profileData.phone || ''} 
+                    value={profileData.phone || ''}
                     onChange={(e) => handleProfileFieldChange('phone', e.target.value)}
                   />
                 </div>
-              </div>
 
               {/* Profile Image Upload Section */}
               <ImageUpload
                 currentImageUrl={profileData.profileImageUrl || ''}
                 currentWebUrl={profileData.profileImageWebUrl}
-                currentPdfUrl={profileData.profileImagePdfUrl}                onImageChange={(imageUrl, webUrl, pdfUrl) => {
-                  // Update all image fields in a single state update
-                  setProfileData({
-                    ...profileData,
+                currentPdfUrl={profileData.profileImagePdfUrl}
+                onImageChange={(imageUrl, webUrl, pdfUrl, timestamp) => {
+                  // Update local state for UI preview
+                  setProfileData(prevData => ({
+                    ...prevData,
                     profileImageUrl: imageUrl,
                     profileImageWebUrl: webUrl || '',
-                    profileImagePdfUrl: pdfUrl || ''
-                  });
+                    profileImagePdfUrl: pdfUrl || '',
+                    ...(timestamp !== undefined && { profileImageUpdatedAt: timestamp })
+                  }));
+
+                  // AUTO-SAVE: If we have actual URLs (upload, not removal), save immediately
+                  if (webUrl) {
+                    saveProfileWithImage({
+                      profileImageUrl: imageUrl,
+                      profileImageWebUrl: webUrl,
+                      profileImagePdfUrl: pdfUrl || '',
+                      profileImageUpdatedAt: timestamp,
+                    });
+                  }
                 }}
               />
                 <div className="space-y-2">
                 <label htmlFor="summary" className="text-sm font-medium">Summary</label>
-                <AIEnhancedTextarea 
-                  id="summary" 
+                <AIEnhancedTextarea
+                  id="summary"
                   fieldName="professional summary"
                   rows={5}
-                  value={profileData.summary || ''} 
+                  value={profileData.summary || ''}
                   onChange={(e) => handleProfileFieldChange('summary', e.target.value)}
+                  systemSettings={systemSettings}
                 />
               </div>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardHeader>
-              <CardTitle>Languages, Education, and Certifications</CardTitle>
-              <CardDescription>For detailed editing of these sections, use the JSON editor</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-sm font-medium">Languages</h3>
-                  <Button onClick={addLanguage} variant="outline" size="sm">
-                    <Plus className="h-4 w-4 mr-1" /> Add Language
-                  </Button>
-                </div>
-                <div className="space-y-2">
-                  {profileData.languages?.map((lang: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between p-2 border rounded-md">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{lang.name}</span>
-                        <Badge variant="outline" className="text-xs">{lang.proficiency}</Badge>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => moveLanguage(index, 'up')}
-                          disabled={index === 0}
-                        >
-                          <ArrowUp className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => moveLanguage(index, 'down')}
-                          disabled={!profileData.languages || index === profileData.languages.length - 1}
-                        >
-                          <ArrowDown className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => editLanguage(lang, index)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => deleteLanguage(index)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                  {!profileData.languages?.length && <p className="text-sm text-gray-500">No languages added</p>}
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-sm font-medium">Education</h3>
-                  <Button onClick={addEducation} variant="outline" size="sm">
-                    <Plus className="h-4 w-4 mr-1" /> Add Education
-                  </Button>
-                </div>
-                <div className="space-y-2">
-                  {profileData.education?.map((edu: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between p-2 border rounded-md">
-                      <div>
-                        <p className="font-medium">{edu.institution}</p>
-                        <p className="text-sm">{edu.degree}, {edu.field}</p>
-                        <p className="text-xs text-gray-500">{edu.dateRange}</p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => moveEducation(index, 'up')}
-                          disabled={index === 0}
-                        >
-                          <ArrowUp className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => moveEducation(index, 'down')}
-                          disabled={!profileData.education || index === profileData.education.length - 1}
-                        >
-                          <ArrowDown className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => editEducation(edu, index)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => deleteEducation(index)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                  {!profileData.education?.length && <p className="text-sm text-gray-500">No education entries added</p>}
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-sm font-medium">Certifications</h3>
-                  <Button onClick={addCertification} variant="outline" size="sm">
-                    <Plus className="h-4 w-4 mr-1" /> Add Certification
-                  </Button>
-                </div>
-                <div className="space-y-2">
-                  {profileData.certifications?.map((cert: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between p-2 border rounded-md">
-                      <div>
-                        <p className="font-medium">{cert.name}</p>
-                        {cert.issuer && <p className="text-sm">{cert.issuer}</p>}
-                        {cert.date && <p className="text-xs text-gray-500">{cert.date}</p>}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => moveCertification(index, 'up')}
-                          disabled={index === 0}
-                        >
-                          <ArrowUp className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => moveCertification(index, 'down')}
-                          disabled={!profileData.certifications || index === profileData.certifications.length - 1}
-                        >
-                          <ArrowDown className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => editCertification(cert, index)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => deleteCertification(index)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                  {!profileData.certifications?.length && <p className="text-sm text-gray-500">No certifications added</p>}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+
+          
+
         </div>
-      )}
     </div>
   );
 }

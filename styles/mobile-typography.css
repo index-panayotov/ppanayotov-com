@@ -1,0 +1,410 @@
+/**
+ * Mobile-Optimized Typography System
+ *
+ * This CSS file provides enhanced typography specifically optimized for mobile devices,
+ * including touch-friendly sizing, improved readability, and responsive scaling.
+ */
+
+/* === MOBILE TYPOGRAPHY VARIABLES === */
+
+:root {
+  /* Mobile-optimized font sizes using clamp for fluid scaling */
+  --mobile-text-xs: clamp(12px, 3vw, 14px);
+  --mobile-text-sm: clamp(14px, 3.5vw, 16px);
+  --mobile-text-base: clamp(16px, 4vw, 18px);
+  --mobile-text-lg: clamp(18px, 4.5vw, 20px);
+  --mobile-text-xl: clamp(20px, 5vw, 24px);
+  --mobile-text-2xl: clamp(24px, 6vw, 28px);
+  --mobile-text-3xl: clamp(28px, 7vw, 32px);
+  --mobile-text-4xl: clamp(32px, 8vw, 36px);
+
+  /* Mobile-optimized line heights for better readability */
+  --mobile-leading-tight: 1.3;
+  --mobile-leading-normal: 1.6;
+  --mobile-leading-relaxed: 1.7;
+  --mobile-leading-loose: 1.8;
+
+  /* Touch-friendly spacing and sizing */
+  --mobile-touch-target: 44px;
+  --mobile-touch-target-large: 56px;
+  --mobile-spacing-xs: clamp(4px, 1vw, 8px);
+  --mobile-spacing-sm: clamp(8px, 2vw, 12px);
+  --mobile-spacing-md: clamp(12px, 3vw, 16px);
+  --mobile-spacing-lg: clamp(16px, 4vw, 24px);
+  --mobile-spacing-xl: clamp(24px, 6vw, 32px);
+
+  /* Mobile contrast and readability improvements */
+  --mobile-text-contrast-primary: #1a1a1a;
+  --mobile-text-contrast-secondary: #525252;
+  --mobile-text-contrast-tertiary: #737373;
+  --mobile-bg-contrast: #ffffff;
+  --mobile-bg-contrast-secondary: #f8fafc;
+}
+
+/* === MOBILE BASE TYPOGRAPHY === */
+
+@media (max-width: 768px) {
+  /* Enhanced mobile typography */
+  .mobile-typography {
+    font-size: var(--mobile-text-base);
+    line-height: var(--mobile-leading-normal);
+    letter-spacing: 0.01em; /* Slightly increased for mobile readability */
+    color: var(--mobile-text-contrast-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Mobile optimized text sizes */
+  .mobile-text-xs { font-size: var(--mobile-text-xs); }
+  .mobile-text-sm { font-size: var(--mobile-text-sm); }
+  .mobile-text-base { font-size: var(--mobile-text-base); }
+  .mobile-text-lg { font-size: var(--mobile-text-lg); }
+  .mobile-text-xl { font-size: var(--mobile-text-xl); }
+  .mobile-text-2xl { font-size: var(--mobile-text-2xl); }
+  .mobile-text-3xl { font-size: var(--mobile-text-3xl); }
+  .mobile-text-4xl { font-size: var(--mobile-text-4xl); }
+
+  /* Mobile optimized line heights */
+  .mobile-leading-tight { line-height: var(--mobile-leading-tight); }
+  .mobile-leading-normal { line-height: var(--mobile-leading-normal); }
+  .mobile-leading-relaxed { line-height: var(--mobile-leading-relaxed); }
+  .mobile-leading-loose { line-height: var(--mobile-leading-loose); }
+
+  /* Touch-friendly interactive elements */
+  .mobile-touch-target {
+    min-height: var(--mobile-touch-target);
+    min-width: var(--mobile-touch-target);
+    padding: var(--mobile-spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .mobile-touch-target-large {
+    min-height: var(--mobile-touch-target-large);
+    min-width: var(--mobile-touch-target-large);
+    padding: var(--mobile-spacing-lg);
+  }
+
+  /* Mobile optimized buttons and links */
+  .mobile-button {
+    @apply mobile-touch-target;
+    font-size: var(--mobile-text-base);
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-button:active {
+    transform: scale(0.98);
+  }
+
+  /* Mobile navigation items */
+  .mobile-nav-item {
+    @apply mobile-touch-target-large;
+    font-size: var(--mobile-text-lg);
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--mobile-text-contrast-primary);
+    border-bottom: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+  }
+
+  .mobile-nav-item:hover,
+  .mobile-nav-item:focus {
+    background-color: var(--mobile-bg-contrast-secondary);
+    color: #3b82f6;
+  }
+
+  /* Mobile form elements */
+  .mobile-input {
+    font-size: var(--mobile-text-base); /* Prevent zoom on iOS */
+    line-height: var(--mobile-leading-normal);
+    padding: var(--mobile-spacing-md);
+    min-height: var(--mobile-touch-target);
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    background-color: var(--mobile-bg-contrast);
+    transition: border-color 0.2s ease;
+  }
+
+  .mobile-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  /* Mobile card layouts */
+  .mobile-card {
+    padding: var(--mobile-spacing-lg);
+    margin-bottom: var(--mobile-spacing-md);
+    border-radius: 12px;
+    background-color: var(--mobile-bg-contrast);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #f1f5f9;
+  }
+
+  /* Mobile skill tags */
+  .mobile-skill-tag {
+    font-size: var(--mobile-text-sm);
+    padding: var(--mobile-spacing-sm) var(--mobile-spacing-md);
+    margin: var(--mobile-spacing-xs);
+    border-radius: 20px;
+    background-color: #e0f2fe;
+    color: #0369a1;
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px; /* Touch-friendly */
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .mobile-skill-tag:hover {
+    background-color: #bae6fd;
+    transform: translateY(-1px);
+  }
+
+  /* Mobile experience cards */
+  .mobile-experience-card {
+    @apply mobile-card;
+    position: relative;
+  }
+
+  .mobile-experience-title {
+    font-size: var(--mobile-text-lg);
+    font-weight: 700;
+    color: var(--mobile-text-contrast-primary);
+    margin-bottom: var(--mobile-spacing-xs);
+    line-height: var(--mobile-leading-tight);
+  }
+
+  .mobile-experience-company {
+    font-size: var(--mobile-text-base);
+    font-weight: 500;
+    color: #3b82f6;
+    margin-bottom: var(--mobile-spacing-xs);
+  }
+
+  .mobile-experience-date {
+    font-size: var(--mobile-text-sm);
+    color: var(--mobile-text-contrast-secondary);
+    background-color: #f1f5f9;
+    padding: var(--mobile-spacing-xs) var(--mobile-spacing-sm);
+    border-radius: 6px;
+    display: inline-block;
+    margin-bottom: var(--mobile-spacing-md);
+  }
+
+  .mobile-experience-description {
+    font-size: var(--mobile-text-base);
+    line-height: var(--mobile-leading-relaxed);
+    color: var(--mobile-text-contrast-primary);
+    margin-bottom: var(--mobile-spacing-md);
+  }
+
+  /* Mobile hero section */
+  .mobile-hero-title {
+    font-size: var(--mobile-text-4xl);
+    font-weight: 800;
+    line-height: var(--mobile-leading-tight);
+    color: #ffffff;
+    margin-bottom: var(--mobile-spacing-md);
+    text-align: center;
+  }
+
+  .mobile-hero-subtitle {
+    font-size: var(--mobile-text-xl);
+    font-weight: 500;
+    line-height: var(--mobile-leading-normal);
+    color: #e0f2fe;
+    margin-bottom: var(--mobile-spacing-lg);
+    text-align: center;
+  }
+
+  .mobile-hero-description {
+    font-size: var(--mobile-text-base);
+    line-height: var(--mobile-leading-relaxed);
+    color: #bae6fd;
+    text-align: center;
+    max-width: 100%;
+  }
+
+  /* Mobile section headings */
+  .mobile-section-heading {
+    font-size: var(--mobile-text-2xl);
+    font-weight: 700;
+    line-height: var(--mobile-leading-tight);
+    color: var(--mobile-text-contrast-primary);
+    margin-bottom: var(--mobile-spacing-lg);
+    position: relative;
+  }
+
+  .mobile-section-heading::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    background-color: #3b82f6;
+    border-radius: 2px;
+  }
+
+  /* Mobile list styles */
+  .mobile-list {
+    font-size: var(--mobile-text-base);
+    line-height: var(--mobile-leading-relaxed);
+    color: var(--mobile-text-contrast-primary);
+  }
+
+  .mobile-list li {
+    margin-bottom: var(--mobile-spacing-sm);
+    padding-left: var(--mobile-spacing-md);
+    position: relative;
+  }
+
+  .mobile-list li::before {
+    content: '•';
+    color: #3b82f6;
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+  }
+
+  /* Mobile responsive adjustments */
+  .mobile-container {
+    padding-left: var(--mobile-spacing-lg);
+    padding-right: var(--mobile-spacing-lg);
+    max-width: 100%;
+  }
+
+  .mobile-grid {
+    display: grid;
+    gap: var(--mobile-spacing-md);
+    grid-template-columns: 1fr;
+  }
+
+  .mobile-flex {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mobile-spacing-md);
+  }
+
+  /* Mobile accessibility improvements */
+  .mobile-focus-ring:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  .mobile-screen-reader-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Mobile animation optimizations */
+  .mobile-animate-fadeIn {
+    opacity: 0;
+    animation: mobileAnimFadeIn 0.6s ease-out forwards;
+  }
+
+  .mobile-animate-slideUp {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: mobileAnimSlideUp 0.6s ease-out forwards;
+  }
+
+  @keyframes mobileAnimFadeIn {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes mobileAnimSlideUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Mobile performance optimizations */
+  .mobile-optimize-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  .mobile-optimize-tap {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Mobile dark mode support */
+  @media (prefers-color-scheme: dark) {
+    .mobile-typography {
+      color: #f8fafc;
+    }
+
+    .mobile-card {
+      background-color: #1e293b;
+      border-color: #334155;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .mobile-input {
+      background-color: #1e293b;
+      border-color: #334155;
+      color: #f8fafc;
+    }
+
+    .mobile-skill-tag {
+      background-color: #1e3a8a;
+      color: #bfdbfe;
+    }
+  }
+}
+
+/* High-contrast mode support for accessibility */
+@media (prefers-contrast: high) {
+  .mobile-typography {
+    color: #000000;
+  }
+
+  .mobile-card {
+    border: 2px solid #000000;
+  }
+
+  .mobile-skill-tag {
+    border: 1px solid #000000;
+    background-color: #ffffff;
+    color: #000000;
+  }
+}
+
+/* Reduced motion support for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-animate-fadeIn,
+  .mobile-animate-slideUp {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .mobile-touch-target,
+  .mobile-button,
+  .mobile-nav-item,
+  .mobile-skill-tag {
+    transition: none;
+  }
+}

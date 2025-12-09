@@ -1,133 +1,141 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { ExperienceEntry } from "@/types";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card";
+
 import { Badge } from "@/components/ui/badge";
-import { Plus, ArrowUp, ArrowDown, Edit, Trash2 } from "lucide-react";
-import { ExperiencesTabProps } from "@/types/admin-components";
+import { Plus, ArrowUp, ArrowDown, Edit, Trash2, Briefcase } from "lucide-react";
+import { ExperiencesTabProps } from "@/types/admin-pages";
+import { AdminCard, AdminCardHeader, AdminCardContent } from "./ui/admin-card";
+import { AdminButton } from "./ui/admin-button";
+import { AdminIconButton } from "./ui/admin-button";
+import { AdminEmptyState } from "./ui/admin-empty-state";
+import { adminClassNames } from "./design-system";
 
 export default function ExperiencesTab({
   experiences,
-  setExperiences,
-  editMode,
-  setEditMode,
   saving,
   handleSave,
-  handleExperiencesChange,
   addExperience,
   editExperience,
   deleteExperience,
   moveExperience
 }: ExperiencesTabProps) {
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Edit Experiences</h2>
+    <div className="space-y-6">
+      {/* Action Buttons */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-slate-600">
+            Manage your professional work history and achievements
+          </p>
+        </div>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() =>
-              setEditMode(editMode === "visual" ? "json" : "visual")}
-          >
-            Switch to {editMode === "visual" ? "JSON" : "Visual"} Editor
-          </Button>
-          <Button
-            onClick={() => handleSave("cv-data.ts", experiences)}
+          <AdminButton
+            variant="primary"
+            onClick={() => handleSave("cv-data", experiences)}
             disabled={saving}
+            loading={saving}
           >
-            {saving ? "Saving..." : "Save Experiences"}
-          </Button>
+            Save Changes
+          </AdminButton>
         </div>
       </div>
 
-      {editMode === "json"
-        ? <Textarea
-            className="font-mono h-[70vh]"
-            value={JSON.stringify(experiences, null, 2)}
-            onChange={handleExperiencesChange}
-          />
-        : <div className="space-y-4">
-            <Button onClick={addExperience} className="mb-4">
-              <Plus className="mr-2 h-4 w-4" /> Add New Experience
-            </Button>
+      <div className="space-y-4">
+            {/* Add Experience Button */}
+            <div className="flex justify-center">
+              <AdminButton
+                variant="primary"
+                size="lg"
+                onClick={addExperience}
+                disabled={saving}
+              >
+                <Plus className="mr-2 h-5 w-5" /> Add New Experience
+              </AdminButton>
+            </div>
 
-            <div className="grid gap-4">
-              {experiences.map((exp, index) =>
-                <Card key={index}>
-                  <CardHeader>
-                    <div className="flex justify-between">
-                      <div>
-                        <CardTitle>
-                          {exp.title}
-                        </CardTitle>
-                        <CardDescription>
-                          {exp.company} • {exp.dateRange}{" "}
-                          {exp.location ? `• ${exp.location}` : ""}
-                        </CardDescription>
+            {/* Experience Cards */}
+            <div className="space-y-4">
+              {experiences.length === 0 ? (
+                <AdminEmptyState
+                  icon={<Briefcase className="h-12 w-12" />}
+                  title="No experiences yet"
+                  description="Get started by adding your first work experience to showcase your professional journey."
+                  action={{
+                    label: "Add Experience",
+                    onClick: addExperience,
+                    disabled: saving
+                  }}
+                />
+              ) : (
+                experiences.map((exp, index) =>
+                  <AdminCard key={index} variant="elevated">
+                    <AdminCardHeader
+                      title={exp.title}
+                      description={
+                        <>
+                          <span className="font-medium">{exp.company}</span> • {exp.dateRange}
+                          {exp.location && <span> • {exp.location}</span>}
+                        </>
+                      }
+                      actions={
+                        <>
+
+                          <AdminIconButton
+                            variant="ghost"
+                            icon={<ArrowUp className="h-4 w-4" />}
+                            onClick={() => moveExperience(index, "up")}
+                            disabled={index === 0 || saving}
+                            tooltip="Move up"
+                            ariaLabel="Move experience up"
+                          />
+                          <AdminIconButton
+                            variant="ghost"
+                            icon={<ArrowDown className="h-4 w-4" />}
+                            onClick={() => moveExperience(index, "down")}
+                            disabled={index === experiences.length - 1 || saving}
+                            tooltip="Move down"
+                            ariaLabel="Move experience down"
+                          />
+                          <AdminIconButton
+                            variant="primary"
+                            icon={<Edit className="h-4 w-4" />}
+                            onClick={() => editExperience(exp, index)}
+                            disabled={saving}
+                            tooltip="Edit"
+                            ariaLabel="Edit experience"
+                          />
+                          <AdminIconButton
+                            variant="danger"
+                            icon={<Trash2 className="h-4 w-4" />}
+                            onClick={() => deleteExperience(index)}
+                            disabled={saving}
+                            tooltip="Delete"
+                            ariaLabel="Delete experience"
+                          />
+                        </>
+                      }
+                    />
+                    <AdminCardContent>
+                      <p className={`${adminClassNames.text.body} text-sm leading-relaxed mb-4 line-clamp-3`}>
+                        {exp.description}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {exp.tags.slice(0, 8).map((tag, i) =>
+                          <Badge key={i} className={adminClassNames.badge.primary}>
+                            {tag}
+                          </Badge>
+                        )}
+                        {exp.tags.length > 8 &&
+                          <Badge className={adminClassNames.badge.secondary}>
+                            +{exp.tags.length - 8} more
+                          </Badge>}
                       </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => moveExperience(index, "up")}
-                          disabled={index === 0}
-                        >
-                          <ArrowUp className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => moveExperience(index, "down")}
-                          disabled={index === experiences.length - 1}
-                        >
-                          <ArrowDown className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => editExperience(exp, index)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          onClick={() => deleteExperience(index)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-4">
-                      {exp.description}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {exp.tags.slice(0, 10).map((tag, i) =>
-                        <Badge key={i} variant="secondary">
-                          {tag}
-                        </Badge>
-                      )}
-                      {exp.tags.length > 10 &&
-                        <Badge variant="outline">
-                          +{exp.tags.length - 10} more
-                        </Badge>}
-                    </div>
-                  </CardContent>
-                </Card>
+                    </AdminCardContent>
+                  </AdminCard>
+                )
               )}
             </div>
-          </div>}
+           </div>
     </div>
   );
 }

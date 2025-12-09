@@ -2,35 +2,57 @@
  * Utility functions for handling profile images
  */
 
+import { PLACEHOLDER_PRESETS } from './placeholder';
+
 /**
  * Get the appropriate image URL based on context (web or PDF)
  * Priority order for uploaded images:
  * 1. Context-specific optimized image (profileImageWebUrl/profileImagePdfUrl)
  * 2. Main profile image URL (profileImageUrl) as fallback
  *
+ * Cache Busting: For local uploads, appends a stored timestamp query parameter
+ * to force browsers to reload the image after updates. Uses the timestamp from
+ * when the image was uploaded to avoid hydration mismatches.
+ *
  * @param profile User profile object
  * @param context Context for which the image is needed ('web' | 'pdf')
- * @returns The best available image URL for the context
+ * @returns The best available image URL for the context (with cache busting)
  */
 export function getProfileImageUrl(
   profile: {
-    profileImageUrl: string;
+    profileImageUrl?: string;
     profileImageWebUrl?: string;
     profileImagePdfUrl?: string;
+    profileImageUpdatedAt?: number;
   },
   context: "web" | "pdf" = "web"
 ): string {
+  let imageUrl: string | undefined;
+
   // Priority 1: Use context-specific optimized image if available
-  if (context === "web" && profile.profileImageWebUrl) {
-    return profile.profileImageWebUrl;
+  const webUrl = profile.profileImageWebUrl?.trim();
+  if (context === "web" && webUrl) {
+    imageUrl = webUrl;
   }
 
-  if (context === "pdf" && profile.profileImagePdfUrl) {
-    return profile.profileImagePdfUrl;
+  const pdfUrl = profile.profileImagePdfUrl?.trim();
+  if (!imageUrl && context === "pdf" && pdfUrl) {
+    imageUrl = pdfUrl;
   }
 
   // Priority 2: Fallback to main profile image URL
-  return profile.profileImageUrl || "";
+  if (!imageUrl) {
+    imageUrl = profile.profileImageUrl?.trim();
+  }
+
+  // Priority 3: Return placeholder if no valid image exists
+  if (!imageUrl) {
+    return PLACEHOLDER_PRESETS.profile;
+  }
+
+  // No query string needed - the filename already contains a unique timestamp
+  // (e.g., profile-1765315525337-web.webp) which provides cache busting
+  return imageUrl;
 }
 
 /**

@@ -1,16 +1,52 @@
-import { LanguageProficiency, UserProfile } from "@/types/profile";
+import { LanguageProficiency, UserProfile } from "@/lib/schemas";
 
 export const userProfile: UserProfile = {
+  "version": "1.0",
   "name": "Preslav Panayotov",
   "title": "Software Delivery Manager",
   "phone": "+359 883 41 44 99",
   "location": "Sofia, Sofia City, Bulgaria",
-  "profileImageUrl": "/uploads/profile-1748252195923-web.webp",
-  "profileImageWebUrl": "/uploads/profile-1748252195923-web.webp",
-  "profileImagePdfUrl": "/uploads/profile-1748252195923-pdf.webp",
-  "summary": "Software Delivery Manager with over 10 years of experience in the IT industry, including 5 years in leading delivery and engineering teams. Proven expertise in software development, project execution, and process optimization, ensuring on-time delivery, high-quality outcomes, and continuous team performance improvement.",
+  "profileImageWebUrl": "",
+  "profileImagePdfUrl": "",
+  "summary": "Software Delivery Manager with **over 10 years of experience** in the IT industry, including 5 years in leading delivery and engineering teams. Proven expertise in software development, project execution, and process optimization, ensuring on-time delivery, high-quality outcomes, and continuous team performance improvement.",
   "email": "preslav.panayotov@gmail.com",
-  "linkedin": "www.linkedin.com/in/preslav-panayotov",
+  "socialLinks": [
+    {
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/in/preslav-panayotov",
+      "visible": true,
+      "visibleInHero": true,
+      "position": 0
+    },
+    {
+      "platform": "GitHub",
+      "url": "",
+      "visible": false,
+      "visibleInHero": false,
+      "position": 1
+    },
+    {
+      "platform": "Twitter",
+      "url": "",
+      "visible": false,
+      "visibleInHero": false,
+      "position": 2
+    },
+    {
+      "platform": "YouTube",
+      "url": "",
+      "visible": false,
+      "visibleInHero": false,
+      "position": 3
+    },
+    {
+      "platform": "Facebook",
+      "url": "",
+      "visible": false,
+      "visibleInHero": false,
+      "position": 4
+    }
+  ],
   "languages": [
     {
       "name": "Bulgarian",
@@ -31,10 +67,10 @@ export const userProfile: UserProfile = {
   ],
   "certifications": [
     {
-      "name": "Security Awareness Essentials"
+      "name": "Business English"
     },
     {
-      "name": "Business English"
+      "name": "Security Awareness Essentials"
     },
     {
       "name": "Shaping up with Angular.js"

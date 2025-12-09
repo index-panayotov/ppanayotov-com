@@ -1,12 +1,24 @@
 import type React from "react"
 import "./globals.css"
+import "../styles/mobile-typography.css"
 import { Inter } from "next/font/google"
 import { userProfile } from "@/data/user-profile"
 import systemSettings from "@/data/system_settings"
 import { GoogleTagManager } from '@next/third-parties/google'
 import { StructuredData } from "@/components/structured-data"
 
-const inter = Inter({ subsets: ["latin"] })
+import { ErrorBoundary } from "@/components/error-boundary"
+
+
+// Optimized font loading with display optional to prevent CLS from FOUT
+const inter = Inter({
+  subsets: ["latin"],
+  display: 'optional',
+  preload: true,
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+  adjustFontFallback: true,
+  variable: '--font-inter'
+})
 
 export const metadata = {
   title: `${userProfile.name} - ${userProfile.title}`,
@@ -20,8 +32,6 @@ export const metadata = {
     "Project Delivery",
     "Software Architecture"
   ].join(", "),
-  authors: [{ name: userProfile.name }],
-  creator: userProfile.name,
   openGraph: {
     title: `${userProfile.name} - ${userProfile.title}`,
     description: `Professional CV of ${userProfile.name}, an experienced ${userProfile.title}`,
@@ -39,11 +49,12 @@ export const metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
-  },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
   }
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 }
 
 /**
@@ -59,12 +70,21 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="scroll-smooth md:scroll-pt-20">
+    <html lang="en" className={`scroll-smooth md:scroll-pt-20 ${inter.variable}`}>
       <head>
         <StructuredData />
+        {/* Resource hints for better performance */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
       </head>
       {systemSettings.gtagEnabled && (<GoogleTagManager gtmId={`${systemSettings.gtagCode}`} />)}
-      <body className={`${inter.className}`}>{children}</body>
+      <body className={`${inter.className} font-sans antialiased`}>
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
+      </body>
     </html>
   )
 }

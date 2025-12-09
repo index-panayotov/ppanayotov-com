@@ -2,16 +2,22 @@ import { NextResponse } from 'next/server';
 import { userProfile } from '@/data/user-profile';
 import { experiences } from '@/data/cv-data';
 import { topSkills } from '@/data/topSkills';
-import { SystemSettings } from '@/services/SystemSettings';
+import { loadSystemSettings, loadBlogPosts } from '@/lib/data-loader';
+import { BlogPost } from '@/lib/schemas';
 import fs from 'fs';
 import path from 'path';
 
+// Force static generation at build time
+export const dynamic = 'force-static';
+
 /**
- * Dynamic sitemap.xml generation for professional CV website
+ * Static sitemap.xml generation for professional CV website
  * Pulls data from /data/ folder to create SEO-optimized sitemap
+ * Prerendered at build time for optimal performance.
  */
 export async function GET() {
-  const baseUrl = 'https://www.ppanayotov.com';
+  const systemSettings = loadSystemSettings();
+  const baseUrl = systemSettings.siteUrl;
   
   // Get file modification times for lastmod dates
   const getLastModified = (filePath: string): string => {
@@ -83,7 +89,7 @@ export async function GET() {
   ];
 
   // Only include contact section if enabled in system settings
-  if (SystemSettings.get('showContacts')) {
+  if (systemSettings.showContacts) {
     urls.push({
       loc: `${baseUrl}/#contact`,
       lastmod: lastModProfile,
@@ -91,6 +97,39 @@ export async function GET() {
       priority: '0.7',
       description: `Contact ${userProfile.name} - ${userProfile.location}`
     });
+  }
+
+  // Include blog URLs if blog is enabled
+  if (systemSettings.blogEnable) {
+    const lastModBlog = getLastModified('data/blog-posts.ts');
+
+    // Main blog page
+    urls.push({
+      loc: `${baseUrl}/blog`,
+      lastmod: lastModBlog,
+      changefreq: 'weekly',
+      priority: '0.8',
+      description: `Blog articles on software development and technology`
+    });
+
+    // Individual blog posts (only published)
+    try {
+      const blogPosts = loadBlogPosts() as BlogPost[];
+      const publishedPosts = blogPosts.filter(post => post.published);
+
+      publishedPosts.forEach(post => {
+        const postLastMod = post.updatedDate || post.publishedDate;
+        urls.push({
+          loc: `${baseUrl}/blog/${post.slug}`,
+          lastmod: new Date(postLastMod).toISOString(),
+          changefreq: 'monthly',
+          priority: '0.7',
+          description: post.description
+        });
+      });
+    } catch (error) {
+      console.error('Error loading blog posts for sitemap:', error);
+    }
   }
 
   // Generate XML sitemap
@@ -107,7 +146,7 @@ ${urls.map(url => `  <url>
   return new NextResponse(sitemap, {
     headers: {
       'Content-Type': 'application/xml',
-      'Cache-Control': 'public, max-age=86400, s-maxage=86400', // Cache for 24 hours
+      'Cache-Control': 'public, max-age=86400, s-maxage=86400, immutable', // Cache for 24 hours (static)
     },
   });
 }

@@ -1,49 +1,90 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
+import { logger } from "@/lib/logger";
+import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
+import { withDevOnly } from "@/lib/api-utils";
+import { loadUserProfile, saveDataFile } from "@/lib/data-loader";
 
-const isDev = process.env.NODE_ENV === "development";
+/**
+ * Image file signatures (magic numbers) for validation
+ * Format: { extension: [magic number bytes] }
+ */
+const IMAGE_SIGNATURES: Record<string, number[][]> = {
+  'jpg': [[0xFF, 0xD8, 0xFF]],
+  'jpeg': [[0xFF, 0xD8, 0xFF]],
+  'png': [[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]],
+  'gif': [[0x47, 0x49, 0x46, 0x38, 0x37, 0x61], [0x47, 0x49, 0x46, 0x38, 0x39, 0x61]], // GIF87a or GIF89a
+  'webp': [[0x52, 0x49, 0x46, 0x46]], // RIFF (WebP container)
+  'bmp': [[0x42, 0x4D]],
+  'ico': [[0x00, 0x00, 0x01, 0x00]],
+};
 
-export async function POST(request: NextRequest) {
-  if (!isDev) {
-    return NextResponse.json(
-      { error: "Upload API only available in development mode" },
-      { status: 403 }
-    );
+/**
+ * Validates file is actually an image by checking magic numbers (file signature)
+ * @param buffer - File buffer to validate
+ * @returns True if valid image, false otherwise
+ */
+function isValidImageFile(buffer: Buffer): boolean {
+  // Check against all known image signatures
+  for (const [ext, signatures] of Object.entries(IMAGE_SIGNATURES)) {
+    for (const signature of signatures) {
+      // Check if buffer starts with this signature
+      const matches = signature.every((byte, index) => buffer[index] === byte);
+      if (matches) {
+        // For WebP, also verify WEBP marker at offset 8
+        if (ext === 'webp') {
+          const webpMarker = [0x57, 0x45, 0x42, 0x50]; // "WEBP"
+          const webpMatches = webpMarker.every((byte, index) => buffer[8 + index] === byte);
+          return webpMatches;
+        }
+        return true;
+      }
+    }
   }
+  return false;
+}
 
+/**
+ * POST - Upload and optimize profile image
+ */
+export const POST = withDevOnly(async (request: NextRequest) => {
+  let file: File | null = null;
   try {
     const formData = await request.formData();
-    const file = formData.get("file") as File;
+    file = formData.get("file") as File;
 
     if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+      return createTypedErrorResponse(API_ERROR_CODES.BAD_REQUEST, "No file provided");
     }
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      return NextResponse.json(
-        { error: "File must be an image" },
-        { status: 400 }
-      );
+      return createTypedErrorResponse(API_ERROR_CODES.BAD_REQUEST, "File must be an image");
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: "File size must be less than 5MB" },
-        { status: 400 }
-      );
+      return createTypedErrorResponse(API_ERROR_CODES.PAYLOAD_TOO_LARGE, "File size must be less than 5MB");
     }
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    // Validate image files using magic number verification
+    if (!isValidImageFile(buffer)) {
+      logger.warn('Invalid image file rejected - magic number validation failed', {
+        fileName: file.name,
+        mimeType: file.type,
+        size: file.size
+      });
+      return createTypedErrorResponse(API_ERROR_CODES.BAD_REQUEST, 'Invalid image file. File does not match expected image format.');
+    }
+
     // Generate filename
     const timestamp = Date.now();
-    const extension = path.extname(file.name) || ".jpg";
-    const filename = `profile-${timestamp}${extension}`;
     const webFilename = `profile-${timestamp}-web.webp`;
 
     // Create uploads directory if it doesn't exist
@@ -79,57 +120,67 @@ export async function POST(request: NextRequest) {
     const webUrl = `/uploads/${webFilename}`;
     const pdfUrl = `/uploads/${pdfFilename}`;
 
-    return NextResponse.json({
-      success: true,
+    // Update user profile JSON with new image paths and timestamp for cache busting
+    const userProfile = loadUserProfile();
+    userProfile.profileImageWebUrl = webUrl;
+    userProfile.profileImagePdfUrl = pdfUrl;
+    userProfile.profileImageUpdatedAt = timestamp; // Use same timestamp as filename
+    saveDataFile('user-profile.ts', userProfile);
+
+    // CRITICAL: Revalidate the homepage to bust the cache
+    revalidatePath('/');
+
+    logger.info('Profile image uploaded and saved to profile', {
       webUrl,
       pdfUrl,
-      message: "Image uploaded and optimized successfully"
+      originalSize: file.size,
+      originalName: file.name
+    });
+
+    return createTypedSuccessResponse({
+      webUrl,
+      pdfUrl,
+      timestamp,
+      message: "Image uploaded and saved to profile successfully"
     });
   } catch (error) {
-    console.error("Upload error:", error);
-    return NextResponse.json(
-      { error: "Failed to upload image" },
-      { status: 500 }
-    );
+    logger.error('Image upload failed', error as Error, {
+      fileName: file?.name,
+      fileSize: file?.size
+    });
+    return createTypedErrorResponse(API_ERROR_CODES.INTERNAL_SERVER_ERROR, "Failed to upload image");
   }
-}
+});
 
-export async function DELETE(request: NextRequest) {
-  if (!isDev) {
-    return NextResponse.json(
-      { error: "Delete API only available in development mode" },
-      { status: 403 }
-    );
-  }
-
+export const DELETE = withDevOnly(async (request: NextRequest) => {
+  let webUrl: string | null = null;
+  let pdfUrl: string | null = null;
   try {
     const { searchParams } = new URL(request.url);
-    const webUrl = searchParams.get("webUrl");
-    const pdfUrl = searchParams.get("pdfUrl");
+    webUrl = searchParams.get("webUrl");
+    pdfUrl = searchParams.get("pdfUrl");
 
     if (webUrl && webUrl.startsWith("/uploads/")) {
-      const webPath = path.join(process.cwd(), "public", webUrl);
+      const webPath = path.join(process.cwd(), "public", webUrl.substring(1));
       if (fs.existsSync(webPath)) {
         fs.unlinkSync(webPath);
       }
     }
 
     if (pdfUrl && pdfUrl.startsWith("/uploads/")) {
-      const pdfPath = path.join(process.cwd(), "public", pdfUrl);
+      const pdfPath = path.join(process.cwd(), "public", pdfUrl.substring(1));
       if (fs.existsSync(pdfPath)) {
         fs.unlinkSync(pdfPath);
       }
     }
 
-    return NextResponse.json({
-      success: true,
+    logger.info('Profile images deleted successfully', { webUrl, pdfUrl });
+
+    return createTypedSuccessResponse({
       message: "Images deleted successfully"
     });
   } catch (error) {
-    console.error("Delete error:", error);
-    return NextResponse.json(
-      { error: "Failed to delete images" },
-      { status: 500 }
-    );
+    logger.error('Failed to delete images', error as Error, { webUrl, pdfUrl });
+    return createTypedErrorResponse(API_ERROR_CODES.INTERNAL_SERVER_ERROR, "Failed to delete images");
   }
-}
+});

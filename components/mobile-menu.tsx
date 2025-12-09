@@ -2,25 +2,33 @@
 
 import Link from "next/link"
 import { useEffect } from "react"
+// Optimized individual icon imports for better tree-shaking
 import { FiPrinter, FiX } from "react-icons/fi"
-
-interface MobileMenuProps {
-  isOpen: boolean
-  onClose: () => void
-}
+import { useHorizontalSwipe } from "@/hooks/use-touch-gestures"
+import systemSettings from "@/data/system_settings"
+import type { MobileMenuProps } from "@/types"
 
 /**
- * Mobile-only full-screen navigation menu that prevents background scrolling while open.
+ * Mobile-only full-screen navigation menu with touch gesture support.
  *
- * When `isOpen` is true the component renders a full-screen, small-screen-only menu with navigation links
- * and a "Print CV" action. Opening the menu sets `document.body.style.overflow` to `"hidden"` to prevent
- * background scrolling; this is restored to `"auto"` when the menu closes or the component unmounts.
+ * Features:
+ * - Swipe left to close the menu
+ * - Prevents background scrolling while open
+ * - Full-screen overlay with navigation links
+ * - Touch-friendly interactive elements
  *
  * @param isOpen - Whether the mobile menu is visible.
- * @param onClose - Callback invoked to close the menu; also called when a navigation link is clicked or when the Print CV action triggers before opening the print dialog.
+ * @param onClose - Callback invoked to close the menu; also called when a navigation link is clicked, swipe gesture, or print action.
  * @returns The menu's JSX when `isOpen` is true, otherwise `null`.
  */
 export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+  // Touch gesture support for closing menu
+  const swipeRef = useHorizontalSwipe(
+    onClose, // Swipe left to close
+    () => {}, // Swipe right (no action)
+    100 // Threshold for swipe detection
+  );
+
   // Prevent scrolling when menu is open
   useEffect(() => {
     if (isOpen) {
@@ -42,46 +50,87 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-white z-50 md:hidden">
+    <div
+      ref={swipeRef}
+      className="fixed inset-0 bg-white z-50 md:hidden"
+    >
       <div className="flex flex-col h-full p-6">
+        {/* Swipe indicator */}
+        <div className="flex justify-center mb-2">
+          <div className="w-12 h-1 bg-gray-300 rounded-full opacity-50" />
+        </div>
         <div className="flex justify-end mb-8">
           <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100" aria-label="Close menu">
             <FiX size={24} />
           </button>
         </div>
 
-        <nav className="flex flex-col space-y-6 text-center">
-          <Link href="#hero" className="text-lg font-medium py-3 text-slate-700 hover:text-blue-600 transition-colors border-b border-slate-100" onClick={onClose}>
+        <nav className="flex flex-col space-y-2 text-center">
+          <Link
+            href="#hero"
+            className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
+            onClick={onClose}
+          >
             Home
           </Link>
-          <Link href="#summary" className="text-lg font-medium py-3 text-slate-700 hover:text-blue-600 transition-colors border-b border-slate-100" onClick={onClose}>
+          <Link
+            href="#summary"
+            className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
+            onClick={onClose}
+          >
             Summary
           </Link>
-          <Link href="#experience" className="text-lg font-medium py-3 text-slate-700 hover:text-blue-600 transition-colors border-b border-slate-100" onClick={onClose}>
+          <Link
+            href="#experience"
+            className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
+            onClick={onClose}
+          >
             Experience
           </Link>
-          <Link href="#skills" className="text-lg font-medium py-3 text-slate-700 hover:text-blue-600 transition-colors border-b border-slate-100" onClick={onClose}>
+          <Link
+            href="#skills"
+            className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
+            onClick={onClose}
+          >
             Skills
           </Link>
-          <Link href="#languages" className="text-lg font-medium py-3 text-slate-700 hover:text-blue-600 transition-colors border-b border-slate-100" onClick={onClose}>
+          <Link
+            href="#languages"
+            className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
+            onClick={onClose}
+          >
             Languages
           </Link>
-          <Link href="#education" className="text-lg font-medium py-3 text-slate-700 hover:text-blue-600 transition-colors border-b border-slate-100" onClick={onClose}>
+          <Link
+            href="#education"
+            className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
+            onClick={onClose}
+          >
             Education
           </Link>
-          <Link href="#certifications" className="text-lg font-medium py-3 text-slate-700 hover:text-blue-600 transition-colors border-b border-slate-100" onClick={onClose}>
+          <Link
+            href="#certifications"
+            className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
+            onClick={onClose}
+          >
             Certifications
           </Link>
-          <Link href="#contact" className="text-lg font-medium py-3 text-slate-700 hover:text-blue-600 transition-colors border-b border-slate-100" onClick={onClose}>
+          {systemSettings.blogEnable && (
+            <Link
+              href="/blog"
+              className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
+              onClick={onClose}
+            >
+              Blog
+            </Link>
+          )}
+          <Link
+            href="#contact"
+            className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
+            onClick={onClose}
+          >
             Contact
           </Link>
-          <button
-            onClick={handlePrint}
-            className="cv-button-primary mt-6 mx-auto"
-          >
-            <FiPrinter size={18} className="mr-2" />
-            Print CV
-          </button>
         </nav>
       </div>
     </div>

@@ -1,18 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, useCallback, memo } from "react"
 import { FiPlus, FiMinus } from "react-icons/fi"
 import { SkillTag } from "./skill-tag"
 import DOMPurify from 'isomorphic-dompurify';
-
-interface ExperienceEntryProps {
-  title: string
-  company: string
-  dateRange: string
-  location?: string
-  description?: string | string[]
-  tags?: string[]
-}
+import type { ExperienceEntryProps } from "@/types"
 
 /**
  * Render a single work experience entry including title, company, dates, optional location, description, and skill tags.
@@ -24,22 +16,57 @@ interface ExperienceEntryProps {
  * @remarks
  * Sanitization is applied to string descriptions to prevent injection when rendering HTML content.
  */
-export function ExperienceEntry({ title, company, dateRange, location, description, tags = [] }: ExperienceEntryProps) {
+export const ExperienceEntry = memo(function ExperienceEntry({ title, company, dateRange, location, description, tags = [] }: ExperienceEntryProps) {
   const [showAllTags, setShowAllTags] = useState(false)
+
+  // Memoize constants and computed values
   const initialTagCount = 5
-  const hasMoreTags = tags.length > initialTagCount
-  
-  // Sanitize function that works in both server and client environments
-  const sanitize = (html: string): string => {
+  const hasMoreTags = useMemo(() => tags.length > initialTagCount, [tags.length])
+
+  // Memoize sanitize function to prevent recreation on every render
+  const sanitize = useCallback((html: string): string => {
     return DOMPurify.sanitize(html);
-  };
+  }, []);
 
-  const toggleShowAllTags = () => {
+  // Memoize toggle function
+  const toggleShowAllTags = useCallback(() => {
     setShowAllTags(!showAllTags)
-  }
+  }, [showAllTags])
 
-  // For screen display, show limited tags unless expanded
-  const visibleTags = showAllTags ? tags : tags.slice(0, initialTagCount)
+  // Memoize visible tags calculation
+  const visibleTags = useMemo(() =>
+    showAllTags ? tags : tags.slice(0, initialTagCount),
+    [showAllTags, tags]
+  )
+
+  // Memoize tag list text for ATS
+  const tagListText = useMemo(() => tags.join(", "), [tags])
+
+  // Memoize description content rendering
+  const descriptionContent = useMemo(() => {
+    if (!description) return null;
+
+    if (typeof description === "string") {
+      return (
+        <p
+          className="text-slate-700 leading-relaxed mb-4 print:mb-3"
+          dangerouslySetInnerHTML={{ __html: sanitize(description) }}
+        />
+      );
+    }
+
+    if (Array.isArray(description) && description.length > 0) {
+      return (
+        <ul className="text-slate-700 list-disc list-inside space-y-1 mb-4 print:mb-3">
+          {description.map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
+        </ul>
+      );
+    }
+
+    return null;
+  }, [description, sanitize])
 
   return (
     <div className="relative pl-8 print:pl-0 print:mb-4 experience-item">
@@ -64,18 +91,7 @@ export function ExperienceEntry({ title, company, dateRange, location, descripti
 
         {location && <p className="text-slate-600 text-sm mb-3 print:mb-2">{location}</p>}
 
-        {description && typeof description === "string" ? (
-          <p className="text-slate-700 leading-relaxed mb-4 print:mb-3" dangerouslySetInnerHTML={{ __html: sanitize(description) }} />
-        ) : (
-          Array.isArray(description) &&
-          description.length > 0 && (
-            <ul className="text-slate-700 list-disc list-inside space-y-1 mb-4 print:mb-3">
-              {description.map((item, index) => (
-                <li key={index}>{item}</li>
-              ))}
-            </ul>
-          )
-        )}
+        {descriptionContent}
 
       {tags.length > 0 && (
         <>
@@ -115,11 +131,11 @@ export function ExperienceEntry({ title, company, dateRange, location, descripti
 
           {/* Hidden text for ATS - all skills in plain text */}
           <div className="hidden print:block text-[0.1px] text-white whitespace-normal overflow-hidden h-[0.1px]">
-            Skills: {tags.join(", ")}
+            Skills: {tagListText}
           </div>
         </>
       )}
       </div>
     </div>
   )
-}
+});

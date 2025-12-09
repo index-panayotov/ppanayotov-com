@@ -13,9 +13,12 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Upload, Link, X, Image as ImageIcon } from 'lucide-react';
+import { adminClassNames } from './design-system';
 import { useToast } from '@/hooks/use-toast';
 import { validateImageFile, isExternalImageUrl } from '@/lib/image-utils';
 import type { ImageUploadProps } from '@/types/admin-components';
+import { apiClient } from '@/lib/api-client';
+import { logger } from '@/lib/logger';
 
 export default function ImageUpload({
   currentImageUrl, 
@@ -27,8 +30,9 @@ export default function ImageUpload({
   const [dragOver, setDragOver] = useState(false);
   const [externalUrl, setExternalUrl] = useState(currentImageUrl || '');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();  const handleFileUpload = async (file: File) => {
-    // Validate file first
+  const { toast } = useToast();
+
+  const handleFileUpload = async (file: File) => {
     const validation = validateImageFile(file);
     if (!validation.valid) {
       toast({
@@ -40,23 +44,14 @@ export default function ImageUpload({
     }
 
     setUploading(true);
-    
+
     try {
       const formData = new FormData();
       formData.append('file', file);
-      
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(result.error || 'Upload failed');
-      }
-        // Update all three image fields with the new uploaded images
-      onImageChange(result.webUrl, result.webUrl, result.pdfUrl);
+
+      const response = await apiClient.upload<{ success: boolean; data: { webUrl: string; pdfUrl: string; timestamp: number } }>('/api/upload', formData);
+      const { webUrl, pdfUrl, timestamp } = response.data;
+      onImageChange(webUrl, webUrl, pdfUrl, timestamp);
       
       toast({
         title: "Success",
@@ -64,7 +59,9 @@ export default function ImageUpload({
       });
       
     } catch (error) {
-      console.error('Upload error:', error);
+      logger.error('Upload error', error as Error, {
+        component: 'ImageUpload'
+      });
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to upload image",
@@ -73,12 +70,15 @@ export default function ImageUpload({
     } finally {
       setUploading(false);
     }
-  };  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       handleFileUpload(file);
     }
   };
+
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
     setDragOver(false);
@@ -112,9 +112,10 @@ export default function ImageUpload({
   const handleDragLeave = () => {
     setDragOver(false);
   };
+
   const handleExternalUrlSubmit = () => {
     if (externalUrl) {
-      onImageChange(externalUrl, '', '');
+      onImageChange(externalUrl, '', '', undefined);
       toast({
         title: "Success",
         description: "External image URL set successfully",
@@ -123,20 +124,21 @@ export default function ImageUpload({
   };
 
   const handleRemoveImage = async () => {
-    // If it's a local upload, try to delete the files
     if (currentWebUrl?.startsWith('/uploads/') || currentPdfUrl?.startsWith('/uploads/')) {
       try {
         const params = new URLSearchParams();
         if (currentWebUrl) params.append('webUrl', currentWebUrl);
         if (currentPdfUrl) params.append('pdfUrl', currentPdfUrl);
         
-        await fetch(`/api/upload?${params}`, {
-          method: 'DELETE',
-        });
+        await apiClient.delete(`/api/upload?${params}`);
       } catch (error) {
-        console.error('Failed to delete uploaded files:', error);
-      }    }
-    onImageChange('', '', '');
+        logger.error('Failed to delete uploaded files', error as Error, {
+          component: 'ImageUpload',
+          action: 'deleteFiles'
+        });
+      }
+    }
+    onImageChange('', '', '', undefined);
     setExternalUrl('');
     toast({
       title: "Success",
@@ -144,113 +146,81 @@ export default function ImageUpload({
     });
   };
 
+  const hasImage = currentImageUrl || currentWebUrl || currentPdfUrl;
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <ImageIcon className="w-5 h-5" />
-          Profile Image
-        </CardTitle>
-        <CardDescription>
-          Upload a new image or use an external URL. Images will be automatically optimized for web and PDF.
-        </CardDescription>
+        <CardTitle>Image</CardTitle>
+        <CardDescription>Upload an image or link to an external one.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="upload" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="upload">Upload File</TabsTrigger>
-            <TabsTrigger value="url">External URL</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="upload" className="space-y-4">
-            <div
-              className={`
-                relative border-2 border-dashed rounded-lg p-6 text-center transition-colors
-                ${dragOver ? 'border-primary bg-primary/5' : 'border-gray-300'}
-                ${uploading ? 'opacity-50' : 'cursor-pointer hover:border-primary hover:bg-primary/5'}
-              `}
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onClick={() => !uploading && fileInputRef.current?.click()}
+        {hasImage ? (
+          <div className="relative">
+            <img
+              src={currentImageUrl || currentWebUrl || ''}
+              alt="Current"
+              className="rounded-md object-cover w-[300px] h-[300px]"
+            />
+            <Button 
+              variant="destructive" 
+              size="icon" 
+              className="absolute top-2 right-2"
+              onClick={handleRemoveImage}
             >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect}
-                className="hidden"
-                disabled={uploading}
-              />
-              
-              <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-              <p className="text-sm text-gray-600 mb-1">
-                {uploading ? 'Uploading...' : 'Drop an image here or click to browse'}
-              </p>
-              <p className="text-xs text-gray-400">
-                Supports JPG, PNG, WebP (max 5MB)
-              </p>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="url" className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="external-url">Image URL</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="external-url"
-                  type="url"
-                  placeholder="https://example.com/image.jpg"
-                  value={externalUrl}
-                  onChange={(e) => setExternalUrl(e.target.value)}
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : (
+          <Tabs defaultValue="upload">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="upload">Upload</TabsTrigger>
+              <TabsTrigger value="url">URL</TabsTrigger>
+            </TabsList>
+            <TabsContent value="upload">
+              <div 
+                className={`mt-4 border-2 border-dashed rounded-md p-8 text-center ${dragOver ? 'border-primary' : 'border-border'}`}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+              >
+                <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                <p className="mt-2 text-sm text-gray-600">
+                  {uploading ? 'Uploading...' : 'Drag & drop an image, or click to select'}
+                </p>
+                <Input 
+                  id="file-upload" 
+                  type="file" 
+                  className="hidden" 
+                  ref={fileInputRef}
+                  onChange={handleFileSelect}
+                  accept="image/png, image/jpeg, image/gif, image/webp"
                 />
                 <Button 
-                  onClick={handleExternalUrlSubmit}
-                  disabled={!externalUrl}
+                  variant="outline" 
+                  className="mt-4"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
                 >
-                  <Link className="w-4 h-4" />
+                  Select File
                 </Button>
               </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        {/* Current Image Preview */}
-        {currentImageUrl && (
-          <div className="mt-6 space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium">Current Image</h4>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRemoveImage}
-                className="text-red-600 hover:text-red-700"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <img
-                src={currentImageUrl}
-                alt="Profile Preview"
-                className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
-              />              <div className="text-sm space-y-1">
-                <p className="font-medium">
-                  {isExternalImageUrl(currentImageUrl) ? 'External URL' : 'Local Upload'}
-                </p>
-                <p className="text-gray-500 break-all">
-                  {currentImageUrl}
-                </p>
-                {currentWebUrl && currentPdfUrl && (
-                  <div className="text-xs text-gray-400">
-                    <p>Web: {currentWebUrl}</p>
-                    <p>PDF: {currentPdfUrl}</p>
-                  </div>
-                )}
+            </TabsContent>
+            <TabsContent value="url">
+              <div className="mt-4 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="external-url">Image URL</Label>
+                  <Input 
+                    id="external-url" 
+                    placeholder="https://example.com/image.png" 
+                    value={externalUrl}
+                    onChange={(e) => setExternalUrl(e.target.value)}
+                  />
+                </div>
+                <Button onClick={handleExternalUrlSubmit}>Set Image from URL</Button>
               </div>
-            </div>
-          </div>
+            </TabsContent>
+          </Tabs>
         )}
       </CardContent>
     </Card>

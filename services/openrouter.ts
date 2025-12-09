@@ -1,4 +1,6 @@
 import { OpenRouterOptions } from "../types/index";
+import { env } from "@/lib/env";
+import { logger } from "@/lib/logger";
 
 /**
  * Requests a single answer from the OpenRouter language model API using the provided system prompt and user input.
@@ -24,11 +26,9 @@ export async function getOpenRouterAnswer({
     throw new Error("User data cannot be empty");
   }
 
-  const apiKey = process.env.OPENROUTER_KEY;
-  // Use customModel if provided, otherwise fall back to env variable or default
-  const model =
-    customModel || process.env.OPENROUTER_MODEL || "openai/gpt-4.1-nano";
-  if (!apiKey) throw new Error("OPENROUTER_KEY is not set in environment");
+  const apiKey = env.OPENROUTER_KEY;
+  // Use customModel if provided, otherwise fall back to env variable
+  const model = customModel || env.OPENROUTER_MODEL;
 
   const response = await fetch(
     "https://openrouter.ai/api/v1/chat/completions",
@@ -55,10 +55,23 @@ export async function getOpenRouterAnswer({
 
   if (!response.ok) {
     const error = await response.text();
+    logger.error('OpenRouter API request failed', new Error(`OpenRouter API error: ${error}`), {
+      model,
+      status: response.status,
+      statusText: response.statusText
+    });
     throw new Error(`OpenRouter API error: ${error}`);
   }
 
   const result = await response.json();
+  const content = result.choices?.[0]?.message?.content?.trim() || "";
+
+  logger.info('OpenRouter API request successful', {
+    model,
+    contentLength: content.length,
+    creativity
+  });
+
   // Return exactly one answer
-  return result.choices?.[0]?.message?.content?.trim() || "";
+  return content;
 }

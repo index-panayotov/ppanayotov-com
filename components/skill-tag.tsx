@@ -1,7 +1,5 @@
-interface SkillTagProps {
-  name: string;
-  variant?: 'default' | 'featured';
-}
+import { memo } from 'react';
+import type { SkillTagProps } from '@/types';
 
 /**
  * Render a skill label that uses styled markup for screen and plain text for print.
@@ -15,7 +13,7 @@ interface SkillTagProps {
  * `'featured'` to apply emphasis styling. Defaults to `'default'`.
  * @returns A JSX fragment containing the web and print versions of the skill label.
  */
-export function SkillTag({ name, variant = 'default' }: SkillTagProps) {
+export const SkillTag = memo(function SkillTag({ name, variant = 'default' }: SkillTagProps) {
   const webClasses = "print:hidden transition-all duration-200";
   const variantClasses = variant === 'featured' 
     ? "cv-skill-tag ring-2 ring-blue-200/50" 
@@ -33,4 +31,4 @@ export function SkillTag({ name, variant = 'default' }: SkillTagProps) {
       </span>
     </>
   );
-}
+});
