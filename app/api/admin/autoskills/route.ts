@@ -129,7 +129,7 @@ Return ONLY a valid JSON array of strings. Do not include any markdown formattin
       }
 
     } catch (aiError) {
-      logger.warn('AI skill generation failed, falling back to frequency', aiError as Error);
+      logger.warn('AI skill generation failed, falling back to frequency', { component: 'autoskills' }, aiError as Error);
       
       // Fallback: Sort tags by frequency
       sortedTags = Object.entries(tagCounts)
@@ -138,7 +138,7 @@ Return ONLY a valid JSON array of strings. Do not include any markdown formattin
         .map(([name, frequency]) => ({
           name,
           frequency,
-          confidence: Math.min(frequency / totalTags, 1) // Normalize to 0-1
+          confidence: totalTags === 0 ? 0 : Math.min(frequency / totalTags, 1) // Normalize to 0-1
         }));
     }
 

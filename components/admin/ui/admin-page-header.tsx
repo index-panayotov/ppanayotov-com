@@ -4,7 +4,7 @@ import { adminClassNames } from "../design-system";
 import { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface AdminAction {
+export interface AdminAction {
   label: string;
   onClick: () => void;
   icon?: LucideIcon;

@@ -29,6 +29,7 @@ import { AIEnhancedInput } from '@/components/admin/ai-enhanced-input';
 import { AIEnhancedTextarea } from '@/components/admin/ai-enhanced-textarea';
 import { X } from 'lucide-react';
 import { logger } from '@/lib/logger';
+import { toast } from '@/hooks/use-toast';
 
 import {
   ExperienceFormSchema,
@@ -103,6 +104,11 @@ const ExperienceDialog: React.FC<ExperienceDialogProps> = ({
     } catch (error) {
       logger.error('Failed to save experience', error as Error, {
         component: 'ExperienceDialog'
+      });
+      toast({
+        title: 'Save Failed',
+        description: 'Failed to save experience. Please try again.',
+        variant: 'destructive',
       });
     }
   };

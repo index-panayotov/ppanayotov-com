@@ -56,7 +56,7 @@ export default function ProfileDataTab({
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-slate-600">
-            Update your personal information, education, and certifications
+            Update your personal information and profile summary
           </p>
         </div>
         <div className="flex gap-2">
