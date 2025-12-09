@@ -1,13 +1,25 @@
 import { NextRequest } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import fs from 'fs';
 import path from 'path';
-import { BlogPostSchema } from '@/lib/schemas';
-import { loadBlogPosts } from '@/lib/data-loader';
+import { BlogPostSchema, BlogPost } from '@/lib/schemas';
+import { loadBlogPosts, saveDataFile } from '@/lib/data-loader';
 import { calculateReadingTime } from '@/lib/markdown-utils';
 import { logger } from '@/lib/logger';
 import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
-import { withDevOnly, generateBlogPostsFileContent } from '@/lib/api-utils';
+import { withDevOnly } from '@/lib/api-utils';
 import { validateSlug } from '@/lib/security/slug-validator';
+
+/**
+ * Revalidate blog-related paths after any blog data change
+ */
+function revalidateBlogPaths(slug?: string) {
+  revalidatePath('/blog');
+  revalidatePath('/');
+  if (slug) {
+    revalidatePath(`/blog/${slug}`);
+  }
+}
 
 /**
  * GET - List all blog posts
@@ -38,24 +50,25 @@ export const POST = withDevOnly(async (request: NextRequest) => {
     validatedMetadata.readingTime = readingTime;
 
     // Load existing blog posts
-    const blogPostsPath = path.join(process.cwd(), 'data', 'blog-posts.ts');
-    const blogPosts = loadBlogPosts();
+    const blogPosts = loadBlogPosts() as BlogPost[];
 
     // Check if slug already exists
-    if (blogPosts.find((p: any) => p.slug === validatedMetadata.slug)) {
+    if (blogPosts.find((p: BlogPost) => p.slug === validatedMetadata.slug)) {
       return createTypedErrorResponse(API_ERROR_CODES.BAD_REQUEST, 'A blog post with this slug already exists');
     }
 
     // Add new blog post to array
     blogPosts.push(validatedMetadata);
 
-    // Write updated blog-posts.ts file
-    const fileContent = generateBlogPostsFileContent(blogPosts);
-    fs.writeFileSync(blogPostsPath, fileContent, 'utf-8');
+    // Write updated blog-posts.json file (runtime data)
+    saveDataFile('blog-posts.ts', blogPosts);
 
     // Write markdown content file
     const mdPath = path.join(process.cwd(), 'data', 'blog', `${validatedMetadata.slug}.md`);
     fs.writeFileSync(mdPath, content, 'utf-8');
+
+    // Revalidate blog paths
+    revalidateBlogPaths(validatedMetadata.slug);
 
     return createTypedSuccessResponse({ message: 'Blog post created successfully', data: validatedMetadata });
   } catch (error) {
@@ -81,24 +94,25 @@ export const PUT = withDevOnly(async (request: NextRequest) => {
     validatedMetadata.updatedDate = new Date().toISOString().split('T')[0];
 
     // Load existing blog posts
-    const blogPostsPath = path.join(process.cwd(), 'data', 'blog-posts.ts');
-    const blogPosts = loadBlogPosts();
+    const blogPosts = loadBlogPosts() as BlogPost[];
 
     // Find and update the blog post
-    const index = blogPosts.findIndex((p: any) => p.slug === validatedMetadata.slug);
+    const index = blogPosts.findIndex((p: BlogPost) => p.slug === validatedMetadata.slug);
     if (index === -1) {
       return createTypedErrorResponse(API_ERROR_CODES.NOT_FOUND, 'Blog post not found');
     }
 
     blogPosts[index] = validatedMetadata;
 
-    // Write updated blog-posts.ts file
-    const fileContent = generateBlogPostsFileContent(blogPosts);
-    fs.writeFileSync(blogPostsPath, fileContent, 'utf-8');
+    // Write updated blog-posts.json file (runtime data)
+    saveDataFile('blog-posts.ts', blogPosts);
 
     // Write markdown content file
     const mdPath = path.join(process.cwd(), 'data', 'blog', `${validatedMetadata.slug}.md`);
     fs.writeFileSync(mdPath, content, 'utf-8');
+
+    // Revalidate blog paths
+    revalidateBlogPaths(validatedMetadata.slug);
 
     return createTypedSuccessResponse({ message: 'Blog post updated successfully', data: validatedMetadata });
   } catch (error) {
@@ -131,11 +145,10 @@ export const DELETE = withDevOnly(async (request: NextRequest) => {
     }
 
     // Load existing blog posts
-    const blogPostsPath = path.join(process.cwd(), 'data', 'blog-posts.ts');
-    const blogPosts = loadBlogPosts();
+    const blogPosts = loadBlogPosts() as BlogPost[];
 
     // Find blog post
-    const index = blogPosts.findIndex((p: any) => p.slug === slug);
+    const index = blogPosts.findIndex((p: BlogPost) => p.slug === slug);
     if (index === -1) {
       return createTypedErrorResponse(API_ERROR_CODES.NOT_FOUND, 'Blog post not found');
     }
@@ -143,9 +156,8 @@ export const DELETE = withDevOnly(async (request: NextRequest) => {
     // Remove from array
     blogPosts.splice(index, 1);
 
-    // Write updated blog-posts.ts file
-    const fileContent = generateBlogPostsFileContent(blogPosts);
-    fs.writeFileSync(blogPostsPath, fileContent, 'utf-8');
+    // Write updated blog-posts.json file (runtime data)
+    saveDataFile('blog-posts.ts', blogPosts);
 
     // Delete markdown file
     const mdPath = path.join(process.cwd(), 'data', 'blog', `${slug}.md`);
@@ -158,6 +170,9 @@ export const DELETE = withDevOnly(async (request: NextRequest) => {
     if (fs.existsSync(uploadsPath)) {
       fs.rmSync(uploadsPath, { recursive: true, force: true });
     }
+
+    // Revalidate blog paths
+    revalidateBlogPaths(slug);
 
     return createTypedSuccessResponse({ message: 'Blog post deleted successfully' });
   } catch (error) {

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { loadAdminData, saveAdminData, AdminData } from '@/lib/admin-data-loader';
+import { loadAdminData, saveAdminData, AdminData, AdminDataTypes } from '@/lib/admin-data-loader';
 import { ExperienceEntry } from '@/types';
 import { UserProfile, SystemSettings } from '@/lib/schemas';
 import { getErrorMessage } from '@/lib/utils';
@@ -41,7 +41,7 @@ export function useAdminData() {
   }, [router]);
 
   // Save data function
-  const handleSave = useCallback(async (file: string, newData: any) => {
+  const handleSave = useCallback(async (file: string, newData: AdminDataTypes) => {
     if (!data) return;
 
     try {

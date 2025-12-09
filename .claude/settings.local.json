@@ -11,7 +11,9 @@
       "mcp__puppeteer__puppeteer_navigate",
       "Bash(npm run lint)",
       "Bash(npm outdated)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

@@ -51,8 +51,8 @@ interface RequestOptions extends RequestInit {
 }
 
 class APIClient {
-  private cache = new Map<string, CacheEntry<any>>();
-  private pendingRequests = new Map<string, Promise<any>>();
+  private cache = new Map<string, CacheEntry<unknown>>();
+  private pendingRequests = new Map<string, Promise<unknown>>();
 
   /**
    * Make a GET request with caching and deduplication
@@ -64,7 +64,7 @@ class APIClient {
   /**
    * Make a POST request
    */
-  async post<T>(url: string, data?: any, options: RequestOptions = {}): Promise<T> {
+  async post<T>(url: string, data?: unknown, options: RequestOptions = {}): Promise<T> {
     return this.request<T>(url, {
       ...options,
       method: 'POST',
@@ -79,7 +79,7 @@ class APIClient {
   /**
    * Make a PUT request
    */
-  async put<T>(url: string, data?: any, options: RequestOptions = {}): Promise<T> {
+  async put<T>(url: string, data?: unknown, options: RequestOptions = {}): Promise<T> {
     return this.request<T>(url, {
       ...options,
       method: 'PUT',

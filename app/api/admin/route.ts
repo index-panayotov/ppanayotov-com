@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
-import fs from "fs";
-import path from "path";
+import { revalidatePath } from "next/cache";
 import {
   GenerateTopSkillsApiResponse,
   AdminDataUpdateApiRequestSchema,
@@ -10,9 +9,24 @@ import {
 import { ApiErrorCode } from "@/types/core";
 import { z } from "zod";
 import { createTypedSuccessResponse, createTypedErrorResponse, API_ERROR_CODES } from "@/lib/api-response";
-import { loadSystemSettings, loadCVData, loadTopSkills, loadUserProfile } from "@/lib/data-loader";
+import { loadSystemSettings, loadCVData, loadTopSkills, loadUserProfile, saveDataFile } from "@/lib/data-loader";
 import { logger } from "@/lib/logger";
-import { withDevOnly, generateDataFileContent } from "@/lib/api-utils";
+import { withDevOnly } from "@/lib/api-utils";
+import { ExperienceEntry } from "@/lib/schemas";
+
+/**
+ * Interface for Zod validation error details
+ */
+interface ZodErrorDetail {
+  path: (string | number)[];
+  message: string;
+  code: string;
+  input?: unknown;
+}
+
+interface ValidationErrorDetails {
+  zodErrors?: ZodErrorDetail[];
+}
 
 // Schema for GET request search parameters
 const GetAdminApiParamsSchema = z.object({
@@ -45,9 +59,9 @@ export const GET = withDevOnly(async (request: NextRequest) => {
     if (action === "generateTopSkills") {
       // Generate top skills based on frequency in experiences
       const allTags: string[] = [];
-      experiences.forEach((exp: any) => {
+      experiences.forEach((exp: ExperienceEntry) => {
         if (exp.tags && Array.isArray(exp.tags)) {
-          exp.tags.forEach((tag: any) => {
+          exp.tags.forEach((tag: string) => {
             allTags.push(tag);
           });
         }
@@ -92,17 +106,33 @@ export const GET = withDevOnly(async (request: NextRequest) => {
 });
 
 /**
+ * Paths to revalidate based on which file was updated
+ */
+const REVALIDATION_PATHS: Record<string, string[]> = {
+  'cv-data.ts': ['/', '/blog'],
+  'topSkills.ts': ['/'],
+  'user-profile.ts': ['/'],
+  'system_settings.ts': ['/', '/blog'],
+};
+
+/**
  * Type-safe POST handler for updating data files
+ *
+ * ARCHITECTURE: Writes to JSON files for runtime persistence
+ * - TypeScript files are build-time defaults only
+ * - JSON files are the source of truth at runtime
+ * - Cache revalidation ensures immediate updates on frontend
  */
 export const POST = withDevOnly(async (request: NextRequest) => {
   // Validate request body
   const validation = await validateRequestBody(request, AdminDataUpdateApiRequestSchema);
 
   if (!validation.success) {
+    const details = validation.error.details as ValidationErrorDetails | undefined;
     return createTypedErrorResponse(
       validation.error.code as ApiErrorCode,
       validation.error.message,
-      (validation.error.details as any)?.zodErrors?.map((err: any) => ({
+      details?.zodErrors?.map((err: ZodErrorDetail) => ({
         field: err.path.join('.'),
         message: err.message,
         code: err.code,
@@ -125,14 +155,16 @@ export const POST = withDevOnly(async (request: NextRequest) => {
   }
 
   try {
-    const filePath = path.join(process.cwd(), "data", file);
-
-    // Generate file content using utility function
-    const fileContent = generateDataFileContent(file, data);
-
-    // Write the file
-    fs.writeFileSync(filePath, fileContent);
+    // Save to JSON file (runtime data storage)
+    saveDataFile(file, data);
     logger.info('Data file updated successfully', { file, timestamp: Date.now() });
+
+    // Revalidate affected paths to bust the cache
+    const pathsToRevalidate = REVALIDATION_PATHS[file] || ['/'];
+    for (const path of pathsToRevalidate) {
+      revalidatePath(path);
+    }
+    logger.info('Cache revalidated', { paths: pathsToRevalidate });
 
     return createTypedSuccessResponse(
       { success: true, file, timestamp: Date.now() },
@@ -142,7 +174,7 @@ export const POST = withDevOnly(async (request: NextRequest) => {
     logger.error('Failed to save data', error as Error, { file });
     return createTypedErrorResponse(
       API_ERROR_CODES.INTERNAL_SERVER_ERROR,
-      error instanceof Error ? error.message : 'Failed to delete data'
+      error instanceof Error ? error.message : 'Failed to save data'
     );
   }
 });

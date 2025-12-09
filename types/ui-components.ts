@@ -1,10 +1,11 @@
 import * as React from "react";
 // import { DayPicker } from "react-day-picker";
 import { ComponentPropsWithoutRef } from 'react';
+import type { Element } from 'hast';
 
 // For Markdown Renderer
 export type MarkdownComponentProps<T extends React.ElementType> = ComponentPropsWithoutRef<T> & {
-  node?: any;
+  node?: Element;
 };
 
 // For Sidebar
@@ -35,4 +36,4 @@ export type ChartContextProps = {
 
 // For Calendar
 // export type CalendarProps = React.ComponentProps<typeof DayPicker>;
-export type CalendarProps = any;
+export type CalendarProps = Record<string, unknown>;

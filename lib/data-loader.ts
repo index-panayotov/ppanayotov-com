@@ -5,6 +5,11 @@
  * This completely bypasses Node.js module cache to ensure fresh content
  * on every request. Critical for the admin panel where data changes must be
  * immediately reflected.
+ *
+ * ARCHITECTURE: JSON-first approach
+ * - Runtime data is stored in JSON files (e.g., user-profile.json)
+ * - TypeScript files serve as build-time defaults/fallbacks
+ * - This allows immediate updates without rebuilding the application
  */
 
 import fs from 'fs';
@@ -13,7 +18,19 @@ import { getErrorMessage } from './utils';
 import { validateSlug } from './security/slug-validator';
 
 /**
- * Configuration for extracting data from different file types
+ * Mapping from TS file names to their JSON equivalents
+ */
+const TS_TO_JSON_MAP: Record<string, string> = {
+  'system_settings.ts': 'system_settings.json',
+  'cv-data.ts': 'cv-data.json',
+  'topSkills.ts': 'topSkills.json',
+  'user-profile.ts': 'user-profile.json',
+  'blog-posts.ts': 'blog-posts.json',
+};
+
+/**
+ * Configuration for extracting data from different TypeScript file types
+ * Used as fallback when JSON files don't exist
  */
 const FILE_PARSERS: Record<string, {
   startMarker: string;
@@ -94,18 +111,49 @@ function extractJSONContent(fileContent: string, config: typeof FILE_PARSERS[str
 
 /**
  * Loads a data file directly from filesystem, bypassing all Node.js caching.
- * Parses the JSON-like content from TypeScript data files.
  *
- * @param fileName - The data file name (e.g., 'system_settings.ts')
+ * Strategy:
+ * 1. First, try to load from JSON file (runtime data)
+ * 2. Fall back to TypeScript file (build-time defaults)
+ *
+ * This allows the application to reflect changes immediately in production
+ * without requiring a rebuild.
+ *
+ * @param fileName - The data file name (e.g., 'system_settings.ts' or 'system_settings.json')
  * @returns The exported data object
  */
-export function loadDataFile<T = any>(fileName: string): T {
-  const filePath = path.join(process.cwd(), 'data', fileName);
+export function loadDataFile<T = unknown>(fileName: string): T {
+  const dataDir = path.join(process.cwd(), 'data');
+
+  // Normalize to .ts extension for lookup
+  const tsFileName = fileName.endsWith('.json')
+    ? fileName.replace('.json', '.ts')
+    : fileName;
+
+  // Get corresponding JSON file name
+  const jsonFileName = TS_TO_JSON_MAP[tsFileName];
+
+  // Try JSON file first (runtime data)
+  if (jsonFileName) {
+    const jsonPath = path.join(dataDir, jsonFileName);
+    if (fs.existsSync(jsonPath)) {
+      try {
+        const jsonContent = fs.readFileSync(jsonPath, 'utf-8');
+        return JSON.parse(jsonContent) as T;
+      } catch (parseError) {
+        // JSON parsing failed, fall through to TS file
+        console.warn(`Failed to parse ${jsonFileName}, falling back to ${tsFileName}`);
+      }
+    }
+  }
+
+  // Fall back to TypeScript file (build-time defaults)
+  const tsPath = path.join(dataDir, tsFileName);
   try {
-    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    const fileContent = fs.readFileSync(tsPath, 'utf-8');
 
     // Use unified parser if configuration exists
-    const config = FILE_PARSERS[fileName];
+    const config = FILE_PARSERS[tsFileName];
     if (config) {
       const extractedContent = extractJSONContent(fileContent, config);
       if (extractedContent) {
@@ -118,19 +166,49 @@ export function loadDataFile<T = any>(fileName: string): T {
           const evalFunc = new Function(`return ${safeContent}`);
           return evalFunc();
         } catch (parseError) {
-          throw new Error(`Parse error for ${fileName}: ${getErrorMessage(parseError)}`);
+          throw new Error(`Parse error for ${tsFileName}: ${getErrorMessage(parseError)}`);
         }
       }
 
       // If we reached here the parser config existed but we couldn't extract content
-      throw new Error(`Failed to extract content from ${fileName} using configured markers`);
+      throw new Error(`Failed to extract content from ${tsFileName} using configured markers`);
     }
 
     // No parser configured for this file
-    throw new Error(`No parser configured for ${fileName}`);
+    throw new Error(`No parser configured for ${tsFileName}`);
   } catch (error) {
-    throw new Error(`Error loading file ${fileName}: ${getErrorMessage(error)}`);
+    throw new Error(`Error loading file ${tsFileName}: ${getErrorMessage(error)}`);
   }
+}
+
+/**
+ * Mapping from TS file names to JSON file names for saving
+ */
+const JSON_FILE_MAP: Record<string, string> = {
+  'cv-data.ts': 'cv-data.json',
+  'topSkills.ts': 'topSkills.json',
+  'user-profile.ts': 'user-profile.json',
+  'system_settings.ts': 'system_settings.json',
+  'blog-posts.ts': 'blog-posts.json',
+};
+
+/**
+ * Saves data to a JSON file for runtime persistence.
+ *
+ * This replaces writing to TypeScript files which doesn't work in production
+ * because the compiled bundle doesn't reflect source file changes.
+ *
+ * @param fileName - The TypeScript file name (e.g., 'user-profile.ts')
+ * @param data - The data to save
+ */
+export function saveDataFile(fileName: string, data: unknown): void {
+  const jsonFileName = JSON_FILE_MAP[fileName];
+  if (!jsonFileName) {
+    throw new Error(`No JSON mapping configured for ${fileName}`);
+  }
+
+  const jsonPath = path.join(process.cwd(), 'data', jsonFileName);
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2), 'utf-8');
 }
 
 /**

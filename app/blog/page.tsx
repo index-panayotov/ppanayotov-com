@@ -12,15 +12,14 @@ import { getBlogHeaderClasses } from '@/lib/utils';
  * Blog listing page with pagination
  *
  * Caching Strategy:
- * - Uses Next.js Incremental Static Regeneration (ISR) with on-demand rendering
- * - Pagination handled via query string (?page=2) - pages generated on first request
- * - Pages automatically revalidate every hour (3600 seconds)
- * - All data loaded from static files (no database queries)
- * - Provides fast page loads with automatic content updates
+ * - Uses dynamic rendering to reflect latest admin changes immediately
+ * - Pagination handled via query string (?page=2)
+ * - Data loaded from JSON files (runtime data storage)
+ * - Cache invalidated via revalidatePath() when blog posts are updated
  */
 
-// Enable ISR with 1-hour revalidation
-export const revalidate = 3600;
+// Force dynamic rendering for immediate updates after admin changes
+export const dynamic = 'force-dynamic';
 
 // Generate metadata dynamically from user profile
 export async function generateMetadata(): Promise<Metadata> {

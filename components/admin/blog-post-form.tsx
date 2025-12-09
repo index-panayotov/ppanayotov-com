@@ -26,6 +26,20 @@ interface BlogPostFormProps {
   mode: 'create' | 'edit';
 }
 
+/**
+ * Type-safe API response for blog post retrieval
+ */
+interface BlogPostApiResponse {
+  success: boolean;
+  data?: {
+    metadata: BlogPost;
+    content: string;
+  };
+  error?: {
+    message: string;
+  };
+}
+
 type BlogFormData = Omit<BlogPost, 'readingTime'>;
 
 export default function BlogPostForm({ initialPost, mode }: BlogPostFormProps) {
@@ -61,7 +75,7 @@ export default function BlogPostForm({ initialPost, mode }: BlogPostFormProps) {
         setLoadingContent(true);
         try {
           // Fetch blog post content from API
-          const result = await apiClient.get(`/api/admin/blog/${initialPost.slug}`) as any;
+          const result = await apiClient.get<BlogPostApiResponse>(`/api/admin/blog/${initialPost.slug}`);
 
           if (result.error) {
             toast.error('Failed to load post', {

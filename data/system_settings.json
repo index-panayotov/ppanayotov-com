@@ -1,0 +1,21 @@
+{
+  "blogEnable": true,
+  "useWysiwyg": true,
+  "showContacts": false,
+  "gtagCode": "G-NR6KNX7RM6",
+  "gtagEnabled": true,
+  "selectedTemplate": "classic",
+  "siteUrl": "https://ppanayotov.com",
+  "pwa": {
+    "siteName": "CV Website",
+    "shortName": "CV",
+    "description": "",
+    "startUrl": "/",
+    "display": "standalone",
+    "backgroundColor": "#ffffff",
+    "themeColor": "#0f172a",
+    "orientation": "portrait-primary",
+    "categories": [],
+    "icons": []
+  }
+}

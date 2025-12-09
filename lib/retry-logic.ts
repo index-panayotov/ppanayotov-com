@@ -20,15 +20,28 @@ export interface RetryState {
 }
 
 /**
+ * Interface for errors that may contain HTTP response information
+ */
+interface RetryableError {
+  response?: { status?: number };
+  status?: number;
+}
+
+/**
  * Default retry condition - retry on network errors and 5xx status codes
  */
-export function defaultRetryCondition(error: any): boolean {
-  // Network errors
-  if (!error.response) return true;
+export function defaultRetryCondition(error: RetryableError | unknown): boolean {
+  // Handle null/undefined or non-object errors
+  if (!error || typeof error !== 'object') return true;
+
+  const err = error as RetryableError;
+
+  // Network errors (no response)
+  if (!err.response) return true;
 
   // Server errors (5xx)
-  const status = error.response?.status || error.status;
-  return status >= 500 && status < 600;
+  const status = err.response?.status ?? err.status;
+  return typeof status !== 'number' || (status >= 500 && status < 600);
 }
 
 /**
@@ -94,7 +107,7 @@ export async function withRetry<T>(
 /**
  * Create a retry wrapper function
  */
-export function createRetryWrapper<T extends (...args: any[]) => Promise<any>>(
+export function createRetryWrapper<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
   options?: RetryOptions
 ): T {
@@ -108,7 +121,7 @@ export function createRetryWrapper<T extends (...args: any[]) => Promise<any>>(
 export function useRetry(options?: RetryOptions) {
   return {
     execute: <T>(fn: () => Promise<T>) => withRetry(fn, options),
-    wrap: <T extends (...args: any[]) => Promise<any>>(fn: T) =>
+    wrap: <T extends (...args: unknown[]) => Promise<unknown>>(fn: T) =>
       createRetryWrapper(fn, options),
   };
 }

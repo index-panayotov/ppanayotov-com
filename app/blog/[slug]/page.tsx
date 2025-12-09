@@ -9,16 +9,8 @@ import { Separator } from '@/components/ui/separator';
 import {BlogPostPageProps} from '@/types';
 
 
-// Enable ISR with 1-hour revalidation for automatic content updates
-export const revalidate = 3600;
-
-// Generate static paths for all blog posts
-export async function generateStaticParams() {
-  const blogPosts = loadBlogPosts(); // Load all blog posts
-  return blogPosts.filter(post => post.published).map((post) => ({
-    slug: post.slug,
-  }));
-}
+// Force dynamic rendering for immediate updates after admin changes
+export const dynamic = 'force-dynamic';
 
 // Generate metadata dynamically for each blog post
 // Next.js 15: params is now async and must be awaited

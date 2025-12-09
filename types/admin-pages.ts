@@ -59,7 +59,7 @@ export interface TopSkillsTabProps {
  */
 export interface SettingsTabProps {
   saving: boolean;
-  handleSave: (file: string, data: any) => Promise<void>;
+  handleSave: (file: string, data: SystemSettings) => Promise<void>;
   systemSettings: SystemSettings;
   setSystemSettings: (settings: SystemSettings) => void;
 }

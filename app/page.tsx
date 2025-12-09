@@ -5,10 +5,20 @@ import ProfessionalTemplate from "./templates/professional";
 import ModernTemplate from "./templates/modern";
 
 /**
+ * Force dynamic rendering to ensure fresh data on every request.
+ *
+ * This is critical for the admin panel workflow:
+ * - Data is stored in JSON files that can be updated at runtime
+ * - Without dynamic rendering, Next.js would serve stale cached pages
+ * - revalidatePath() in API routes triggers cache invalidation
+ */
+export const dynamic = 'force-dynamic';
+
+/**
  * Main Page - Template Loader (Server Component)
  *
- * Statically generated at build time. Reads template selection from
- * system_settings.ts and pre-renders the appropriate template.
+ * Dynamically rendered to reflect latest data changes from admin panel.
+ * Reads template selection from system_settings and renders the appropriate template.
  */
 export default function Home() {
   // Load system settings

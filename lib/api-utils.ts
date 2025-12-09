@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { env } from './env';
 import { createTypedErrorResponse, createTypedSuccessResponse, API_ERROR_CODES } from './api-response';
 import { logger } from './logger';
-import { BlogPost, UserProfile, SystemSettings } from './schemas';
+import { BlogPost, UserProfile, SystemSettings, ExperienceEntry } from './schemas';
+
+/**
+ * Union type for data file content types
+ */
+type DataFileContent = ExperienceEntry[] | string[] | UserProfile | SystemSettings;
 
 /**
  * API Utility Functions
@@ -27,7 +32,7 @@ import { BlogPost, UserProfile, SystemSettings } from './schemas';
  *   // Your handler code here
  * });
  */
-export function withDevOnly<T = any>(
+export function withDevOnly<T = unknown>(
   handler: (request: NextRequest) => Promise<NextResponse<T>>
 ) {
   return async (request: NextRequest): Promise<NextResponse<T>> => {
@@ -60,7 +65,7 @@ export function withDevOnly<T = any>(
  *   return createTypedSuccessResponse({ message: 'Success' });
  * }, 'Blog Creation');
  */
-export function withErrorHandler<T = any>(
+export function withErrorHandler<T = unknown>(
   handler: (request: NextRequest) => Promise<NextResponse<T>>,
   context?: string
 ) {
@@ -90,7 +95,7 @@ export function withErrorHandler<T = any>(
  *   // Handler code
  * }, 'Admin API');
  */
-export function withDevOnlyAndErrorHandler<T = any>(
+export function withDevOnlyAndErrorHandler<T = unknown>(
   handler: (request: NextRequest) => Promise<NextResponse<T>>,
   context?: string
 ) {
@@ -148,7 +153,7 @@ export const blogPosts: BlogPost[] = ${JSON.stringify(blogPosts, null, 2)};
  *
  * @returns Formatted TypeScript file content
  */
-export function generateDataFileContent(fileName: string, data: any): string {
+export function generateDataFileContent(fileName: string, data: DataFileContent): string {
   switch (fileName) {
     case 'cv-data.ts':
       return `import { ExperienceEntry } from "@/types";

@@ -1,5 +1,10 @@
 import { SystemSettings, UserProfile, ExperienceEntry } from "@/lib/schemas";
 
+/**
+ * Union type for all admin data types that can be saved
+ */
+export type AdminDataTypes = SystemSettings | ExperienceEntry[] | string[] | UserProfile;
+
 export interface AdminData {
   experiences: ExperienceEntry[];
   topSkills: string[];
@@ -64,7 +69,7 @@ export async function loadAdminData(): Promise<AdminDataResponse> {
   return adminData;
 }
 
-export async function saveAdminData(file: string, data: any): Promise<void> {
+export async function saveAdminData(file: string, data: AdminDataTypes): Promise<void> {
   // Normalize file name: add .ts extension if not present
   const fileName = file.endsWith('.ts') ? file : `${file}.ts`;
 
