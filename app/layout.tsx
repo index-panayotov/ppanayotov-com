@@ -1,6 +1,5 @@
 import type React from "react"
 import "./globals.css"
-import "../styles/mobile-typography.css"
 import { Inter } from "next/font/google"
 import { userProfile } from "@/data/user-profile"
 import systemSettings from "@/data/system_settings"
@@ -73,11 +72,13 @@ export default function RootLayout({
     <html lang="en" className={`scroll-smooth md:scroll-pt-20 ${inter.variable}`}>
       <head>
         <StructuredData />
-        {/* Resource hints for better performance */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+        {/* DNS prefetch for analytics (fonts handled by next/font at build time) */}
+        {systemSettings.gtagEnabled && (
+          <>
+            <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+            <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+          </>
+        )}
       </head>
       {systemSettings.gtagEnabled && (<GoogleTagManager gtmId={`${systemSettings.gtagCode}`} />)}
       <body className={`${inter.className} font-sans antialiased`}>

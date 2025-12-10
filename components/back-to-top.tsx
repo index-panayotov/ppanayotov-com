@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react"
-// Optimized individual icon import for better tree-shaking
-import { FiArrowUp } from "react-icons/fi"
+import { ArrowUp } from "lucide-react"
 
 /**
  * A client-side React component that renders a floating "Back to top" button.
@@ -64,7 +63,7 @@ export function BackToTop() {
       aria-hidden={!mounted || !isVisible} // Use mounted state
       tabIndex={mounted && isVisible ? 0 : -1} // Use mounted state
     >
-      <FiArrowUp size={20} />
+      <ArrowUp size={20} />
     </button>
   )
 }

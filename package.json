@@ -1,6 +1,6 @@
 {
   "name": "ppanayotov-com-cv-builder",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -62,6 +62,12 @@
   "optionalDependencies": {
     "canvas": "^3.2.0"
   },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions"
+  ],
   "devDependencies": {
     "@eslint/js": "^9.37.0",
     "@next/bundle-analyzer": "^16.0.8",
