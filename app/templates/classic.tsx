@@ -208,12 +208,11 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
                 <SkillCategory
                   title="Leadership & Management"
                   skills={["Team Management", "Engineering Management", "Project Management", "Delivery Management", "Team Leadership", "Coaching & Mentoring", "Program Management"]}
-                  isExpanded={true}
+                  
                 />
                 <SkillCategory
                   title="Technical Skills"
                   skills={["Programming", "Web Architecture", "Microservices", "Databases", "Software as a Service (SaaS)", "Service-Oriented Architecture (SOA)", "Deployment Management"]}
-                  isExpanded={true}
                 />
                 <SkillCategory
                   title="Quality & Process"
