@@ -1,5 +1,5 @@
 "use client";
-import { FiMail, FiPhone, FiMapPin, FiExternalLink, FiLinkedin } from "react-icons/fi";
+import { Mail, Phone, MapPin, ExternalLink, Linkedin } from "lucide-react";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { TemplateProps } from "./types";
 
@@ -40,7 +40,7 @@ export default function ModernTemplate({ experiences, topSkills, profileData, sy
               <div className="flex flex-wrap gap-4 text-slate-400 text-sm mb-6">
                 {profileData.location && (
                   <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-lg rounded-lg border border-white/10">
-                    <FiMapPin className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+                    <MapPin className="w-4 h-4 text-cyan-400 flex-shrink-0" />
                     <img
                       src={`/api/text-image?fieldType=location&size=14&color=%2394a3b8&bg=transparent`}
                       alt="Location (protected from bots)"
@@ -52,7 +52,7 @@ export default function ModernTemplate({ experiences, topSkills, profileData, sy
                 )}
                 {profileData.email && (
                   <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-lg rounded-lg border border-white/10">
-                    <FiMail className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                    <Mail className="w-4 h-4 text-purple-400 flex-shrink-0" />
                     <img
                       src={`/api/text-image?fieldType=email&size=14&color=%2394a3b8&bg=transparent`}
                       alt="Email address (protected from bots)"
@@ -64,7 +64,7 @@ export default function ModernTemplate({ experiences, topSkills, profileData, sy
                 )}
                 {profileData.phone && (
                   <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-lg rounded-lg border border-white/10">
-                    <FiPhone className="w-4 h-4 text-pink-400 flex-shrink-0" />
+                    <Phone className="w-4 h-4 text-pink-400 flex-shrink-0" />
                     <img
                       src={`/api/text-image?fieldType=phone&size=14&color=%2394a3b8&bg=transparent`}
                       alt="Phone number (protected from bots)"
@@ -151,7 +151,7 @@ export default function ModernTemplate({ experiences, topSkills, profileData, sy
                     <h3 className="text-xl font-black text-cyan-400 group-hover:text-cyan-300 transition-colors">
                       {exp.title}
                     </h3>
-                    <FiExternalLink className="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition-colors" />
+                    <ExternalLink className="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition-colors" />
                   </div>
                   <p className="text-lg font-bold text-purple-400">{exp.company}</p>
                   <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 mt-2 text-sm text-slate-400">
@@ -266,7 +266,7 @@ export default function ModernTemplate({ experiences, topSkills, profileData, sy
                   <div className="p-6 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 hover:border-cyan-400/50 transition-all duration-300">
                     <div className="flex items-center gap-4">
                       <div className="p-3 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl">
-                        <FiMail className="w-6 h-6 text-cyan-400" />
+                        <Mail className="w-6 h-6 text-cyan-400" />
                       </div>
                       <div>
                         <h3 className="font-bold text-white text-sm mb-1">Email</h3>
@@ -285,7 +285,7 @@ export default function ModernTemplate({ experiences, topSkills, profileData, sy
                   <div className="p-6 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 hover:border-purple-400/50 transition-all duration-300">
                     <div className="flex items-center gap-4">
                       <div className="p-3 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl">
-                        <FiPhone className="w-6 h-6 text-purple-400" />
+                        <Phone className="w-6 h-6 text-purple-400" />
                       </div>
                       <div>
                         <h3 className="font-bold text-white text-sm mb-1">Phone</h3>
@@ -305,7 +305,7 @@ export default function ModernTemplate({ experiences, topSkills, profileData, sy
                     <div className="p-6 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 hover:border-pink-400/50 transition-all duration-300">
                       <div className="flex items-center gap-4">
                         <div className="p-3 bg-gradient-to-br from-pink-500/20 to-cyan-500/20 rounded-xl">
-                          <FiLinkedin className="w-6 h-6 text-pink-400" />
+                          <Linkedin className="w-6 h-6 text-pink-400" />
                         </div>
                         <div>
                           <h3 className="font-bold text-white text-sm mb-1">LinkedIn</h3>

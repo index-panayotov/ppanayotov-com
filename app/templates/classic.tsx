@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { MobileMenu } from "@/components/mobile-menu";
-import { FiMail, FiLinkedin, FiMenu, FiX, FiPhone } from "react-icons/fi";
+import { Mail, Linkedin, Menu, X, Phone } from "lucide-react";
 
 import { SectionHeading } from "@/components/section-heading";
 import { SkillTag } from "@/components/skill-tag";
@@ -72,17 +72,17 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
               </span>
             </div>
             <div className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
-              <Link href="#hero" className="cv-nav-link">Home</Link>
-              <Link href="#summary" className="cv-nav-link">Summary</Link>
-              <Link href="#experience" className="cv-nav-link">Experience</Link>
-              <Link href="#skills" className="cv-nav-link">Skills</Link>
-              <Link href="#education" className="cv-nav-link">Education</Link>
-              <Link href="#certifications" className="cv-nav-link">Certifications</Link>
+              <Link href="/#hero" className="cv-nav-link">Home</Link>
+              <Link href="/#summary" className="cv-nav-link">Summary</Link>
+              <Link href="/#experience" className="cv-nav-link">Experience</Link>
+              <Link href="/#skills" className="cv-nav-link">Skills</Link>
+              <Link href="/#education" className="cv-nav-link">Education</Link>
+              <Link href="/#certifications" className="cv-nav-link">Certifications</Link>
               {systemSettings.blogEnable && (
                 <Link href="/blog" className="cv-nav-link">Blog</Link>
               )}
           {systemSettings.showContacts && (
-                <Link href="#contact" className="cv-nav-link">Contact</Link>
+                <Link href="/#contact" className="cv-nav-link">Contact</Link>
               )}
             </div>
             <div className="flex items-center space-x-3">
@@ -91,7 +91,7 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
                 onClick={toggleMobileMenu}
                 aria-label="Toggle mobile menu"
               >
-                {mobileMenuOpen ? <FiX size={20} /> : <FiMenu size={20} />}
+                {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
             </div>
           </nav>
@@ -146,8 +146,8 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
                 )}
               {systemSettings.showContacts && (
                   <div className="flex justify-center lg:justify-start">
-                    <a href="#contact" className="cv-button-primary">
-                      <FiMail size={18} className="mr-2" />
+                    <a href="/#contact" className="cv-button-primary">
+                      <Mail size={18} className="mr-2" />
                       Get in Touch
                     </a>
                   </div>
@@ -299,7 +299,7 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
                       <div className="contact-card">
                         <div className="contact-layout">
                           <div className="contact-icon bg-blue-100">
-                            <FiMail className="w-6 h-6 text-blue-600" />
+                            <Mail className="w-6 h-6 text-blue-600" />
                           </div>
                           <div>
                             <h3 className="font-semibold text-slate-800 mb-1">Email</h3>
@@ -319,7 +319,7 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
                       <div className="contact-card">
                         <div className="contact-layout">
                           <div className="contact-icon bg-green-100">
-                            <FiPhone className="w-6 h-6 text-green-600" />
+                            <Phone className="w-6 h-6 text-green-600" />
                           </div>
                           <div>
                             <h3 className="font-semibold text-slate-800 mb-1">Phone</h3>
@@ -340,7 +340,7 @@ export default function ClassicTemplate({ experiences, topSkills, profileData, s
                         <div className="contact-card">
                           <div className="contact-layout">
                             <div className="contact-icon bg-indigo-100">
-                              <FiLinkedin className="w-6 h-6 text-indigo-600" />
+                              <Linkedin className="w-6 h-6 text-indigo-600" />
                             </div>
                             <div>
                               <h3 className="font-semibold text-slate-800 mb-1">LinkedIn</h3>

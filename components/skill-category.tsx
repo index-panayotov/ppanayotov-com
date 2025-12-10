@@ -2,7 +2,7 @@
 
 import { SkillTag } from "./skill-tag"
 import { useState, useMemo, useCallback, memo } from "react"
-import { FiChevronDown, FiChevronUp } from "react-icons/fi"
+import { ChevronDown, ChevronUp } from "lucide-react"
 import type { SkillCategoryProps } from "@/types"
 
 /**
@@ -59,7 +59,7 @@ export const SkillCategory = memo(function SkillCategory({ title, skills, isExpa
       >
         <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
         <div className="ml-2 text-slate-500">
-          {expanded ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
+          {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </div>
       </button>
 

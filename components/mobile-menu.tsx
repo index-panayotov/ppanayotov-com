@@ -2,8 +2,7 @@
 
 import Link from "next/link"
 import { useEffect } from "react"
-// Optimized individual icon imports for better tree-shaking
-import { FiPrinter, FiX } from "react-icons/fi"
+import { X } from "lucide-react"
 import { useHorizontalSwipe } from "@/hooks/use-touch-gestures"
 import systemSettings from "@/data/system_settings"
 import type { MobileMenuProps } from "@/types"
@@ -61,55 +60,55 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         </div>
         <div className="flex justify-end mb-8">
           <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100" aria-label="Close menu">
-            <FiX size={24} />
+            <X size={24} />
           </button>
         </div>
 
         <nav className="flex flex-col space-y-2 text-center">
           <Link
-            href="#hero"
+            href="/#hero"
             className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
             onClick={onClose}
           >
             Home
           </Link>
           <Link
-            href="#summary"
+            href="/#summary"
             className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
             onClick={onClose}
           >
             Summary
           </Link>
           <Link
-            href="#experience"
+            href="/#experience"
             className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
             onClick={onClose}
           >
             Experience
           </Link>
           <Link
-            href="#skills"
+            href="/#skills"
             className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
             onClick={onClose}
           >
             Skills
           </Link>
           <Link
-            href="#languages"
+            href="/#languages"
             className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
             onClick={onClose}
           >
             Languages
           </Link>
           <Link
-            href="#education"
+            href="/#education"
             className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
             onClick={onClose}
           >
             Education
           </Link>
           <Link
-            href="#certifications"
+            href="/#certifications"
             className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
             onClick={onClose}
           >
@@ -125,7 +124,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             </Link>
           )}
           <Link
-            href="#contact"
+            href="/#contact"
             className="text-lg font-medium py-4 px-4 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border-b border-slate-100 rounded-lg min-h-[56px] flex items-center justify-center"
             onClick={onClose}
           >

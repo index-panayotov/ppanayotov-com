@@ -7,6 +7,11 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
+  // Experimental CSS optimizations
+  experimental: {
+    optimizeCss: true, // Enables critters for critical CSS inlining
+  },
+
   // Image optimization
   images: {
     formats: ["image/webp", "image/avif"],

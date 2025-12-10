@@ -1,6 +1,6 @@
 "use client";
 
-import { FiMail, FiLinkedin, FiPhone } from "react-icons/fi";
+import { Mail, Linkedin, Phone } from "lucide-react";
 import { SectionHeading } from "@/components/section-heading";
 import { getSocialIcon } from "@/lib/social-platforms";
 import type { ContactSectionProps } from "@/types";
@@ -22,7 +22,7 @@ export function ContactSection({ profileData }: ContactSectionProps) {
                 <div className="contact-card">
                     <div className="contact-layout">
                         <div className="contact-icon bg-blue-100">
-                            <FiMail className="w-6 h-6 text-blue-600" />
+                            <Mail className="w-6 h-6 text-blue-600" />
                         </div>
                         <div>
                             <h3 className="font-semibold text-slate-800 mb-1">Email</h3>
@@ -42,7 +42,7 @@ export function ContactSection({ profileData }: ContactSectionProps) {
                 <div className="contact-card">
                     <div className="contact-layout">
                         <div className="contact-icon bg-green-100">
-                            <FiPhone className="w-6 h-6 text-green-600" />
+                            <Phone className="w-6 h-6 text-green-600" />
                         </div>
                         <div>
                             <h3 className="font-semibold text-slate-800 mb-1">Phone</h3>
@@ -63,7 +63,7 @@ export function ContactSection({ profileData }: ContactSectionProps) {
                     <div className="contact-card">
                         <div className="contact-layout">
                             <div className="contact-icon bg-indigo-100">
-                                <FiLinkedin className="w-6 h-6 text-indigo-600" />
+                                <Linkedin className="w-6 h-6 text-indigo-600" />
                             </div>
                             <div>
                                 <h3 className="font-semibold text-slate-800 mb-1">LinkedIn</h3>

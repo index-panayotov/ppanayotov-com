@@ -1,5 +1,5 @@
 "use client";
-import { FiMail, FiPhone, FiMapPin, FiLinkedin } from "react-icons/fi";
+import { Mail, Phone, MapPin, Linkedin } from "lucide-react";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { TemplateProps } from "./types";
 
@@ -29,7 +29,7 @@ export default function ProfessionalTemplate({ experiences, topSkills, profileDa
               <div className="flex flex-wrap gap-4 text-slate-300 text-sm">
                 {profileData.location && (
                   <div className="flex items-center gap-1">
-                    <FiMapPin className="w-4 h-4 flex-shrink-0" />
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
                     <img
                       src={`/api/text-image?fieldType=location&size=14&color=%23cbd5e1&bg=transparent`}
                       alt="Location (protected from bots)"
@@ -41,7 +41,7 @@ export default function ProfessionalTemplate({ experiences, topSkills, profileDa
                 )}
                 {profileData.email && (
                   <div className="flex items-center gap-1">
-                    <FiMail className="w-4 h-4 flex-shrink-0" />
+                    <Mail className="w-4 h-4 flex-shrink-0" />
                     <img
                       src={`/api/text-image?fieldType=email&size=14&color=%23cbd5e1&bg=transparent`}
                       alt="Email address (protected from bots)"
@@ -53,7 +53,7 @@ export default function ProfessionalTemplate({ experiences, topSkills, profileDa
                 )}
                 {profileData.phone && (
                   <div className="flex items-center gap-1">
-                    <FiPhone className="w-4 h-4 flex-shrink-0" />
+                    <Phone className="w-4 h-4 flex-shrink-0" />
                     <img
                       src={`/api/text-image?fieldType=phone&size=14&color=%23cbd5e1&bg=transparent`}
                       alt="Phone number (protected from bots)"
@@ -230,7 +230,7 @@ export default function ProfessionalTemplate({ experiences, topSkills, profileDa
                 <div className={gridClass}>
                   <div className="flex items-center gap-4 p-4 border border-slate-200 rounded">
                     <div className="p-3 bg-blue-100 rounded">
-                      <FiMail className="w-5 h-5 text-blue-600" />
+                      <Mail className="w-5 h-5 text-blue-600" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-slate-800 text-sm">Email</h3>
@@ -247,7 +247,7 @@ export default function ProfessionalTemplate({ experiences, topSkills, profileDa
 
                   <div className="flex items-center gap-4 p-4 border border-slate-200 rounded">
                     <div className="p-3 bg-green-100 rounded">
-                      <FiPhone className="w-5 h-5 text-green-600" />
+                      <Phone className="w-5 h-5 text-green-600" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-slate-800 text-sm">Phone</h3>
@@ -265,7 +265,7 @@ export default function ProfessionalTemplate({ experiences, topSkills, profileDa
                   {hasLinkedIn && (
                     <div className="flex items-center gap-4 p-4 border border-slate-200 rounded">
                       <div className="p-3 bg-indigo-100 rounded">
-                        <FiLinkedin className="w-5 h-5 text-indigo-600" />
+                        <Linkedin className="w-5 h-5 text-indigo-600" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-slate-800 text-sm">LinkedIn</h3>

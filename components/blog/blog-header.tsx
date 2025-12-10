@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useCallback } from "react";
-import { FiMail, FiLinkedin, FiMenu, FiX, FiPhone, FiMapPin } from "react-icons/fi";
+import { Mail, Linkedin, Menu, X, Phone, MapPin } from "lucide-react";
 import { MobileMenu } from "@/components/mobile-menu";
 import { getSocialIcon } from "@/lib/social-platforms";
 import type { BlogHeaderProps } from "@/types";
@@ -57,7 +57,7 @@ export function BlogHeader({
                   onClick={toggleMobileMenu}
                   aria-label="Toggle mobile menu"
                 >
-                  {mobileMenuOpen ? <FiX size={20} /> : <FiMenu size={20} />}
+                  {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
                 </button>
               </div>
             </nav>
@@ -78,19 +78,19 @@ export function BlogHeader({
                 <div className="flex flex-wrap gap-4 text-slate-300 text-sm">
                   {profileData.location && (
                     <div className="flex items-center gap-2">
-                      <FiMapPin className="w-4 h-4" />
+                      <MapPin className="w-4 h-4" />
                       <span>{profileData.location}</span>
                     </div>
                   )}
                   {profileData.email && (
                     <div className="flex items-center gap-2">
-                      <FiMail className="w-4 h-4" />
+                      <Mail className="w-4 h-4" />
                       <span>{profileData.email}</span>
                     </div>
                   )}
                   {profileData.phone && (
                     <div className="flex items-center gap-2">
-                      <FiPhone className="w-4 h-4" />
+                      <Phone className="w-4 h-4" />
                       <span>{profileData.phone}</span>
                     </div>
                   )}
@@ -142,19 +142,19 @@ export function BlogHeader({
                 <div className="flex flex-wrap gap-4 text-slate-400 text-sm mb-6">
                   {profileData.location && (
                     <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-lg rounded-lg border border-white/10">
-                      <FiMapPin className="w-4 h-4 text-cyan-400" />
+                      <MapPin className="w-4 h-4 text-cyan-400" />
                       <span>{profileData.location}</span>
                     </div>
                   )}
                   {profileData.email && (
                     <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-lg rounded-lg border border-white/10">
-                      <FiMail className="w-4 h-4 text-purple-400" />
+                      <Mail className="w-4 h-4 text-purple-400" />
                       <span>{profileData.email}</span>
                     </div>
                   )}
                   {profileData.phone && (
                     <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-lg rounded-lg border border-white/10">
-                      <FiPhone className="w-4 h-4 text-pink-400" />
+                      <Phone className="w-4 h-4 text-pink-400" />
                       <span>{profileData.phone}</span>
                     </div>
                   )}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo, useCallback, memo } from "react"
-import { FiPlus, FiMinus } from "react-icons/fi"
+import { Plus, Minus } from "lucide-react"
 import { SkillTag } from "./skill-tag"
 import DOMPurify from 'isomorphic-dompurify';
 import type { ExperienceEntryProps } from "@/types"
@@ -108,7 +108,7 @@ export const ExperienceEntry = memo(function ExperienceEntry({ title, company, d
                   className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
                   aria-label={showAllTags ? "Show fewer skills" : "Show more skills"}
                 >
-                  {showAllTags ? <FiMinus size={14} /> : <FiPlus size={14} />}
+                  {showAllTags ? <Minus size={14} /> : <Plus size={14} />}
                 </button>
               )}
             </div>
