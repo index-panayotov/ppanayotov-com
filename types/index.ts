@@ -62,7 +62,6 @@ export interface ContactSectionProps {
 export interface SkillCategoryProps {
   title: string;
   skills: string[];
-  isExpanded?: boolean;
   variant?: 'grid' | 'list';
 }
 

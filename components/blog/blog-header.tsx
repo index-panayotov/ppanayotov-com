@@ -84,14 +84,26 @@ export function BlogHeader({
                   )}
                   {profileData.email && (
                     <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4" />
-                      <span>{profileData.email}</span>
+                      <Mail className="w-4 h-4 flex-shrink-0" />
+                      <img
+                        src={`/api/text-image?fieldType=email&size=14&color=%23cbd5e1&bg=transparent`}
+                        alt="Email address (protected from bots)"
+                        className="inline-block h-[14px] object-contain"
+                        draggable={false}
+                        loading="lazy"
+                      />
                     </div>
                   )}
                   {profileData.phone && (
                     <div className="flex items-center gap-2">
-                      <Phone className="w-4 h-4" />
-                      <span>{profileData.phone}</span>
+                      <Phone className="w-4 h-4 flex-shrink-0" />
+                      <img
+                        src={`/api/text-image?fieldType=phone&size=14&color=%23cbd5e1&bg=transparent`}
+                        alt="Phone number (protected from bots)"
+                        className="inline-block h-[14px] object-contain"
+                        draggable={false}
+                        loading="lazy"
+                      />
                     </div>
                   )}
                 </div>
@@ -148,14 +160,26 @@ export function BlogHeader({
                   )}
                   {profileData.email && (
                     <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-lg rounded-lg border border-white/10">
-                      <Mail className="w-4 h-4 text-purple-400" />
-                      <span>{profileData.email}</span>
+                      <Mail className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      <img
+                        src={`/api/text-image?fieldType=email&size=14&color=%2394a3b8&bg=transparent`}
+                        alt="Email address (protected from bots)"
+                        className="inline-block h-[14px] object-contain"
+                        draggable={false}
+                        loading="lazy"
+                      />
                     </div>
                   )}
                   {profileData.phone && (
                     <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-lg rounded-lg border border-white/10">
-                      <Phone className="w-4 h-4 text-pink-400" />
-                      <span>{profileData.phone}</span>
+                      <Phone className="w-4 h-4 text-pink-400 flex-shrink-0" />
+                      <img
+                        src={`/api/text-image?fieldType=phone&size=14&color=%2394a3b8&bg=transparent`}
+                        alt="Phone number (protected from bots)"
+                        className="inline-block h-[14px] object-contain"
+                        draggable={false}
+                        loading="lazy"
+                      />
                     </div>
                   )}
                 </div>

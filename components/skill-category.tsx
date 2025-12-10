@@ -44,7 +44,7 @@ export const SkillCategory = memo(function SkillCategory({ title, skills,  varia
       {/* Interactive version */}
       <div
         id={`skill-category-${title.replace(/\s+/g, '-').toLowerCase()}-content`}
-        className={`mt-4 print:hidden transition-all duration-300 overflow-hiddenmax-h-screen opacity-100`}
+        className={`mt-4 print:hidden transition-all duration-300 overflow-hidden max-h-screen opacity-100`}
       >
         {skillsContent}
       </div>
