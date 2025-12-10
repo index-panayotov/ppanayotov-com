@@ -6,39 +6,71 @@
 
 ## ✨ Features
 
-- **Multi-Template CV System** ✨ NEW
-  Choose from 3 professionally designed templates to match your industry:
-  - **Classic**: Animated design with typing effects, perfect for tech and creative roles
-  - **Professional**: ATS-optimized, clean layout for traditional industries
-  - **Modern**: Bold, trendy design with glassmorphism for creative portfolios
-  Switch templates instantly via configuration - no code changes needed.
+### 🎨 Multi-Template CV System
+Choose from 3 professionally designed templates to match your industry:
+- **Classic**: Animated design with typing effects, perfect for tech and creative roles
+- **Professional**: ATS-optimized, clean layout for traditional industries
+- **Modern**: Bold, trendy design with glassmorphism for creative portfolios
 
-- **Database-less architecture**
-  No database is required. All content is managed through editable files, making it lightweight and easy to deploy.
+Switch templates instantly via admin settings - no code changes needed.
 
-- **Modular Admin Panel**
-  Password-protected admin interface with separate pages for profile, experiences, skills, settings, and blog management.
+### 🗄️ Database-less Architecture
+No database required. All content managed through TypeScript/JSON files:
+- CV data, skills, and profile stored in `/data/` directory
+- Version control tracks all content changes
+- Easy backup and migration
 
-- **Instant Deployment**
-  Compatible with serverless platforms like [Vercel](https://vercel.com), allowing fast, free deployment with minimal setup.
+### 🔐 Secure Admin Panel
+Password-protected admin interface with modular pages:
+- Profile data management
+- Work experiences CRUD
+- Skills management with AI extraction
+- Blog post editor
+- System settings and template selection
 
-- **AI-Assisted Content Enhancement**
-  Includes AI-powered tools to help polish and improve CV content, job descriptions, and professional summaries.
+### 🤖 AI-Assisted Content
+Powered by OpenRouter API integration:
+- Polish and improve CV descriptions
+- Generate professional summaries
+- Extract skills from job descriptions
+- Context-aware content suggestions
 
-- **Image Upload with Optimization**
-  Upload and automatically optimize profile images for web display with magic number validation for security.
+### 📝 Full-Featured Blog System
+Complete blogging platform with:
+- Toast UI WYSIWYG editor
+- Markdown storage for portability
+- Pagination (10 posts/page)
+- RSS feed support
+- SEO optimization (Open Graph, JSON-LD)
 
-- **Modern Component Library**
-  Built using a comprehensive collection of accessible UI components based on Radix UI.
+### 🛡️ Bot-Protected Contact Info
+Contact information rendered as images to prevent scraping:
+- Email, phone, and location protected
+- Sharp + SVG text-to-image generation
+- DejaVu Sans fonts for serverless compatibility
+- Non-clickable display prevents bot harvesting
 
-- **Full-Featured Blog System**
-  WYSIWYG editor with EditorJS, markdown storage, pagination (10 posts/page), and RSS feed support.
+### 🖼️ Image Upload & Optimization
+Secure image handling with:
+- Drag-and-drop upload interface
+- Automatic WebP conversion (400x400, 85% quality)
+- Magic number validation prevents file spoofing
+- Blog-specific uploads organized by post
 
-- **Production-Ready Infrastructure**
-  - **Structured Logging**: Multi-level logging with metadata for debugging production issues
-  - **Type-Safe Environment**: Validated configuration with Zod for fail-fast startup
-  - **Security**: Magic number validation for image uploads prevents file spoofing
-  - **PWA Support**: Configurable Progressive Web App with offline capabilities
+### ⚡ Performance Optimized
+Lighthouse-ready optimizations:
+- **Lightweight Icons**: lucide-react for optimal tree-shaking
+- **Critical CSS Inlining**: Above-the-fold CSS inlined via critters
+- **ISR Caching**: Incremental Static Regeneration (40-50% faster TTFB)
+- **Modern Browser Targeting**: Skips polyfills for modern browsers
+- **Optimized Fonts**: next/font with local hosting
+
+### 🏗️ Production-Ready Infrastructure
+Enterprise-grade features:
+- **Structured Logging**: Multi-level logging with metadata
+- **Type-Safe Config**: Zod validation for fail-fast startup
+- **Security Headers**: XSS protection, CSP, HSTS
+- **PWA Support**: Configurable Progressive Web App
 
 > ⚠️ **Security Note:**  
 > It is strongly recommended not to upload the `admin/` folder to your production server unless properly secured. You can run the admin interface locally or restrict access during deployment.
@@ -121,27 +153,32 @@ npm run start   # Optional: run in production mode locally
 ## 📁 Folder Structure
 
 ```
-/app            → Main application (routing, layouts, API, admin)
-  /api          → Backend API routes
-  /admin        → Admin panel pages (dashboard, profile-data, experiences, settings, blog)
-  /blog         → Blog pages (listing, individual posts)
-  /templates    → CV template components (classic, professional, modern)
-/components     → Reusable UI and admin components
-  /admin        → Admin-specific components including AI-enhanced inputs
-  /blog         → Blog-specific components (markdown renderer)
-  /ui           → Reusable UI components based on Radix UI
-/data           → Static data files (CV, skills, user profile)
-  /blog         → Blog content files (markdown format)
-/hooks          → Custom React hooks
-/lib            → Utility functions and helpers
-/public         → Static assets (images, icons, etc.)
-  /fonts        → Font files for image generation or custom web fonts
-  /uploads      → User-uploaded images with optimized versions
-    /blog       → Blog-specific uploads organized by post slug
-/services       → API service integrations (e.g., OpenRouter)
-/styles         → Global and component styles
-/types          → TypeScript type definitions
-.env            → Environment variables (e.g., admin password)
+/app              → Main application (Next.js App Router)
+  /api            → Backend API routes
+    /admin        → Admin CRUD operations (login, blog, autoskills)
+    /ai           → OpenRouter AI integration
+    /upload       → Image upload endpoints
+    /text-image   → Bot-protected contact image generation
+  /admin          → Admin panel pages (dashboard, profile-data, experiences, settings, blog)
+  /blog           → Blog pages (listing, individual posts)
+  /templates      → CV template components (classic, professional, modern)
+/components       → Reusable UI and admin components
+  /admin          → Admin-specific components (AI-enhanced inputs, editors)
+  /blog           → Blog-specific components (markdown renderer, header)
+  /ui             → Reusable UI components based on Radix UI
+  /performance    → Performance-optimized components (virtualized lists)
+/data             → Static data files (the "database")
+  /blog           → Blog content files (markdown format)
+/hooks            → Custom React hooks (touch gestures, admin data)
+/lib              → Utility functions and helpers
+  /security       → Security utilities (slug validation)
+/public           → Static assets
+  /fonts          → DejaVu Sans fonts for text-image API
+  /uploads        → User-uploaded images with optimized versions
+    /blog         → Blog-specific uploads organized by post slug
+/services         → API service integrations (OpenRouter)
+/types            → TypeScript type definitions and Zod schemas
+.env              → Environment variables (admin password, API keys)
 ```
 
 ---
@@ -195,12 +232,17 @@ npm run start   # Optional: run in production mode locally
 
 ### Post-Deployment Checklist
 
-- [ ] Environment variables set in Vercel
-- [ ] Production build tested locally
-- [ ] Live site loads correctly
-- [ ] PWA installation works (test on mobile - requires icons configured in system_settings.ts)
+- [ ] Environment variables set in Vercel (`ADMIN_PASSWORD`, `OPENROUTER_KEY`, `OPENROUTER_MODEL`)
+- [ ] Production build tested locally (`npm run build && npm run start`)
+- [ ] Live site loads correctly on desktop and mobile
+- [ ] Contact information renders correctly (text-image API working)
+- [ ] Blog pages load if `blogEnable: true`
+- [ ] Navigation links work from all pages (/#section format)
+- [ ] PWA installation works (test on mobile - requires icons in system_settings.ts)
 - [ ] Admin panel blocked (or secured if enabled)
 - [ ] Lighthouse score > 90 (Performance, Accessibility, SEO)
+- [ ] No render-blocking resources (critical CSS inlined)
+- [ ] Cache headers working (`/_next/static/*` immutable, API routes cached)
 
 ### Deployment Troubleshooting
 
