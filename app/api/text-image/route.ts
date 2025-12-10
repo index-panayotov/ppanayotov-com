@@ -28,6 +28,14 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  // Validate fontSize bounds (security: prevent resource exhaustion)
+  if (fontSize < 8 || fontSize > 72) {
+    return new NextResponse(
+      "Font size must be between 8 and 72",
+      { status: 400 }
+    );
+  }
+
   // Get the specific field value from user profile
   let text: string | undefined;
   switch (fieldType) {
@@ -91,6 +99,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error) {
+    // Use logger in production, but keep simple for this utility route
     console.error("Sharp text-to-image error:", error);
     return new NextResponse(
       "Text-to-image generation failed",
