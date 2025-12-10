@@ -220,8 +220,9 @@ OPENROUTER_MODEL=openai/gpt-4.1-nano
 
 ### Contact Protection System
 **Bot-Protected Contact Information:**
-- **Text-to-Image API**: `/api/text-image/route.ts` generates contact images using Canvas API
-- **Non-Clickable Display**: Email/phone visible as images but not actionable
+- **Text-to-Image API**: `/api/text-image/route.ts` generates contact images using Sharp + SVG rendering
+- **Production-Ready Fonts**: Uses DejaVu Sans font stack for reliable rendering on serverless platforms (Vercel)
+- **Non-Clickable Display**: Email/phone/location visible as images but not actionable
 - **Security Implementation**:
   ```jsx
   <img

@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
     y="${textY}"
     font-size="${fontSize}"
     fill="${color}"
-    font-family="sans-serif"
+    font-family="DejaVu Sans, Liberation Sans, FreeSans, Arial, sans-serif"
   >${escapeXml(text)}</text>
 </svg>`;
 

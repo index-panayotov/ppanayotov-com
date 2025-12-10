@@ -376,3 +376,37 @@ const systemSettings = {
 ```
 
 Changes take effect immediately - no build required!
+
+## 🛡️ Bot Protection for Contact Information
+
+The CV templates protect sensitive contact information (email, phone, location) from bot scraping by rendering them as images:
+
+### How It Works
+- **Text-to-Image API**: Contact information is dynamically rendered as PNG images via `/api/text-image`
+- **Sharp + SVG**: Uses Sharp library with SVG text rendering (no native canvas dependencies)
+- **Production-Ready Fonts**: Uses DejaVu Sans font stack for reliable rendering on serverless platforms like Vercel
+- **Non-Clickable**: Email and phone are visible but cannot be clicked, copied as text, or scraped by bots
+
+### Supported Fields
+- `email` - Email address
+- `phone` - Phone number
+- `location` - Geographic location
+
+### Usage in Templates
+```jsx
+<img
+  src={`/api/text-image?fieldType=email&size=16&color=%23059669&bg=transparent`}
+  alt="Email address (protected from bots)"
+  draggable={false}
+/>
+```
+
+### API Parameters
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `fieldType` | Field to render: `email`, `phone`, or `location` | Required |
+| `size` | Font size in pixels | `26` |
+| `color` | Text color (URL-encoded hex) | `#222` |
+| `bg` | Background color or `transparent` | `transparent` |
+
+This feature is enabled by default on all three CV templates when `showContacts` is enabled in system settings.
