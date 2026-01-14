@@ -26,12 +26,12 @@ export interface Profile {
 
 export const profile: Profile = {
   name: "Preslav Panayotov",
-  title: "Software Delivery Manager",
+  title: "Software Engineering Manager | Hands-on Technical Leadership",
   email: "preslav.panayotov@gmail.com",
   phone: "+359 883 41 44 99",
   location: "Sofia, Bulgaria",
   summary:
-    "Software Delivery Manager with over 10 years of experience in the IT industry, including 5 years in leading delivery and engineering teams. Proven expertise in software development, project execution, and process optimization, ensuring on-time delivery, high-quality outcomes, and continuous team performance improvement.",
+    "With over seven years of experience in software development and delivery management, I specialize in deployment management, team collaboration, and hands-on technical leadership. I am committed to ensuring project success and client satisfaction by fostering a collaborative environment and leveraging my strong technical expertise and interpersonal skills. My approach aligns with delivering high-quality software solutions and empowering teams to achieve their best.",
   linkedin: "https://www.linkedin.com/in/preslav-panayotov",
   languages: [
     { name: "Bulgarian", proficiency: "Native" },
@@ -46,8 +46,8 @@ export const profile: Profile = {
     },
   ],
   certifications: [
-    "Business English",
-    "Security Awareness Essentials",
+    "Security Awareness Essentials - Inspired eLearning",
+    "Business English - MentorMate Bulgaria",
     "Shaping up with Angular.js",
   ],
 };

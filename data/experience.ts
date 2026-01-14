@@ -2,9 +2,10 @@ export interface Experience {
   title: string;
   company: string;
   dateRange: string;
+  duration?: string;
   location?: string;
+  type?: string;
   description: string;
-  highlights: string[];
   tags: string[];
 }
 
@@ -12,157 +13,112 @@ export const experiences: Experience[] = [
   {
     title: "Software Engineering Manager",
     company: "DSK Bank",
-    dateRange: "October 2025 - Present",
+    dateRange: "Oct 2025 - Present",
+    duration: "4 mos",
     location: "Sofia, Bulgaria",
+    type: "Full-time · On-site",
     description:
-      "Leading fully remote, cross-functional engineering teams, delivering technical leadership and strategic guidance for enterprise systems.",
-    highlights: [
-      "Led and mentored cross-functional engineering teams of 7-9 members",
-      "Delivered daily technical leadership and strategic guidance",
-      "Active participation in architecture reviews and pull request reviews",
-      "Partnered with Product Owners to define requirements and shape roadmaps",
-      "Oversaw end-to-end development lifecycle for enterprise systems",
-      "Drove team expansion through technical interviews and mentorship programs",
-    ],
+      "Led high-performing software engineering team at DSK Bank, ensuring alignment with business objectives and regulatory standards. Managed project execution, resource allocation, and planning for future initiatives to drive timely delivery. Oversaw technical aspects of software design, including mobile application preparation and production deployment.",
     tags: [
+      "Software Management",
       "Engineering Management",
-      "Scrum",
-      "Agile",
-      "SAFe",
-      "Microservices",
-      "Coaching",
-      "Code Review",
+      "Leading Development Teams",
+      "Mobile Development",
     ],
   },
   {
     title: "Delivery Manager",
     company: "MentorMate",
-    dateRange: "November 2020 - October 2025",
+    dateRange: "Nov 2020 - Oct 2025",
+    duration: "5 yrs",
     location: "Sofia, Bulgaria",
+    type: "Full-time · Hybrid",
     description:
-      "Led successful execution of large-scale software projects, combining technical expertise with strong client relationships and team dynamics.",
-    highlights: [
-      "Led large-scale software project delivery",
-      "Trusted by clients for cross-functional team leadership",
-      "Mentored team members and fostered collaboration",
-      "Drove project success through strategic thinking",
-      "Delivered high-quality solutions meeting business needs",
-    ],
+      "Apart from technical expertise, has very strong interpersonal skills and willing to see every project succeed. Usually involved in projects with bigger scope. Trusted by clients to organize, enable and lead project teams and to ensure the successful delivery of working software. Can step into roles involved in people management and development. Primary focus is on project outcome and client satisfaction with excellent interpersonal skills and strong technical knowledge.",
     tags: [
-      "Delivery Management",
       "Solution Architecture",
-      "Scrum",
-      "Microservices",
-      "Project Management",
-      "Client Relations",
+      "Software Quality",
+      "Project Delivery",
+      "Team Leadership",
+      "Client Management",
     ],
   },
   {
     title: "Senior Software Developer",
     company: "MentorMate",
-    dateRange: "February 2018 - November 2020",
+    dateRange: "Feb 2018 - Nov 2020",
+    duration: "2 yrs 10 mos",
     location: "Sofia, Bulgaria",
     description:
-      "Key technical expert for architectural decisions and hands-on development across diverse projects and technologies.",
-    highlights: [
-      "Defined application architectures and coding standards",
-      "Established code review practices",
-      "Guided teams and clients toward optimal technical solutions",
-      "Bridged gap between business goals and engineering execution",
-    ],
+      "Subject matter expert in software development with significant knowledge and hands-on experience in application architecture. Ready to work on many fronts by exhibiting technical competence to support different projects. Important role in the software development life cycle - setting application architecture, code reviewing process to ensure quality. Focus on guiding clients and teams to the right software solution with high degree of technical experience, expertise, and solid soft skills.",
     tags: [
-      "React.js",
-      "JavaScript",
-      "PHP",
-      "AWS",
       "Solution Architecture",
+      "Software Quality",
       "Code Review",
-      "NextJS",
+      "Application Architecture",
+      "Technical Leadership",
     ],
   },
   {
     title: "Software Developer",
     company: "MentorMate",
-    dateRange: "June 2016 - February 2018",
+    dateRange: "Jun 2016 - Feb 2018",
+    duration: "1 yr 9 mos",
     location: "Sofia, Bulgaria",
     description:
-      "Full ownership of features from concept to deployment, following best practices in coding, testing, and documentation.",
-    highlights: [
-      "Took full ownership of features from concept to deployment",
-      "Followed industry best practices in coding and testing",
-      "Collaborated with cross-functional teams",
-      "Introduced process enhancements and automation",
+      "Worked on moderately complex tasks in technical area. Worked quite independently and able to apply knowledge and skills to evaluate different options to resolve problems. Rather than writing code, started to build software. Primary focus on executing project tasks by understanding the entire development process, following best practices and improving quality of work.",
+    tags: [
+      "Solution Architecture",
+      "CSS",
+      "Software Development",
+      "Best Practices",
     ],
-    tags: ["PHP", "MySQL", "PostgreSQL", "React", "Angular", "Agile"],
   },
   {
     title: "Web Developer",
     company: "IT-Cover",
-    dateRange: "December 2015 - June 2016",
+    dateRange: "Dec 2015 - Jun 2016",
+    duration: "7 mos",
     location: "Sofia, Bulgaria",
     description:
-      "Contributed to CRM systems, internal back-office tools, and customer-facing B2C websites in a fast-paced environment.",
-    highlights: [
-      "Full stack development across multiple projects",
-      "Built CRM systems and internal tools",
-      "Delivered features under tight deadlines",
+      "IT-Cover is a web development company based in Sofia, Bulgaria. Built strong CRM systems, BackOffice tools, and B2C websites.",
+    tags: [
+      "Software Quality",
+      "Team Collaboration",
+      "CRM Development",
+      "Web Development",
     ],
-    tags: ["PHP", "MySQL", "PostgreSQL", "Zend Framework", "jQuery"],
   },
   {
     title: "Web Developer",
     company: "Career Town",
-    dateRange: "June 2015 - December 2015",
+    dateRange: "Jun 2015 - Dec 2015",
+    duration: "7 mos",
     location: "Sofia, Bulgaria",
     description:
-      "Core development team member for an innovative HR job portal startup, building scalable and user-friendly features.",
-    highlights: [
-      "Built scalable HR job portal features",
-      "Full-stack development in agile environment",
-      "Collaborated with product owners and designers",
+      "CareerTown is a start-up project, a job portal with extensive HR functionalities. Contributed to building a feature-rich recruitment platform.",
+    tags: [
+      "Software Quality",
+      "Team Collaboration",
+      "HR Tech",
+      "Startup",
     ],
-    tags: ["PHP", "Laravel", "MySQL", "Angular", "JavaScript"],
   },
   {
     title: "Web Developer",
     company: "BSBM",
-    dateRange: "July 2014 - June 2015",
+    dateRange: "Jul 2014 - Jun 2015",
+    duration: "1 yr",
     location: "Sofia, Bulgaria",
     description:
-      "Backend and frontend development using PHP, MySQL, PostgreSQL for Signature Digital Agency clients.",
-    highlights: [
-      "Developed web applications for agency clients",
-      "Backend and frontend development",
-      "Project evolved into CareerTown",
+      "Supporting clients for Signature digital agency. Developing new web-based applications and maintaining existing applications. Used technologies: PHP, MySQL, PostgreSQL, nginx, Apache, extJS. BSBM later became CareerTown.",
+    tags: [
+      "PHP",
+      "MySQL",
+      "PostgreSQL",
+      "nginx",
+      "Apache",
+      "extJS",
     ],
-    tags: ["PHP", "MySQL", "PostgreSQL", "nginx", "Apache", "extJS"],
-  },
-  {
-    title: "Web Developer",
-    company: "Interactive Share Ltd",
-    dateRange: "July 2013 - February 2014",
-    location: "Sofia, Bulgaria",
-    description:
-      "Web development projects and digital marketing campaign support, delivering high-quality maintainable code.",
-    highlights: [
-      "Delivered high-quality web solutions",
-      "Supported digital marketing campaigns",
-      "Worked with cross-functional teams",
-    ],
-    tags: ["PHP", "MySQL", "Marketing", "Web Development"],
-  },
-  {
-    title: "Freelancer",
-    company: "Self-Employed",
-    dateRange: "2006 - 2015",
-    location: "Sofia, Bulgaria",
-    description:
-      "Hands-on experience in full-stack development, working with different clients and delivering value through clean, maintainable code.",
-    highlights: [
-      "Full-stack development experience",
-      "Diverse client projects",
-      "Problem-solving and delivering value",
-    ],
-    tags: ["Full Stack", "PHP", "MySQL", "Problem Solving", "Client Relations"],
   },
 ];

@@ -15,7 +15,7 @@ export function Experience() {
               Professional Experience
             </h2>
             <p className="text-base text-slate-600">
-              Over 10 years in software development and engineering leadership
+              Over 7 years in software development and delivery management
             </p>
           </div>
 
@@ -46,6 +46,7 @@ export function Experience() {
                   <div className="flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
                     <span>{exp.dateRange}</span>
+                    {exp.duration && <span className="text-slate-400">· {exp.duration}</span>}
                   </div>
                   {exp.location && (
                     <div className="flex items-center gap-1">
