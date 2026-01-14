@@ -56,7 +56,7 @@ export function Experience() {
                 </div>
 
                 {/* Description */}
-                <p className="text-sm text-slate-600 mb-2 ml-9 line-clamp-2">
+                <p className="text-sm text-slate-600 mb-3 ml-9">
                   {exp.description}
                 </p>
 
