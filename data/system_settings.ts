@@ -7,7 +7,7 @@ const systemSettings = {
   "showContacts": false,
   "gtagCode": "G-NR6KNX7RM6",
   "gtagEnabled": true,
-  "selectedTemplate": "classic",
+  "selectedTemplate": "dark",
   "siteUrl": "https://ppanayotov.com",
   "pwa": {
     "siteName": "CV Website",

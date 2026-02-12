@@ -3,6 +3,7 @@ import { isValidTemplateId } from "./templates/template-registry";
 import ClassicTemplate from "./templates/classic";
 import ProfessionalTemplate from "./templates/professional";
 import ModernTemplate from "./templates/modern";
+import DarkTemplate from "./templates/dark";
 
 /**
  * ISR (Incremental Static Regeneration) - revalidate every hour.
@@ -45,6 +46,8 @@ export default function Home() {
 
   // Render the selected template directly (no lazy loading)
   switch (validTemplateId) {
+    case "dark":
+      return <DarkTemplate {...templateProps} />;
     case "professional":
       return <ProfessionalTemplate {...templateProps} />;
     case "modern":

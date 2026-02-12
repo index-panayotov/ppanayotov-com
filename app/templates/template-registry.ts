@@ -44,6 +44,21 @@ export const TEMPLATE_METADATA: Record<TemplateId, TemplateMetadata> = {
       'Interactive hover states'
     ],
     bestFor: ['Design roles', 'Startups', 'Creative industries', 'Portfolio showcase']
+  },
+
+  dark: {
+    id: 'dark',
+    name: 'Dark Premium',
+    description: 'Elegant dark theme with sticky sidebar, teal accents, and mouse-following spotlight',
+    preview: '/template-previews/dark.png',
+    features: [
+      'Dark navy background with teal accents',
+      'Sticky sidebar navigation',
+      'Mouse-following spotlight effect',
+      'Section scroll tracking',
+      'Metric highlight cards'
+    ],
+    bestFor: ['Engineering leadership', 'Tech industry', 'Senior roles', 'Executive presence']
   }
 } as const;
 

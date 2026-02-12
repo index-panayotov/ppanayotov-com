@@ -1,12 +1,12 @@
 {
   "version": "1.0",
   "name": "Preslav Panayotov",
-  "title": "Software Engineering Manager @ DSK Bank | Hands-on Technical Leadership",
+  "title": "Software Engineering Manager",
   "phone": "+359 883 41 44 99",
-  "location": "Sofia, Sofia City, Bulgaria",
+  "location": "Sofia, Bulgaria",
   "profileImageWebUrl": "/uploads/profile-1765315525337-web.webp",
   "profileImagePdfUrl": "/uploads/profile-1765315525337-pdf.webp",
-  "summary": "Software Engineering Manager with **over 10 years of experience** in the IT industry, including 5 years in leading delivery and engineering teams. Proven expertise in software development, project execution, and process optimization, ensuring on-time delivery, high-quality outcomes, and continuous team performance improvement.",
+  "summary": "Software Engineering Manager with **12+ years** of progressive experience from backend development to leading cross-functional teams of up to **96 engineers** across diverse technology stacks. Track record of scaling teams, rescuing failing projects, reducing client escalations to near-zero, and cutting cloud costs by 30%. Leverages a strong engineering foundation to bridge the gap between business vision and technical execution.",
   "email": "preslav.panayotov@gmail.com",
   "socialLinks": [
     {
@@ -57,9 +57,15 @@
   ],
   "education": [
     {
+      "institution": "New Bulgarian University",
+      "degree": "Bachelor's degree",
+      "field": "Business Management and Entrepreneurship",
+      "dateRange": "2015 - 2018"
+    },
+    {
       "institution": "Sofia University St. Kliment Ohridski",
       "degree": "Bachelor's degree",
-      "field": "Mathematics and Computer Science",
+      "field": "Mathematics and Informatics",
       "dateRange": "2010 - 2013"
     }
   ],

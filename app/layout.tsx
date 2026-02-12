@@ -21,7 +21,7 @@ const inter = Inter({
 
 export const metadata = {
   title: `${userProfile.name} - ${userProfile.title}`,
-  description: `Professional CV of ${userProfile.name}, an experienced ${userProfile.title} based in ${userProfile.location}. Specializing in software engineering, team management, and delivery excellence.`,
+  description: `Professional CV of ${userProfile.name}, an experienced ${userProfile.title} based in ${userProfile.location}. 12+ years of progressive experience in software engineering leadership, team scaling, and delivery excellence.`,
   keywords: [
     userProfile.name,
     userProfile.title,

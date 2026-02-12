@@ -49,6 +49,15 @@
   --cv-skill-primary: 220 30% 30%;
   --cv-skill-secondary: 210 20% 96%;
 
+  /* Dark Template Tokens */
+  --dark-bg: 222 47% 11%;
+  --dark-text: 210 40% 98%;
+  --dark-body: 215 20% 65%;
+  --dark-muted: 215 15% 45%;
+  --dark-accent: 166 72% 69%;
+  --dark-border: 217 33% 17%;
+  --dark-card-hover: 217 33% 14%;
+
 }
 
 /* Dark theme - minimal support for shadcn/ui components */

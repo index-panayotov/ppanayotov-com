@@ -289,7 +289,7 @@ export const SystemSettingsSchema = z.object({
   showContacts: z.boolean().default(true),
   gtagCode: OptionalStringSchema,
   gtagEnabled: z.boolean().default(false),
-  selectedTemplate: z.enum(['classic', 'professional', 'modern']).default('classic'),
+  selectedTemplate: z.enum(['classic', 'professional', 'modern', 'dark']).default('dark'),
   pwa: z.object({
     siteName: NonEmptyStringSchema,
     shortName: NonEmptyStringSchema,
