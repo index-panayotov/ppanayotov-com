@@ -1,6 +1,5 @@
 import type { ContactInfo as ContactInfoType } from "@/data/types";
 import {
-  MailIcon,
   PhoneIcon,
   MapPinIcon,
   GlobeIcon,
@@ -14,12 +13,6 @@ interface ContactInfoProps {
 export function ContactInfo({ contact }: ContactInfoProps) {
   return (
     <address className="not-italic space-y-2.5 px-6 pb-6 text-sm text-body-text">
-      <div className="flex items-center gap-3">
-        <MailIcon />
-        <a href={`mailto:${contact.email}`} className="hover:underline">
-          {contact.email}
-        </a>
-      </div>
       <div className="flex items-center gap-3">
         <PhoneIcon />
         <a href={`tel:${contact.phone.replace(/\s/g, "")}`} className="hover:underline">
