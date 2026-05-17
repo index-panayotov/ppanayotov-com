@@ -15,7 +15,6 @@ const jsonLd = {
   name: resumeData.name,
   jobTitle: resumeData.title,
   url: "https://ppanayotov.com",
-  email: resumeData.contact.email,
   telephone: resumeData.contact.phone,
   address: {
     "@type": "PostalAddress",

@@ -5,7 +5,6 @@ export const resumeData: ResumeData = {
   title: "Software Engineering Manager",
 
   contact: {
-    email: "preslav.panayotov@gmail.com",
     phone: "+359 883 41 44 99",
     location: "Bulgaria, Sofia",
     website: "https://www.ppanayotov.com/",
